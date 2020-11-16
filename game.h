@@ -16,6 +16,7 @@ public:
 	void KeyDown( int key ) { /* implement if you want to handle keys */ }
 private:
 	Surface* screen;
+	Scene *scene;
 };
 
 }; // namespace Tmpl8

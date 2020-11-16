@@ -8,6 +8,19 @@
     <ClCompile Include="template.cpp">
       <Filter>template code</Filter>
     </ClCompile>
+    <ClCompile Include="ray.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="transform.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="object.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -18,10 +31,37 @@
       <Filter>template code</Filter>
     </ClInclude>
     <ClInclude Include="precomp.h" />
+    <ClInclude Include="material.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="ray.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="transform.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="plane.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
       <UniqueIdentifier>{bf32dd6e-4be7-4889-8ac6-49e7ee163c40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{73b57e05-4a6a-4a62-92ad-fc9164a71568}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
