@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-Camera::Camera()
+Camera::Camera( float fov, float aspectRatio ) : fov( fov ), aspectRatio(aspectRatio)
 {
 }
 

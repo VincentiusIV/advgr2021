@@ -3,7 +3,7 @@
 class Camera : public Transform
 {
 public:
-	Camera();
+	Camera(float fov, float aspectRatio);
 	~Camera();
 	float fov, aspectRatio;
 };
