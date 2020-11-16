@@ -39,6 +39,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <memory>
 #include <random>
 #include <vector>

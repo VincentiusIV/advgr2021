@@ -19,6 +19,8 @@ void Game::Shutdown()
 static Sprite rotatingGun( new Surface( "assets/aagun.tga" ), 36 );
 static int frame = 0;
 static float runningTime = 0;
+static int fps = 0;
+static std::string fpsString;
 
 // -----------------------------------------------------------
 // Main application tick function
@@ -26,9 +28,13 @@ static float runningTime = 0;
 void Game::Tick( float deltaTime )
 {
 	screen->Clear( 0 );
-	screen->Print( "hello world", 2, 2, 0xffffff );
+	
+	fps = ( fps + 1000 / deltaTime ) / 2;
+	fpsString = "FPS: " + std::to_string( fps );
 
-	runningTime += deltaTime / 100;
+	screen->Print( fpsString.c_str(), 2, 2, 0xffffff );
+
+	runningTime += deltaTime / 1000;
 	scene->Update();
 
 	// draw a sprite

@@ -16,7 +16,7 @@ Scene::~Scene()
 
 void Scene::Update()
 {
-	printf( "Updating scene.\n" );
+	//printf( "Updating scene.\n" );
 	for ( size_t i = 0; i < objects.size(); i++ )
 	{
 		objects.at( i )->Update();
