@@ -1,10 +1,10 @@
 #pragma once
 
-enum MaterialType
+enum class MaterialType
 {
-	DIFFUSE,
-	MIRROR,
-	GLASS
+	DIFFUSE = 0,
+	MIRROR = 1,
+	GLASS = 2
 };
 
 class Material

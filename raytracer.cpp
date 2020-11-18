@@ -2,20 +2,36 @@
 
 bool NearestIntersection( Scene *scene, Ray ray, RayHit& hit)
 {
+	bool hitAny = false;
 	for ( size_t i = 0; i < scene->objects.size(); i++ )
 	{
 		shared_ptr<HittableObject> obj = scene->objects.at( i );
-		if (obj->Hit(ray, hit))
-		{
-			return true;
-		}
+		hitAny |= ( obj->Hit( ray, hit ) );
 	}
-	return false;
+	return hitAny;
 }
 
-float DirectIllumination(Point3 point, Vector3 normal)
+float DirectIllumination(Scene* scene, Point3 point, Vector3 normal)
 {
-	return 1.0f;
+	float illumination = 0.0f;
+	for ( size_t i = 0; i < scene->lights.size(); i++ )
+	{
+		shared_ptr<Light> light = scene->lights.at( i );
+		Ray shadowRay = Ray(point, normalize(light->position - point), INFINITY);
+		RayHit hit;
+		if (NearestIntersection(scene, shadowRay, hit))
+		{
+			continue;
+		}
+		else
+		{
+			float d = dot(normalize( normal), normalize(shadowRay.direction ));
+			if (d >= 0)
+				illumination += d;
+		}
+	}
+
+	return illumination;
 }
 
 Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
@@ -26,7 +42,9 @@ Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
 		switch (hit.material->materialType)
 		{
 			case MaterialType::DIFFUSE:
-				return hit.material->color * DirectIllumination( hit.point, hit.normal );
+				// Normal test
+				// return 128.000 * Color( hit.normal.x + 1, hit.normal.y + 1, hit.normal.z + 1 );
+				return hit.material->color * DirectIllumination( scene, hit.point, hit.normal );
 			default:
 				return Color(0.0, 0.0, 0.0);
 		}

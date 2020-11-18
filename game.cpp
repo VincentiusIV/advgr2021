@@ -5,13 +5,35 @@
 // -----------------------------------------------------------
 void Game::Init()
 {
-	// initialize scene.
-	shared_ptr<Material> redOpaque = make_shared<Material>(Color(200.000, 0.0, 0.0), MaterialType::DIFFUSE);
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(redOpaque, 1);
-	sphere1->position = Point3(0.0, 0.0, -5.0);
-	
 	scene = new Scene();
+
+	// initialize materials.
+	shared_ptr<Material> redOpaque = make_shared<Material>(Color(200.000, 0.0, 0.0), MaterialType::DIFFUSE);
+	shared_ptr<Material> greenOpaque = make_shared<Material>( Color( 0.0, 200.000, 0.0 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 200.000 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> beige = make_shared<Material>( Color( 245.000, 245.000, 220.000 ), MaterialType::DIFFUSE );
+	
+	// initialize objects
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(redOpaque, 1);
+	sphere1->position = Point3( 0.0, 0.0, 5.0 );
 	scene->Add( sphere1 );
+
+	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenOpaque, 1 );
+	sphere3->position = Point3( 3.0, 0.0, 5.0 );
+	scene->Add( sphere3 );
+
+	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( blueOpaque, 1 );
+	sphere2->position = Point3( -3.0, 0.0, 5.0 );
+	scene->Add( sphere2 );
+
+	shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
+	groundSphere->position = Point3( 0.0, -10001, 5.0 );
+	scene->Add( groundSphere );
+
+	// initialize lights
+	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 1.0, 5.0, 0.0 ), 1 );
+	scene->Add( sunLight );
+
 
 	raytracer = new WhittedRayTracer();
 }
@@ -53,7 +75,7 @@ void Game::RenderScene()
 		for ( int x = 0; x < SCRWIDTH; x++ )
 		{
 			auto u = double( x ) / ( SCRWIDTH - 1 );
-			auto v = double( y ) / ( SCRHEIGHT - 1 );
+			auto v = 1.0 - double( y ) / ( SCRHEIGHT - 1 );
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
 			Color color = raytracer->Trace( ray, scene );
 			buffer[y * SCRWIDTH + x] = CreateRGB( color.x, color.y, color.z );
