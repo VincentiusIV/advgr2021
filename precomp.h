@@ -67,13 +67,18 @@ using namespace std;
 
 using namespace Tmpl8;
 
+using Point3 = vec3;
+using Vector3 = vec3;
+using Color = vec3;
+
+#include "raytracer.h"
 #include "scene.h"
 #include "game.h"
 #include "material.h"
 #include "transform.h"
 #include "object.h"
+#include "light.h"
 #include "camera.h"
 #include "ray.h"
 #include "plane.h"
 #include "sphere.h"
-// clang-format on

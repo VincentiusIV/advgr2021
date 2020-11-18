@@ -6,7 +6,14 @@
 void Game::Init()
 {
 	// initialize scene.
+	shared_ptr<Material> redOpaque = make_shared<Material>(Color(200.000, 0.0, 0.0), MaterialType::DIFFUSE);
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(redOpaque, 1);
+	sphere1->position = Point3(0.0, 0.0, -5.0);
+	
 	scene = new Scene();
+	scene->Add( sphere1 );
+
+	raytracer = new WhittedRayTracer();
 }
 
 // -----------------------------------------------------------
@@ -14,10 +21,9 @@ void Game::Init()
 // -----------------------------------------------------------
 void Game::Shutdown()
 {
+
 }
 
-static Sprite rotatingGun( new Surface( "assets/aagun.tga" ), 36 );
-static int frame = 0;
 static float runningTime = 0;
 static int fps = 0;
 static std::string fpsString;
@@ -27,18 +33,30 @@ static std::string fpsString;
 // -----------------------------------------------------------
 void Game::Tick( float deltaTime )
 {
-	screen->Clear( 0 );
-	
-	fps = ( fps + 1000 / deltaTime ) / 2;
+	fps = ( 1000 / deltaTime );
 	fpsString = "FPS: " + std::to_string( fps );
+	runningTime += deltaTime / 1000;
+
+	screen->Clear( 0 );
+	scene->Update(deltaTime);
+
+	RenderScene();
 
 	screen->Print( fpsString.c_str(), 2, 2, 0xffffff );
+}
 
-	runningTime += deltaTime / 1000;
-	scene->Update();
-
-	// draw a sprite
-	rotatingGun.SetFrame( frame );
-	rotatingGun.Draw( screen, 100 + 50 * sin( runningTime ), 100 + 50 * sin( PI/2 + runningTime ) );
-	if ( ++frame == 36 ) frame = 0;
+void Game::RenderScene()
+{
+	Pixel *buffer = screen->GetBuffer();
+	for ( int y = 0; y < SCRHEIGHT; y++ )
+	{
+		for ( int x = 0; x < SCRWIDTH; x++ )
+		{
+			auto u = double( x ) / ( SCRWIDTH - 1 );
+			auto v = double( y ) / ( SCRHEIGHT - 1 );
+			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
+			Color color = raytracer->Trace( ray, scene );
+			buffer[y * SCRWIDTH + x] = CreateRGB( color.x, color.y, color.z );
+		}
+	}
 }

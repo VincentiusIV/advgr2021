@@ -11,6 +11,11 @@ namespace Tmpl8 {
 
 typedef unsigned int Pixel; // unsigned int is assumed to be 32-bit, which seems a safe assumption.
 
+inline Pixel CreateRGB( int r, int g, int b)
+{
+	return ( Pixel )(((r&0xff)<<16)+((g&0xff)<<8)+b);
+}
+
 inline Pixel AddBlend( Pixel a_Color1, Pixel a_Color2 )
 {
 	const unsigned int r = (a_Color1 & REDMASK) + (a_Color2 & REDMASK);

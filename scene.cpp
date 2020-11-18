@@ -4,9 +4,8 @@
 Scene::Scene()
 {
 	objects = vector<shared_ptr<HittableObject>>();
-
-	// Define your scene
-
+	lights = vector<shared_ptr<Light>>();
+	camera = make_shared<Camera>( Point3( 0.0, 0.0, 0.0 ), Vector3( 0.0, 0.0, 1.0 ), double( SCRWIDTH ) / double(SCRHEIGHT), 1 );
 }
 
 Scene::~Scene()
@@ -14,16 +13,10 @@ Scene::~Scene()
 
 }
 
-void Scene::Update()
+void Scene::Update(float deltaTime)
 {
-	//printf( "Updating scene.\n" );
 	for ( size_t i = 0; i < objects.size(); i++ )
 	{
 		objects.at( i )->Update();
 	}
-}
-
-void Scene::Add( shared_ptr<HittableObject> object )
-{
-	objects.push_back( object );
 }
