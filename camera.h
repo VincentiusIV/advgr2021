@@ -3,10 +3,10 @@
 class Camera : public Transform
 {
 public:
-	Camera( float aspectRatio, float d ) : Camera( Point3(), Vector3( 0.0, 0.0, 1.0 ), aspectRatio, d ) {}
-	Camera( Point3 position, Vector3 viewDirection, float aspectRatio, float d ) : Transform( position, Vector3( 0.0, 0.0, 0.0 ) ), aspectRatio( aspectRatio ), d( d )
+	Camera( float aspectRatio, float focalLength ) : Camera( Point3(), Vector3( 0.0, 0.0, 1.0 ), aspectRatio, focalLength ) {}
+	Camera( Point3 position, Vector3 viewDirection, float aspectRatio, float focalLength ) : Transform( position, Vector3( 0.0, 0.0, 0.0 ) ), aspectRatio( aspectRatio ), focalLength( focalLength )
 	{
-		screenCenter = position + viewDirection * d;
+		screenCenter = position + viewDirection * focalLength;
 		p0 = screenCenter + Vector3( -aspectRatio, -1, 0 );
 		p1 = screenCenter + Vector3( aspectRatio, -1, 0 );
 		p2 = screenCenter + Vector3( -aspectRatio, 1, 0 );
@@ -25,6 +25,6 @@ public:
 	}
 
 	Vector3 Forward() { return normalize(Vector3(cos(rotation.y)*cos(rotation.x), sin(rotation.y)*cos(rotation.x), sin(rotation.x))); }
-	float aspectRatio, d;
+	float aspectRatio, focalLength;
 	Point3 screenCenter, p0, p1, p2;
 };

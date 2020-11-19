@@ -31,8 +31,11 @@ void Game::Init()
 	scene->Add( groundSphere );
 
 	// initialize lights
-	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 1.0, 5.0, 0.0 ), 1 );
+	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 5.0, 3.0, 0.0 ), 1 );
 	scene->Add( sunLight );
+
+	shared_ptr<Light> sunLight1 = make_shared<Light>( Point3( -5.0, 3.0, 0.0 ), 1 );
+	scene->Add( sunLight1 );
 	
 	raytracer = new WhittedRayTracer();
 }

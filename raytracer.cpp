@@ -28,6 +28,8 @@ float DirectIllumination(Scene* scene, Point3 point, Vector3 normal)
 			float d = dot(normalize( normal), normalize(shadowRay.direction ));
 			if (d >= 0)
 				illumination += d;
+			if ( illumination > 1 )
+				illumination = 1;
 		}
 	}
 
@@ -36,6 +38,7 @@ float DirectIllumination(Scene* scene, Point3 point, Vector3 normal)
 
 Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
 {
+
 	RayHit hit;
 	if (NearestIntersection(scene, ray, hit))
 	{
