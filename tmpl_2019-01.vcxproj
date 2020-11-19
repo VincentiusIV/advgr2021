@@ -117,9 +117,7 @@
   </ItemDefinitionGroup>
   <!-- END Custom section -->
   <ItemGroup>
-    <ClCompile Include="camera.cpp" />
     <ClCompile Include="game.cpp" />
-    <ClCompile Include="object.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="surface.cpp" />

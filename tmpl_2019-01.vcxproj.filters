@@ -11,12 +11,6 @@
     <ClCompile Include="ray.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="object.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="raytracer.cpp">
       <Filter>src</Filter>

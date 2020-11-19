@@ -42,9 +42,9 @@ Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
 		switch (hit.material->materialType)
 		{
 			case MaterialType::DIFFUSE:
-				// Normal test
-				// return 128.000 * Color( hit.normal.x + 1, hit.normal.y + 1, hit.normal.z + 1 );
 				return hit.material->color * DirectIllumination( scene, hit.point, hit.normal );
+			case MaterialType::NORMAL_TEST:
+				return 128.000 * Color( hit.normal.x + 1, hit.normal.y + 1, hit.normal.z + 1 ) * DirectIllumination(scene, hit.point, hit.normal);
 			default:
 				return Color(0.0, 0.0, 0.0);
 		}

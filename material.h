@@ -4,7 +4,8 @@ enum class MaterialType
 {
 	DIFFUSE = 0,
 	MIRROR = 1,
-	GLASS = 2
+	GLASS = 2,
+	NORMAL_TEST = 3,
 };
 
 class Material

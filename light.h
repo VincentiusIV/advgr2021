@@ -8,5 +8,4 @@ class Light : public Transform
 	Light( Point3 position, float intensity ) : Transform(position), intensity( intensity ) {}
 	
 	float intensity;
-
 };

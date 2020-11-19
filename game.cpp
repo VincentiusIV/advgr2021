@@ -10,7 +10,7 @@ void Game::Init()
 	// initialize materials.
 	shared_ptr<Material> redOpaque = make_shared<Material>(Color(200.000, 0.0, 0.0), MaterialType::DIFFUSE);
 	shared_ptr<Material> greenOpaque = make_shared<Material>( Color( 0.0, 200.000, 0.0 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 200.000 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 200.000 ), MaterialType::NORMAL_TEST );
 	shared_ptr<Material> beige = make_shared<Material>( Color( 245.000, 245.000, 220.000 ), MaterialType::DIFFUSE );
 	
 	// initialize objects
@@ -33,8 +33,7 @@ void Game::Init()
 	// initialize lights
 	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 1.0, 5.0, 0.0 ), 1 );
 	scene->Add( sunLight );
-
-
+	
 	raytracer = new WhittedRayTracer();
 }
 
