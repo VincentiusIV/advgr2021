@@ -10,15 +10,16 @@ void Game::Init()
 	// initialize materials.
 	shared_ptr<Material> redOpaque = make_shared<Material>(Color(0.78, 0.0, 0.0), MaterialType::DIFFUSE);
 	shared_ptr<Material> greenMirror = make_shared<Material>( Color( 0.0, 0.78, 0.0 ), MaterialType::MIRROR );
-	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::NORMAL_TEST );
 	shared_ptr<Material> orangeGlass = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIELECTRIC );
 	orangeGlass->n = 1.3f;
 	shared_ptr<Material> beige = make_shared<Material>( Color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
 	
+
 	// initialize objects
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
-	sphere1->position = Point3( 2.0, 0.0, 3.0 );
-	scene->Add( sphere1 );
+	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
+	//sphere1->position = Point3( 2.0, 0.0, 3.0 );
+	//scene->Add( sphere1 );
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 1 );
 	sphere3->position = Point3( -3.0, 0.0, 5.0 );
@@ -28,10 +29,22 @@ void Game::Init()
 	sphere2->position = Point3( -2.0, 0.0, 5.0 );
 	scene->Add( sphere2 );
 
-	shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
-	groundSphere->position = Point3( 0.0, -10001, 5.0 );
-	scene->Add( groundSphere );
-	 
+	//shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
+	//groundSphere->position = Point3( 0.0, -10001, 5.0 );
+	//scene->Add( groundSphere );
+
+	//shared_ptr<Plane> plane1 = make_shared<Plane>( blueOpaque, vec3( 0, 1, 0 ) );
+	//plane1->position = Point3( 0, -1, 0 );
+	//scene->Add( plane1 );
+
+	shared_ptr<Plane> plane2 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ) );
+	plane2->position = Point3( -7.0, 0, 0 );
+	scene->Add( plane2 );
+
+	//shared_ptr<Plane> plane3 = make_shared<Plane>( blueOpaque, vec3( -1, 0, 0 ) );
+	//plane3->position = Point3( 7.0, 0, 0 );
+	//scene->Add( plane3 );
+
 	// initialize lights
 	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 0.0, 3.0, 0.0 ), 1 );
 	scene->Add( sunLight );
@@ -80,7 +93,8 @@ void Game::RenderScene()
 			auto v = 1.0 - double( y ) / ( SCRHEIGHT - 1 );
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
 			Color color = raytracer->Trace( ray, scene );
-			buffer[y * SCRWIDTH + x] = CreateRGB( color.x * 255.999, color.y * 255.999, color.z * 255.999 );
+			
+			buffer[y * SCRWIDTH + x] = CreateRGB( (int)floor(color.x * 255.999), (int)floor(color.y * 255.999), (int)floor(color.z * 255.999 ));
 		}
 	}
 }

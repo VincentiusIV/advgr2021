@@ -20,6 +20,9 @@
     <ClCompile Include="sphere.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="plane.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
