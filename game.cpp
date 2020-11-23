@@ -32,6 +32,10 @@ void Game::Init()
 	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
 	plane1->position = Point3( 0, -1, 5.0 );
 	scene->Add( plane1 );	
+
+	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
+	plane5->position = Point3( 0, 3, 5.0 );
+	scene->Add( plane5 );	
 	
 	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 0, 0, -1 ) );
 	plane2->position = Point3( 0.0, 0, 6.0 );
@@ -46,11 +50,11 @@ void Game::Init()
 	scene->Add( plane4 );
 
 	// initialize lights
-	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 1.0, 2.0, 1.0 ), 1 );
+	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 2.0, 2.0, 4.0 ), 1 );
 	scene->Add( sunLight );
 
-	shared_ptr<Light> sunLight2 = make_shared<Light>( Point3( -1.0, 2.0, 1.0 ), 1 );
-	scene->Add( sunLight2 );
+	//shared_ptr<Light> sunLight2 = make_shared<Light>( Point3( -1.0, 2.0, 1.0 ), 1 );
+	//scene->Add( sunLight2 );
 	
 	raytracer = new WhittedRayTracer(40);
 }
