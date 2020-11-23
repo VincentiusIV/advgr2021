@@ -4,12 +4,12 @@ namespace Tmpl8 {
 
 enum class KeyCode
 {
-	W = 119,
-	A = 97,
-	S = 115,
-	D = 100,
-	R = 114,
-	F = 102
+	W = 26,
+	A = 4,
+	S = 22,
+	D = 7,
+	R = 21,
+	F = 9
 };
 
 class Game

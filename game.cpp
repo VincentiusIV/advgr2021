@@ -50,16 +50,20 @@ void Game::Shutdown()
 
 }
 
-static float runningTime = 0;
+static float runningTime = 0, deltaTimeInSeconds;
 static int fps = 0;
 static std::string fpsString;
+static float cameraSpeed = 30.0f;
+static int maxPixelsPerFrame = 30;
+static int lastX, lastY;
 
 // -----------------------------------------------------------
 // Main application tick function
 // -----------------------------------------------------------
 void Game::Tick( float deltaTime )
 {
-	fps = ( 1000 / deltaTime );
+	deltaTimeInSeconds = deltaTime/1000.0f;
+	fps = ( 1.0f / deltaTime );
 	fpsString = "FPS: " + std::to_string( fps );
 	runningTime += deltaTime / 1000;
 	screen->Clear( 0 );
@@ -84,25 +88,29 @@ void Game::RenderScene()
 	}
 }
 
-
-
 void Game::KeyDown( int key )
 {
 	KeyCode keyCode = (KeyCode)key;
+
 	switch ( keyCode )
 	{
 	case Tmpl8::KeyCode::W:
-
+		scene->GetCamera()->Translate( Vector3( 0, 0, -cameraSpeed ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::A:
+		scene->GetCamera()->Translate( Vector3( cameraSpeed, 0, 1 ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::S:
+		scene->GetCamera()->Translate( Vector3( 0, 0, cameraSpeed ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::D:
+		scene->GetCamera()->Translate( Vector3( -cameraSpeed, 0, 0 ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::R:
+		scene->GetCamera()->Translate( Vector3( 0, cameraSpeed, 0 ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::F:
+		scene->GetCamera()->Translate( Vector3( 0, -cameraSpeed, 0 ) * deltaTimeInSeconds );
 		break;
 	default:
 		break;
