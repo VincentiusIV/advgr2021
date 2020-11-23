@@ -12,20 +12,20 @@ void Game::Init()
 	shared_ptr<Material> greenMirror = make_shared<Material>( Color( 0.0, 0.78, 0.0 ), MaterialType::MIRROR );
 	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeGlass = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIELECTRIC );
-	orangeGlass->n = 1.7f;
+	orangeGlass->n = 1.3f;
 	shared_ptr<Material> beige = make_shared<Material>( Color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
 	
 	// initialize objects
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
-	sphere1->position = Point3( 0.0, 0.0, 6.0 );
+	sphere1->position = Point3( 2.0, 0.0, 3.0 );
 	scene->Add( sphere1 );
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 1 );
-	sphere3->position = Point3( 3.0, 0.0, 5.0 );
+	sphere3->position = Point3( -3.0, 0.0, 5.0 );
 	scene->Add( sphere3 );
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( redOpaque, 1 );
-	sphere2->position = Point3( -3.0, 0.0, 5.0 );
+	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( redOpaque, 0.5 );
+	sphere2->position = Point3( -2.0, 0.0, 5.0 );
 	scene->Add( sphere2 );
 
 	shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
@@ -33,11 +33,8 @@ void Game::Init()
 	scene->Add( groundSphere );
 	 
 	// initialize lights
-	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 5.0, 3.0, 0.0 ), 1 );
+	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 0.0, 3.0, 0.0 ), 1 );
 	scene->Add( sunLight );
-
-	shared_ptr<Light> sunLight1 = make_shared<Light>( Point3( -5.0, 3.0, 0.0 ), 1 );
-	scene->Add( sunLight1 );
 	
 	raytracer = new WhittedRayTracer(10);
 }

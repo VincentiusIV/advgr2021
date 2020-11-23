@@ -7,7 +7,7 @@ public:
 	Transform( Point3 position ) : position( position ), rotation( 0.0, 0.0, 0.0 ), scale( 1.0, 1.0, 1.0 ){};
 	Transform( Point3 position, Vector3 rotation ) : position( position ), rotation( rotation ), scale( 1.0, 1.0, 1.0 ){};
 
-	void Translate( Vector3 delta ) { position += delta; }
+
 
 	Point3 position, rotation, scale;
 };
