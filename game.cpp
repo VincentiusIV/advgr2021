@@ -17,7 +17,7 @@ void Game::Init()
 	
 	// initialize objects
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
-	sphere1->position = Point3( 0.0, 0.0, 5.0 );
+	sphere1->position = Point3( 0.0, 0.0, 6.0 );
 	scene->Add( sphere1 );
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 1 );
@@ -39,7 +39,7 @@ void Game::Init()
 	shared_ptr<Light> sunLight1 = make_shared<Light>( Point3( -5.0, 3.0, 0.0 ), 1 );
 	scene->Add( sunLight1 );
 	
-	raytracer = new WhittedRayTracer(5);
+	raytracer = new WhittedRayTracer(10);
 }
  
 // -----------------------------------------------------------
@@ -55,7 +55,7 @@ static int fps = 0;
 static std::string fpsString;
 static float cameraSpeed = 30.0f;
 static int maxPixelsPerFrame = 30;
-static int lastX, lastY;
+static int lastX = 0, lastY = 0;
 
 // -----------------------------------------------------------
 // Main application tick function

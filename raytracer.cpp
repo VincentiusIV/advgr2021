@@ -74,7 +74,7 @@ Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
 				Point3 p = hit.point;
 				Vector3 r = reflect( ray.direction, hit.normal );
 				Ray reflectRay( p, r, INFINITY, ray.depth+1 );
-				return mat->color * Trace( reflectRay, scene );
+				return  Trace( reflectRay, scene );
 			}
 			case MaterialType::GLASS:
 			{
