@@ -31,12 +31,12 @@ void Game::Init()
 	//groundSphere->position = Point3( 0.0, -10001, 5.0 );
 	//scene->Add( groundSphere );
 
-	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
-	plane1->position = Point3( 0, -10, 6.0 );
+	shared_ptr<Plane> plane1 = make_shared<Plane>( blueOpaque, vec3( 0, 1, 0 ) );
+	plane1->position = Point3( 0, -1, 0 );
 	scene->Add( plane1 );
 
-	shared_ptr<Plane> plane2 = make_shared<Plane>( redOpaque, vec3( 1, 0, 0 ) );
-	plane2->position = Point3( -12.0, 0, 6.0 );
+	shared_ptr<Plane> plane2 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ) );
+	plane2->position = Point3( -7.0, 0, 0 );
 	scene->Add( plane2 );
 
 	// initialize lights

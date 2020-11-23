@@ -13,10 +13,10 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 
 	if (fabs(denom) > 0.0001f) // bigger than 0
 	{
-		vec3 normray = normalize( position - ray.origin );
+		vec3 normray = ( position - ray.origin );
 		float numer = dot( normalP, normray );
 		float t = ( numer / denom );
-		if ((t < ray.t) && (t >= 0) )
+		if ((t < ray.t) && (t >= 0.00001f) )
 		{
 			ray.t = t;
 			hit.material = material;
