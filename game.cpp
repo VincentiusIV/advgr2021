@@ -13,6 +13,7 @@ void Game::Init()
 	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 200.000 ), MaterialType::NORMAL_TEST );
 	shared_ptr<Material> beige = make_shared<Material>( Color( 245.000, 245.000, 220.000 ), MaterialType::DIFFUSE );
 	
+
 	// initialize objects
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(redOpaque, 1);
 	sphere1->position = Point3( 0.0, 0.0, 5.0 );
@@ -26,9 +27,17 @@ void Game::Init()
 	sphere2->position = Point3( -3.0, 0.0, 5.0 );
 	scene->Add( sphere2 );
 
-	shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
-	groundSphere->position = Point3( 0.0, -10001, 5.0 );
-	scene->Add( groundSphere );
+	//shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
+	//groundSphere->position = Point3( 0.0, -10001, 5.0 );
+	//scene->Add( groundSphere );
+
+	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
+	plane1->position = Point3( 0, -10, 6.0 );
+	scene->Add( plane1 );
+
+	shared_ptr<Plane> plane2 = make_shared<Plane>( redOpaque, vec3( 1, 0, 0 ) );
+	plane2->position = Point3( -12.0, 0, 6.0 );
+	scene->Add( plane2 );
 
 	// initialize lights
 	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 5.0, 3.0, 0.0 ), 1 );
