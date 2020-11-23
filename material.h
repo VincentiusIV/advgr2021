@@ -5,7 +5,8 @@ enum class MaterialType
 	DIFFUSE = 0,
 	MIRROR = 1,
 	GLASS = 2,
-	NORMAL_TEST = 3,
+	DIELECTRIC = 3,
+	NORMAL_TEST = 4,
 };
 
 class Material
@@ -14,5 +15,6 @@ class Material
 	Material( Color color, MaterialType materialType ) : color(color), materialType(materialType) {}
 
 	Color color;
+	float n = 1.0f;
 	MaterialType materialType;
 };

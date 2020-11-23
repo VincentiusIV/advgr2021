@@ -8,28 +8,30 @@ void Game::Init()
 	scene = new Scene();
 
 	// initialize materials.
-	shared_ptr<Material> redOpaque = make_shared<Material>(Color(200.000, 0.0, 0.0), MaterialType::DIFFUSE);
-	shared_ptr<Material> greenOpaque = make_shared<Material>( Color( 0.0, 200.000, 0.0 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 200.000 ), MaterialType::NORMAL_TEST );
-	shared_ptr<Material> beige = make_shared<Material>( Color( 245.000, 245.000, 220.000 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> redOpaque = make_shared<Material>(Color(0.78, 0.0, 0.0), MaterialType::DIFFUSE);
+	shared_ptr<Material> greenMirror = make_shared<Material>( Color( 0.0, 0.78, 0.0 ), MaterialType::MIRROR );
+	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> orangeGlass = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIELECTRIC );
+	orangeGlass->n = 1.7f;
+	shared_ptr<Material> beige = make_shared<Material>( Color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
 	
 	// initialize objects
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(redOpaque, 1);
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
 	sphere1->position = Point3( 0.0, 0.0, 5.0 );
 	scene->Add( sphere1 );
 
-	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenOpaque, 1 );
+	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 1 );
 	sphere3->position = Point3( 3.0, 0.0, 5.0 );
 	scene->Add( sphere3 );
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( blueOpaque, 1 );
+	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( redOpaque, 1 );
 	sphere2->position = Point3( -3.0, 0.0, 5.0 );
 	scene->Add( sphere2 );
 
 	shared_ptr<Sphere> groundSphere = make_shared<Sphere>( beige, 10000 );
 	groundSphere->position = Point3( 0.0, -10001, 5.0 );
 	scene->Add( groundSphere );
-
+	 
 	// initialize lights
 	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 5.0, 3.0, 0.0 ), 1 );
 	scene->Add( sunLight );
@@ -37,9 +39,9 @@ void Game::Init()
 	shared_ptr<Light> sunLight1 = make_shared<Light>( Point3( -5.0, 3.0, 0.0 ), 1 );
 	scene->Add( sunLight1 );
 	
-	raytracer = new WhittedRayTracer();
+	raytracer = new WhittedRayTracer(5);
 }
-
+ 
 // -----------------------------------------------------------
 // Close down application
 // -----------------------------------------------------------
@@ -60,12 +62,9 @@ void Game::Tick( float deltaTime )
 	fps = ( 1000 / deltaTime );
 	fpsString = "FPS: " + std::to_string( fps );
 	runningTime += deltaTime / 1000;
-
 	screen->Clear( 0 );
 	scene->Update(deltaTime);
-
 	RenderScene();
-
 	screen->Print( fpsString.c_str(), 2, 2, 0xffffff );
 }
 
@@ -80,7 +79,32 @@ void Game::RenderScene()
 			auto v = 1.0 - double( y ) / ( SCRHEIGHT - 1 );
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
 			Color color = raytracer->Trace( ray, scene );
-			buffer[y * SCRWIDTH + x] = CreateRGB( color.x, color.y, color.z );
+			buffer[y * SCRWIDTH + x] = CreateRGB( color.x * 255.999, color.y * 255.999, color.z * 255.999 );
 		}
+	}
+}
+
+
+
+void Game::KeyDown( int key )
+{
+	KeyCode keyCode = (KeyCode)key;
+	switch ( keyCode )
+	{
+	case Tmpl8::KeyCode::W:
+
+		break;
+	case Tmpl8::KeyCode::A:
+		break;
+	case Tmpl8::KeyCode::S:
+		break;
+	case Tmpl8::KeyCode::D:
+		break;
+	case Tmpl8::KeyCode::R:
+		break;
+	case Tmpl8::KeyCode::F:
+		break;
+	default:
+		break;
 	}
 }

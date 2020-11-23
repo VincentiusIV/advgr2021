@@ -21,7 +21,7 @@ public:
 	Ray CastRayFromScreenPoint( float u, float v )
 	{
 		Vector3 dir = normalize( PointOnScreeen( u, v ) - position );
-		return Ray( position, dir, INFINITY );
+		return Ray( position, dir, INFINITY, 0);
 	}
 
 	Vector3 Forward() { return normalize(Vector3(cos(rotation.y)*cos(rotation.x), sin(rotation.y)*cos(rotation.x), sin(rotation.x))); }

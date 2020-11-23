@@ -20,7 +20,8 @@ namespace Tmpl8 {
 vec3 normalize( const vec3& v ) { return v.normalized(); }
 vec3 cross( const vec3& a, const vec3& b ) { return a.cross( b ); }
 float dot( const vec3& a, const vec3& b ) { return a.dot( b ); }
-vec3 operator * ( const float& s, const vec3& v ) { return vec3( v.x * s, v.y * s, v.z * s ); }
+vec3 lerp( const vec3 &a, const vec3 &b, const float &t ) { return ((1.0-t) * a + t*b); }
+	vec3 operator * ( const float& s, const vec3& v ) { return vec3( v.x * s, v.y * s, v.z * s ); }
 vec3 operator * ( const vec3& v, const float& s ) { return vec3( v.x * s, v.y * s, v.z * s ); }
 vec4 operator * ( const float& s, const vec4& v ) { return vec4( v.x * s, v.y * s, v.z * s, v.w * s ); }
 vec4 operator * ( const vec4& v, const float& s ) { return vec4( v.x * s, v.y * s, v.z * s, v.w * s ); }

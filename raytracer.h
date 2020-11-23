@@ -12,7 +12,9 @@ public:
 class WhittedRayTracer : public RayTracer
 {
   public:
-	WhittedRayTracer() {}
+	WhittedRayTracer(int maxDepth) : maxDepth(maxDepth) {}
 
 	Color Trace( Ray ray, Scene *scene );
+	void Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai );
+	int maxDepth;
 };

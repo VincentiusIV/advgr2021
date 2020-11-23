@@ -19,7 +19,9 @@ bool Sphere::Hit( Ray &ray, RayHit &hit )
 		ray.t = t;
 		hit.material = material;
 		hit.point = ray.At( t );
-		hit.normal = normalize( hit.point - position );
+		vec3 outNormal = normalize(hit.point - position);
+		hit.isFrontFace = dot( ray.direction, outNormal ) <= 0.0;
+		hit.normal = hit.isFrontFace ? outNormal : -outNormal;
 		return true;
 	}
 	else
