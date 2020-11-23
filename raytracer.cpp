@@ -17,7 +17,7 @@ float DirectIllumination(Scene* scene, Point3 point, Vector3 normal)
 	for ( size_t i = 0; i < scene->lights.size(); i++ )
 	{
 		shared_ptr<Light> light = scene->lights.at( i );
-		Ray shadowRay = Ray(point, normalize(light->position - point), INFINITY, 0);
+		Ray shadowRay = Ray(point, normalize(light->position - point), (light->position - point).sqrLentgh(), 0);
 		RayHit hit;
 		if (NearestIntersection(scene, shadowRay, hit))
 		{
@@ -26,9 +26,13 @@ float DirectIllumination(Scene* scene, Point3 point, Vector3 normal)
 		else
 		{
 			float d = dot(normalize( normal), normalize(shadowRay.direction ));
-			if (d >= 0)
+			if (d > 0)
 				illumination += d;
-			if ( illumination > 1 )
+			if (d <= 0)
+			{
+
+			}
+			if (illumination > 1 )
 				illumination = 1;
 		}
 	}
