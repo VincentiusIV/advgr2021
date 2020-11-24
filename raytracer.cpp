@@ -25,13 +25,9 @@ float DirectIllumination(Scene* scene, Point3 point, Vector3 normal)
 		}
 		else
 		{
-			float d = dot(normalize( normal), normalize(shadowRay.direction ));
+			float d = light->Illuminate(point, normal, shadowRay);
 			if (d > 0)
 				illumination += d;
-			if (d <= 0)
-			{
-
-			}
 			if (illumination > 1 )
 				illumination = 1;
 		}
@@ -78,13 +74,13 @@ Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
 				Point3 p = hit.point;
 				Vector3 r = reflect( ray.direction, hit.normal );
 				Ray reflectRay( p, r, INFINITY, ray.depth+1 );
-				return  Trace( reflectRay, scene );
+				return Trace( reflectRay, scene );
 			}
 			case MaterialType::GLASS:
 			{
 				vec3 dir = refract( ray.direction, hit.normal, hit.material->n );
 				Point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001f : hit.point + hit.normal * 0.001f; 
-				return Trace( Ray( refractRayOrigin, dir, INFINITY, ray.depth+1 ), scene );
+				return Trace( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1 ), scene );
 			}
 			case MaterialType::DIELECTRIC:
 			{

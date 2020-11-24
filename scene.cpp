@@ -5,7 +5,7 @@ Scene::Scene()
 {
 	objects = vector<shared_ptr<HittableObject>>();
 	lights = vector<shared_ptr<Light>>();
-	camera = make_shared<Camera>( Point3( 0.0, 0.0, 0.0 ), Vector3( 0.0, 0.0, 1.0 ), double( SCRWIDTH ) / double(SCRHEIGHT), 1 );
+	camera = make_shared<Camera>( Point3( 0.0, 1.0, -1.0 ), Vector3( 0.0, 0.0, 1.0 ), double( SCRWIDTH ) / double(SCRHEIGHT), 1 );
 }
 
 Scene::~Scene()

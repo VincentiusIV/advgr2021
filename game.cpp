@@ -13,7 +13,7 @@ void Game::Init()
 	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeOpaque = make_shared<Material>( Color( 1.0, 0.55, 0 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeGlass = make_shared<Material>( Color( 1.0, 0.55, 0), MaterialType::DIELECTRIC );
-	orangeGlass->n = 1.3f;
+	orangeGlass->n = 1.5f;
 	shared_ptr<Material> beige = make_shared<Material>( Color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
 	
 	// initialize objects
@@ -49,7 +49,6 @@ void Game::Init()
 	plane2->position = Point3( 0.0, 0, 6.0 );
 	scene->Add( plane2 );
 
-
 	//left wall plane
 	shared_ptr<Plane> plane3 = make_shared<Plane>( orangeOpaque, vec3( 1, 0, 0 ) );
 	plane3->position = Point3( -3.0, 0, 5.0 );
@@ -66,8 +65,8 @@ void Game::Init()
 	scene->Add( plane6 );
 
 	// initialize lights
-	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 0, 2.8, 3.0 ), 1 );
-	scene->Add( sunLight );
+	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( Point3( 0, 2.8, 3.0 ), 1.2, 7 );
+	scene->Add( sceneLight );
 
 	//shared_ptr<Light> sunLight2 = make_shared<Light>( Point3( -2.0, 2.0, 0 ), 1 );
 	//scene->Add( sunLight2 );
