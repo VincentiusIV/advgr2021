@@ -49,12 +49,8 @@ void Game::Init()
 	plane4->position = Point3( 3.0, 0, 5.0 );
 	scene->Add( plane4 );
 
-	// initialize lights
 	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 2.0, 2.0, 4.0 ), 1 );
 	scene->Add( sunLight );
-
-	//shared_ptr<Light> sunLight2 = make_shared<Light>( Point3( -1.0, 2.0, 1.0 ), 1 );
-	//scene->Add( sunLight2 );
 	
 	raytracer = new WhittedRayTracer(40);
 }
