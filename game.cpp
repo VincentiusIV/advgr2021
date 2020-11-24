@@ -18,40 +18,60 @@ void Game::Init()
 	
 	// initialize objects
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
-	sphere1->position = Point3( 0.0, 0.0, 3.0 );
+	sphere1->position = Point3( 1.0, 0.0, 2.5 );
 	scene->Add( sphere1 );
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 1 );
-	sphere3->position = Point3( -1.0, 0.0, 5.0 );
+	sphere3->position = Point3( -1.5, 0.0, 4.0 );
 	scene->Add( sphere3 );
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( redOpaque, 0.5 );
-	sphere2->position = Point3( -2.0, 0.0, 5.0 );
-	scene->Add( sphere2 );
+	//ceiling ball
+	shared_ptr<Sphere> sphere4 = make_shared<Sphere>( greenMirror, 1 );
+	sphere4->position = Point3( 3.0, 3.0, 3.0 );
+	scene->Add( sphere4 );
 
+	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( redOpaque, 0.5 );
+	//sphere2->position = Point3( -2.5, -0.5, 5.0 );
+	//scene->Add( sphere2 );
+
+	//ground plane
 	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
 	plane1->position = Point3( 0, -1, 5.0 );
 	scene->Add( plane1 );	
 
+	//ceiling plane
 	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
 	plane5->position = Point3( 0, 3, 5.0 );
 	scene->Add( plane5 );	
 	
+	//back wall plane
 	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 0, 0, -1 ) );
 	plane2->position = Point3( 0.0, 0, 6.0 );
 	scene->Add( plane2 );
 
+
+	//left wall plane
 	shared_ptr<Plane> plane3 = make_shared<Plane>( orangeOpaque, vec3( 1, 0, 0 ) );
 	plane3->position = Point3( -3.0, 0, 5.0 );
 	scene->Add( plane3 );
 
+	//right wall plane
 	shared_ptr<Plane> plane4 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ) );
 	plane4->position = Point3( 3.0, 0, 5.0 );
 	scene->Add( plane4 );
 
-	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 2.0, 2.0, 4.0 ), 1 );
+	//behind camera wall plane
+	shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
+	plane6->position = Point3( 0.0, 0, -6.0 );
+	scene->Add( plane6 );
+
+	// initialize lights
+	shared_ptr<Light> sunLight = make_shared<Light>( Point3( 0, 2.8, 3.0 ), 1 );
 	scene->Add( sunLight );
-	
+
+	//shared_ptr<Light> sunLight2 = make_shared<Light>( Point3( -2.0, 2.0, 0 ), 1 );
+	//scene->Add( sunLight2 );
+
 	raytracer = new WhittedRayTracer(40);
 }
  

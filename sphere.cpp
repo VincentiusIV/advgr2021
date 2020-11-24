@@ -16,6 +16,10 @@ bool Sphere::Hit( Ray &ray, RayHit &hit )
 	t -= sqrt( r2 - p2 );
 	if ( ( t < ray.t ) && ( t > 0 ) )
 	{
+		Point3 I = ray.At( t );
+		if ( ( I - ray.origin ).sqrLentgh() > ray.tMax )
+			return false;
+
 		ray.t = t;
 		hit.material = material;
 		hit.point = ray.At( t );
