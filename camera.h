@@ -4,7 +4,7 @@ class Camera : public Transform
 {
 public:
 	Camera( float aspectRatio, float focalLength ) : Camera( Point3(), Vector3( 0.0, 0.0, 1.0 ), aspectRatio, focalLength ) {}
-	Camera( Point3 position, Vector3 viewDirection, float aspectRatio, float focalLength ) : Transform( position, Vector3( 0.0, 0.0, 0.0 ) ), viewDirection(viewDirection), aspectRatio( aspectRatio ), focalLength( focalLength )
+	Camera( Point3 position, vec3 viewDirection, float aspectRatio, float focalLength ) : Transform( position, Vector3( 0.0, 0.0, 0.0 ) ), viewDirection(viewDirection), aspectRatio( aspectRatio ), focalLength( focalLength )
 	{
 		RecalculateViewport();
 	}
@@ -17,7 +17,7 @@ public:
 		p2 = screenCenter + Vector3( -aspectRatio, 1, 0 );
 	}
 
-	void Translate( Vector3 delta ) 
+	void Translate( vec3 delta ) 
 	{ 
 		position += delta; 
 		RecalculateViewport();
@@ -30,12 +30,12 @@ public:
 
 	Ray CastRayFromScreenPoint( float u, float v )
 	{
-		Vector3 dir = normalize( PointOnScreeen( u, v ) - position );
+		vec3 dir = normalize( PointOnScreeen( u, v ) - position );
 		return Ray( position, dir, INFINITY, 0);
 	}
 
-	Vector3 Forward() { return normalize(Vector3(cos(rotation.y)*cos(rotation.x), sin(rotation.y)*cos(rotation.x), sin(rotation.x))); }
-	Vector3 viewDirection;
+	vec3 Forward() { return normalize(Vector3(cos(rotation.y)*cos(rotation.x), sin(rotation.y)*cos(rotation.x), sin(rotation.x))); }
+	vec3 viewDirection;
 	float aspectRatio, focalLength;
 	Point3 screenCenter, p0, p1, p2;
 };

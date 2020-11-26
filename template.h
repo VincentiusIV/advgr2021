@@ -127,6 +127,7 @@ public:
 		return vec3( y * operand.z - z * operand.y, z * operand.x - x * operand.z, x * operand.y - y * operand.x );
 	}
 	float dot( const vec3& operand ) const { return x * operand.x + y * operand.y + z * operand.z; }
+
 };
 
 class vec4
@@ -158,6 +159,9 @@ public:
 vec3 normalize( const vec3& v );
 vec3 cross( const vec3& a, const vec3& b );
 float dot( const vec3& a, const vec3& b );
+vec3 reflect( const vec3 &dir, const vec3 &normal );
+vec3 refract( const vec3 &incomingDir, const vec3 &normal, const float &reflectionRatio );
+vec3 project( const vec3 &dir, const vec3 &n );
 vec3 operator * ( const float& s, const vec3& v );
 vec3 operator * ( const vec3& v, const float& s );
 vec4 operator * ( const float& s, const vec4& v );

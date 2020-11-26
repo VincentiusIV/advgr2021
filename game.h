@@ -19,6 +19,7 @@ public:
 	void Init();
 	void Shutdown();
 	void Tick( float deltaTime );
+	void PrintDebugInfo( float deltaTime );
 	void RenderScene();
 	void MouseUp( int button ) { /* implement if you want to detect mouse button presses */ }
 	void MouseDown( int button ) { /* implement if you want to detect mouse button presses */ }

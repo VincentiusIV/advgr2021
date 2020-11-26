@@ -21,7 +21,31 @@ vec3 normalize( const vec3& v ) { return v.normalized(); }
 vec3 cross( const vec3& a, const vec3& b ) { return a.cross( b ); }
 float dot( const vec3& a, const vec3& b ) { return a.dot( b ); }
 vec3 lerp( const vec3 &a, const vec3 &b, const float &t ) { return ((1.0-t) * a + t*b); }
-	vec3 operator * ( const float& s, const vec3& v ) { return vec3( v.x * s, v.y * s, v.z * s ); }
+vec3 reflect( const vec3 &dir, const vec3 &normal ) { return ( dir - 2.0f * dir.dot( normal ) * normal ); }
+vec3 refract( const vec3 &incomingDir, const vec3 &normal, const float &reflectionRatio )
+{
+	float cosTheta = fmax( -1.0, fmin( 1.0f, incomingDir.dot( normal ) ) );
+	float etai = 1.0f, etat = reflectionRatio;
+	vec3 n = normal;
+	if ( cosTheta < 0 )
+	{
+		cosTheta = -cosTheta;
+	}
+	else
+	{
+		std::swap( etai, etat );
+		n = -normal;
+	}
+	float etaiOverEtat = etai / etat;
+	float k = 1.0f - etaiOverEtat * etaiOverEtat * ( 1.0f - cosTheta * cosTheta );
+	return k < 0 ? 0.0f : etaiOverEtat * incomingDir + ( etaiOverEtat * cosTheta - sqrtf( k ) ) * n;
+}
+vec3 project( const vec3 &dir, const vec3 &n )
+{
+	vec3 planeNormal = normalize( n );
+	return dir - ( dir.dot( planeNormal ) / (planeNormal.length() * planeNormal.length()) ) * planeNormal;
+}
+vec3 operator * ( const float& s, const vec3& v ) { return vec3( v.x * s, v.y * s, v.z * s ); }
 vec3 operator * ( const vec3& v, const float& s ) { return vec3( v.x * s, v.y * s, v.z * s ); }
 vec4 operator * ( const float& s, const vec4& v ) { return vec4( v.x * s, v.y * s, v.z * s, v.w * s ); }
 vec4 operator * ( const vec4& v, const float& s ) { return vec4( v.x * s, v.y * s, v.z * s, v.w * s ); }

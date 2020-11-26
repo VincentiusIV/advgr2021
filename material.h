@@ -15,6 +15,6 @@ class Material
 	Material( Color color, MaterialType materialType ) : color(color), materialType(materialType) {}
 
 	Color color;
-	float n = 1.0f;
+	float n = 1.0f, specularity = 1.0f, smoothness = 0.5f;
 	MaterialType materialType;
 };

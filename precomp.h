@@ -7,7 +7,7 @@
 // Prevent expansion clashes (when using std::min and std::max):
 #define NOMINMAX
 
-#define SCRWIDTH 400
+#define SCRWIDTH 800
 #define SCRHEIGHT 400
 // #define FULLSCREEN
 // #define ADVANCEDGL	// faster if your system supports it
@@ -67,8 +67,8 @@ using namespace std;
 
 using namespace Tmpl8;
 
-using Point3 = vec3;
 using Vector3 = vec3;
+using Point3 = vec3;
 using Color = vec3;
 
 #include "raytracer.h"
