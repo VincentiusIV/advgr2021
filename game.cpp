@@ -68,6 +68,7 @@ void Game::Init()
 
 	// initialize lights
 	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( Point3( 0, 4.0, 3.0 ), 4.0, 20.0 );
+	sceneLight->color = Color( 0.74, 0.45, 0.22 );
 	scene->Add( sceneLight );
 
 	/*shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( Vector3( 0.5, -2, 1) ), 1 );
@@ -84,7 +85,7 @@ void Game::Shutdown()
 
 }
 
-static float runningTime = 0, deltaTimeInSeconds, cameraSpeed = 1.0f;
+static float deltaTimeInSeconds, cameraSpeed = 1.0f;
 static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
 static int raysPerPixel = 1;
@@ -97,7 +98,6 @@ void Game::Tick( float deltaTime )
 {
 	deltaTimeInSeconds = fmin(deltaTime, 1.0);
 	fps = ( 1.0f / deltaTime );
-	runningTime += deltaTime / 1000;
 	scene->Update( deltaTime );
 	RenderScene();
 	PrintDebugInfo( deltaTime );
@@ -128,10 +128,10 @@ void Game::RenderScene()
 			Color color( 0, 0, 0 );
 			for ( int i = 0; i < raysPerPixel; i++ )
 			{
-				auto uOffset = 1.0 - ( 1.0 / raysPerPixel ) * ( Rand( 1.0 ) ); 
-				auto vOffset = 1.0 - ( 1.0 / raysPerPixel ) * ( Rand( 1.0 ) ); 
+				auto uOffset = (1.0 - ( 1.0 / raysPerPixel )) * ( Rand( 1.0 ) ); 
+				auto vOffset = (1.0 - ( 1.0 / raysPerPixel )) * ( Rand( 1.0 ) ); 
 				auto u = ( double( x ) + uOffset ) / ( SCRWIDTH - 1 );
-				auto v = 1.0 - ( double( y ) + vOffset ) / ( SCRHEIGHT - 1 );
+				auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
 				Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
 				color += raytracer->Trace( ray, scene );
 			}

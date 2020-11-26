@@ -11,9 +11,9 @@ bool NearestIntersection( Scene *scene, Ray ray, RayHit& hit)
 	return hitAny;
 }
 
-float DirectIllumination(Scene* scene, Point3 point, vec3 normal)
+Color DirectIllumination(Scene* scene, Point3 point, vec3 normal)
 {
-	float illumination = 0.0f, d;
+	Color illumination(0.0, 0.0, 0.0);
 	for ( size_t i = 0; i < scene->lights.size(); i++ )
 	{
 		shared_ptr<Light> light = scene->lights.at( i );
@@ -25,14 +25,12 @@ float DirectIllumination(Scene* scene, Point3 point, vec3 normal)
 		}
 		else
 		{
-			d = light->Illuminate(point, normal, shadowRay);
-			if (d > 0.0f)
-				illumination += d;
-			if ( illumination > 0.999f )
-				illumination = 0.999f;
+			illumination += light->Illuminate( point, normal, shadowRay );
 		}
 	}
-
+	illumination.x = clamp( illumination.x, 0.0f, 1.0f );
+	illumination.y = clamp( illumination.y, 0.0f, 1.0f );
+	illumination.z = clamp( illumination.z, 0.0f, 1.0f );
 	return illumination;
 }
 
