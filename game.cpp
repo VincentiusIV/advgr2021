@@ -140,7 +140,8 @@ void Game::RenderScene()
 				auto u = ( double( x ) + uOffset ) / ( SCRWIDTH - 1 );
 				auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
 				Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
-				color += raytracer->Trace( ray, scene );
+				color += raytracer->Sample( ray, scene );
+					
 			}
 			color = color / raysPerPixel;
 			buffer[y * SCRWIDTH + x] = CreateRGB( floor( color.x * 255.999 ), floor( color.y * 255.999 ), floor( color.z * 255.999 ) );

@@ -7,6 +7,7 @@ enum class MaterialType
 	GLASS = 2,
 	DIELECTRIC = 3,
 	NORMAL_TEST = 4,
+	EMISSIVE = 5
 };
 
 class Material

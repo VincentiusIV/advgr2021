@@ -8,7 +8,8 @@ class Material;
 class RayTracer
 {
 public:
-	virtual Color Trace( Ray ray, Scene *scene ) = 0;
+	virtual Color Sample( Ray ray, Scene *scene ) = 0;
+	virtual bool Trace( Scene *scene, Ray ray, RayHit &hit ) = 0;
 };
 
 class WhittedRayTracer : public RayTracer
@@ -16,8 +17,9 @@ class WhittedRayTracer : public RayTracer
   public:
 	WhittedRayTracer(int maxDepth) : maxDepth(maxDepth) {}
 
-	Color Trace( Ray ray, Scene *scene );
+	Color Sample( Ray ray, Scene *scene );
 	Color DirectIllumination( Scene *scene, Point3 point, vec3 normal );
+	bool Trace( Scene *scene, Ray ray, RayHit &hit );
 	const Color &HandleSkybox( Ray &ray );
 	const Color &HandleNormalTestMaterial( RayHit &hit, Scene *scene );
 	const Color &HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene );

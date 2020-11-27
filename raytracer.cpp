@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-bool NearestIntersection( Scene *scene, Ray ray, RayHit& hit)
+bool WhittedRayTracer::Trace( Scene *scene, Ray ray, RayHit& hit)
 {
 	bool hitAny = false;
 	for ( size_t i = 0; i < scene->objects.size(); i++ )
@@ -19,7 +19,7 @@ Color WhittedRayTracer::DirectIllumination( Scene *scene, Point3 point, vec3 nor
 		shared_ptr<Light> light = scene->lights.at( i );
 		Ray shadowRay = light->CastShadowRayFrom(point);
 		RayHit hit;
-		if (NearestIntersection(scene, shadowRay, hit))
+		if (Trace(scene, shadowRay, hit))
 		{
 			continue;
 		}
@@ -36,10 +36,10 @@ Color WhittedRayTracer::DirectIllumination( Scene *scene, Point3 point, vec3 nor
 
 vec3 RandomInsideUnitSphere() { return vec3( -1.0f + Rand( 2.0f ), -1.0f + Rand( 2.0f ), -1.0f + Rand( 2.0f ) ); }
 
-Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
+Color WhittedRayTracer::Sample( Ray ray, Scene *scene )
 {
 	RayHit hit;
-	if (NearestIntersection(scene, ray, hit))
+	if (Trace(scene, ray, hit))
 	{
 		shared_ptr<Material> mat = hit.material;
 		if ( ray.depth >= maxDepth )
@@ -48,6 +48,7 @@ Color WhittedRayTracer::Trace( Ray ray, Scene *scene )
 		switch ( mat->materialType )
 		{
 			case MaterialType::DIFFUSE:
+			case MaterialType::EMISSIVE:
 				return HandleDiffuseMaterial( mat, scene, hit );
 			case MaterialType::MIRROR:
 				return HandleMirrorMaterial( hit, ray, scene );
@@ -109,8 +110,8 @@ const Color &WhittedRayTracer::HandleDielectricMaterial( Ray &ray, RayHit &hit, 
 	Point3 p = hit.point;
 	vec3 r = reflect( ray.direction, hit.normal );
 	Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
-	Color refractColor = Trace( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), scene );
-	Color reflectColor = Trace( reflectRay, scene );
+	Color refractColor = Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), scene );
+	Color reflectColor = Sample( reflectRay, scene );
 	return transmittance * refractColor + reflectance * reflectColor;
 }
 
@@ -118,7 +119,7 @@ const Color &WhittedRayTracer::HandleGlassMaterial( Ray &ray, RayHit &hit, Scene
 {
 	vec3 dir = refract( ray.direction, hit.normal, hit.material->n );
 	Point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001f : hit.point + hit.normal * 0.001f;
-	return Trace( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1 ), scene );
+	return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1 ), scene );
 }
 
 const Color &WhittedRayTracer::HandleDiffuseMaterial( std::shared_ptr<Material> &mat, Scene *scene, RayHit &hit )
@@ -131,7 +132,7 @@ const Color &WhittedRayTracer::HandleMirrorMaterial( RayHit &hit, Ray &ray, Scen
 	Point3 p = hit.point;
 	vec3 r = reflect( ray.direction, hit.normal );
 	Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
-	Color reflectColor = Trace( reflectRay, scene );
+	Color reflectColor = Sample( reflectRay, scene );
 	Color diffuseColor = ( 1.0 - hit.material->specularity ) * hit.material->color * DirectIllumination( scene, hit.point, hit.normal );
 	return  diffuseColor + ( hit.material->specularity * reflectColor );
 }
