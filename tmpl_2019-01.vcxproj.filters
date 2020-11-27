@@ -23,7 +23,9 @@
     <ClCompile Include="plane.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="meshobject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -64,7 +66,12 @@
     <ClInclude Include="light.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h" />
+    <ClInclude Include="objloader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="meshobject.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

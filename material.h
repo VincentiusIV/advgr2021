@@ -13,9 +13,9 @@ enum class MaterialType
 class Material
 {
   public:
-	Material( Color color, MaterialType materialType ) : color(color), materialType(materialType) {}
+	Material( color color, MaterialType materialType ) : color(color), materialType(materialType) {}
 
-	Color color;
+	color color;
 	float n = 1.0f, specularity = 1.0f, smoothness = 1.0f;
 	MaterialType materialType;
 };

@@ -19,7 +19,7 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 		float t = dot( p0l0, planeNormal ) / (denom);
 		if ((t < ray.t) && (t > 0.0001f) )
 		{
-			Point3 I = ray.At( t );
+			point3 I = ray.At( t );
 			if ( ( I - ray.origin ).sqrLentgh() > ray.tMax )
 				return false;
 

@@ -67,9 +67,8 @@ using namespace std;
 
 using namespace Tmpl8;
 
-using Vector3 = vec3;
-using Point3 = vec3;
-using Color = vec3;
+using point3 = vec3;
+using color = vec3;
 
 #include "raytracer.h"
 #include "scene.h"
@@ -77,7 +76,7 @@ using Color = vec3;
 #include "material.h"
 #include "transform.h"
 #include "object.h"
-#include "mesh.h"
+#include "meshobject.h"
 #include "light.h"
 #include "camera.h"
 #include "ray.h"

@@ -74,6 +74,18 @@ vec4 operator * ( const vec4& b, const mat4& a )
 		a.cell[12] * b.x + a.cell[13] * b.y + a.cell[14] * b.z + a.cell[15] * b.w );
 }
 
+vec3 operator*( const mat4 &a, const vec3 &b )
+{
+	vec4 r = a * vec4( b, 1.0 );
+	return vec3(r.x, r.y, r.z);
+}
+
+vec3 operator*( const vec3 &a, const mat4 &b )
+{
+	vec4 r = b * vec4( a, 1.0 );
+	return vec3( r.x, r.y, r.z );
+}
+
 mat4 mat4::rotate( const vec3 l, const float a )
 {
 	// http://inside.mines.edu/fs_home/gmurray/ArbitraryAxisRotation
@@ -118,12 +130,12 @@ mat4 mat4::rotate( const vec3 rotation )
 	return rotatex( rotation.x ) * rotatey( rotation.y ) * rotatez( rotation.z );
 }
 
-mat4 mat4::translate( const vec3 position )
+mat4 mat4::translate( const vec3 translation )
 {
 	mat4 M = mat4::identity();
-	M.cell[12] = position.x;
-	M.cell[13] = position.y;
-	M.cell[14] = position.z;
+	M.cell[3] = translation.x;
+	M.cell[7] = translation.y;
+	M.cell[11] = translation.z;
 	return M;
 }
 
@@ -138,7 +150,7 @@ mat4 mat4::scale( const vec3 scale )
 
 mat4 mat4::trs( const vec3 translation, const vec3 rotation, const vec3 scale )
 {
-	return mat4::translate(translation) * mat4::rotate(rotation) * mat4::scale(scale);
+	return mat4::scale( scale ) * mat4::rotate( rotation ) * mat4::translate( translation );
 }
 
 void NotifyUser( const char *s )
