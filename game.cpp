@@ -1,5 +1,12 @@
 #include "precomp.h" // include (only) this in every .cpp file
 
+static float deltaTimeInSeconds, cameraSpeed = 0.2f;
+static int fps = 0;
+static std::string fpsString, deltaTimeString, cameraPositionString;
+static int raysPerPixel = 1;
+static float calculateChance = 0.02;
+static uint originalSeed;
+
 // -----------------------------------------------------------
 // Initialize the application
 // -----------------------------------------------------------
@@ -11,15 +18,19 @@ void Game::Init()
 	shared_ptr<Material> redOpaque = make_shared<Material>(Color(0.78, 0.0, 0.0), MaterialType::DIFFUSE);
 	shared_ptr<Material> greenMirror = make_shared<Material>( Color( 0.0, 0.78, 0.0 ), MaterialType::MIRROR );
 	greenMirror->specularity = 0.7f;
+	greenMirror->smoothness = 0.3f;
+	shared_ptr<Material> redMirror = make_shared<Material>( Color( 0.78, 0.13, 0.0 ), MaterialType::MIRROR );
+	redMirror->specularity = 0.7f;
+	redMirror->smoothness = 1.0f;
 	shared_ptr<Material> blueOpaque = make_shared<Material>( Color( 0.0, 0.0, 0.78 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeOpaque = make_shared<Material>( Color( 1.0, 0.55, 0 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeGlass = make_shared<Material>( Color( 1.0, 0.55, 0), MaterialType::DIELECTRIC );
-	orangeGlass->n = 1.9f;
+	orangeGlass->n = 1.5f;
 	orangeGlass->smoothness = 1.0f;
 	shared_ptr<Material> beige = make_shared<Material>( Color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
 	
 	// initialize objects
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>( orangeGlass, 1 );
 	sphere1->position = Point3( 1.0, 0.0, 2.5 );
 	scene->Add( sphere1 );
 
@@ -27,25 +38,36 @@ void Game::Init()
 	sphere3->position = Point3( -1.5, 0.0, 4.0 );
 	scene->Add( sphere3 );
 
-	//ceiling ball
-	//shared_ptr<Sphere> sphere4 = make_shared<Sphere>( greenMirror, 1 );
-	//sphere4->position = Point3( 3.0, 3.0, 3.0 );
-	//scene->Add( sphere4 );
+	shared_ptr<MeshObject> cube = make_shared<MeshObject>( redOpaque, "assets/cybertruck.obj" );
+	cube->position = Point3( -1.5, 0.0, 2.0 );
+	scene->Add( cube );
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( redOpaque, 0.5 );
-	sphere2->position = Point3( -2.5, -0.5, 5.0 );
-	scene->Add( sphere2 );
+	CreateBoxEnvironment( beige, orangeOpaque, blueOpaque );
 
+	// initialize lights
+	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( Point3( 1, 0.0, 4.0 ), 2.0 );
+	sceneLight->color = Color( 0.74, 0.45, 0.22 );
+	scene->Add( sceneLight );
+
+	/*shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( Vector3( 0.5, -2, 1) ), 1 );
+	scene->Add( sunLight );*/
+
+	raytracer = new WhittedRayTracer(40);
+	originalSeed = seed;
+}
+
+void Tmpl8::Game::CreateBoxEnvironment( std::shared_ptr<Material> &beige, std::shared_ptr<Material> &orangeOpaque, std::shared_ptr<Material> &blueOpaque )
+{
 	//ground plane
 	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ), 3, 3 );
 	plane1->position = Point3( 0, -1, 5.0 );
-	scene->Add( plane1 );	
+	scene->Add( plane1 );
 
 	////ceiling plane
 	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
 	plane5->position = Point3( 0, 5.0, 5.0 );
-	scene->Add( plane5 );	
-	
+	scene->Add( plane5 );
+
 	//back wall plane
 	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 0, 0, -1 ) );
 	plane2->position = Point3( -3.0, 0, 5.0 );
@@ -65,16 +87,6 @@ void Game::Init()
 	shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
 	plane6->position = Point3( 0.0, 0, -5.0 );
 	scene->Add( plane6 );
-
-	// initialize lights
-	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( Point3( 0, 4.0, 3.0 ), 4.0, 20.0 );
-	sceneLight->color = Color( 0.74, 0.45, 0.22 );
-	scene->Add( sceneLight );
-
-	/*shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( Vector3( 0.5, -2, 1) ), 1 );
-	scene->Add( sunLight );*/
-
-	raytracer = new WhittedRayTracer(40);
 }
  
 // -----------------------------------------------------------
@@ -85,11 +97,6 @@ void Game::Shutdown()
 
 }
 
-static float deltaTimeInSeconds, cameraSpeed = 1.0f;
-static int fps = 0;
-static std::string fpsString, deltaTimeString, cameraPositionString;
-static int raysPerPixel = 1;
-static float calculateChance = 0.02;
 
 // -----------------------------------------------------------
 // Main application tick function
@@ -105,14 +112,14 @@ void Game::Tick( float deltaTime )
 
 void Game::PrintDebugInfo( float deltaTime )
 {
-	fpsString = "FPS: " + std::to_string( fps );
-	deltaTimeString = "deltaTime: " + std::to_string( deltaTime );
-	cameraPositionString = "Camera X: " + std::to_string( scene->GetCamera()->position.x ) +
-						   ", Y: " + std::to_string( scene->GetCamera()->position.y ) +
-						   ", Z: " + std::to_string( scene->GetCamera()->position.z );
-	screen->Print( fpsString.c_str(), 2, 2, 0xffffff );
-	screen->Print( deltaTimeString.c_str(), 2, 10, 0xffffff );
-	screen->Print( cameraPositionString.c_str(), 2, 18, 0xffffff );
+	//fpsString = "FPS: " + std::to_string( fps );
+	//deltaTimeString = "deltaTime: " + std::to_string( deltaTime );
+	//cameraPositionString = "Camera X: " + std::to_string( scene->GetCamera()->position.x ) +
+	//					   ", Y: " + std::to_string( scene->GetCamera()->position.y ) +
+	//					   ", Z: " + std::to_string( scene->GetCamera()->position.z );
+	//screen->Print( fpsString.c_str(), 2, 2, 0xffffff );
+	//screen->Print( deltaTimeString.c_str(), 2, 10, 0xffffff );
+	//screen->Print( cameraPositionString.c_str(), 2, 18, 0xffffff );
 }
 
 void Game::RenderScene()
@@ -123,7 +130,7 @@ void Game::RenderScene()
 	{
 		for ( int x = 0; x < SCRWIDTH; x++ )
 		{
-			if ( Rand( 1.0 ) > calculateChance )
+			if ( buffer[y * SCRWIDTH + x] != 0 || Rand( 1.0 ) > calculateChance )
 				continue;
 			Color color( 0, 0, 0 );
 			for ( int i = 0; i < raysPerPixel; i++ )

@@ -20,15 +20,13 @@ class Light : public Transform
 class PointLight : public Light
 {
   public:
-	PointLight( Point3 position, float intensity, float range ) : Light( position, intensity ), range(range) {}
+	PointLight( Point3 position, float intensity ) : Light( position, intensity ) {}
 
 	Color Illuminate( const Point3 &point, const vec3 &normal, const Ray &shadowRay )
 	{
 		float dist = ( point - this->position ).sqrLentgh();
 		return color * dot( normal, shadowRay.direction ) * ( intensity / dist);
 	}
-
-	float range;
 };
 
 class DirectionalLight : public Light

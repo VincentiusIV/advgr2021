@@ -11,9 +11,9 @@ bool NearestIntersection( Scene *scene, Ray ray, RayHit& hit)
 	return hitAny;
 }
 
-Color DirectIllumination(Scene* scene, Point3 point, vec3 normal)
+Color WhittedRayTracer::DirectIllumination( Scene *scene, Point3 point, vec3 normal )
 {
-	Color illumination(0.0, 0.0, 0.0);
+	Color illumination = baseIllumination;
 	for ( size_t i = 0; i < scene->lights.size(); i++ )
 	{
 		shared_ptr<Light> light = scene->lights.at( i );

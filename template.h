@@ -215,6 +215,10 @@ public:
 	static mat4 rotatex( const float a );
 	static mat4 rotatey( const float a );
 	static mat4 rotatez( const float a );
+	static mat4 rotate( const vec3 rotation );
+	static mat4 translate(const vec3 position);
+	static mat4 scale( const vec3 scale );
+	static mat4 trs( const vec3 translation, const vec3 rotation, const vec3 scale );
 	void invert()
 	{
 		// from MESA, via http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix

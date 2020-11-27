@@ -17,6 +17,7 @@ class WhittedRayTracer : public RayTracer
 	WhittedRayTracer(int maxDepth) : maxDepth(maxDepth) {}
 
 	Color Trace( Ray ray, Scene *scene );
+	Color DirectIllumination( Scene *scene, Point3 point, vec3 normal );
 	const Color &HandleSkybox( Ray &ray );
 	const Color &HandleNormalTestMaterial( RayHit &hit, Scene *scene );
 	const Color &HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene );
@@ -25,4 +26,5 @@ class WhittedRayTracer : public RayTracer
 	const Color &HandleMirrorMaterial( RayHit &hit, Ray &ray, Scene *scene );
 	void Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai );
 	int maxDepth;
+	Color baseIllumination = Color( 0.05f, 0.05f, 0.05f );
 };

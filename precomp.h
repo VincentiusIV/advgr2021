@@ -8,7 +8,7 @@
 #define NOMINMAX
 
 #define SCRWIDTH 800
-#define SCRHEIGHT 400
+#define SCRHEIGHT 800
 // #define FULLSCREEN
 // #define ADVANCEDGL	// faster if your system supports it
 
@@ -77,6 +77,7 @@ using Color = vec3;
 #include "material.h"
 #include "transform.h"
 #include "object.h"
+#include "mesh.h"
 #include "light.h"
 #include "camera.h"
 #include "ray.h"
