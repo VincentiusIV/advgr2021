@@ -16,6 +16,8 @@ bool Sphere::Hit( Ray &ray, RayHit &hit )
 		vec3 outNormal = normalize( hit.point - position );
 		hit.isFrontFace = dot( ray.direction, outNormal ) <= 0.0;
 		hit.normal = hit.isFrontFace ? outNormal : -outNormal;
+		hit.uv.x = 0.5 + atan2( hit.normal.z, hit.normal.x ) / ( 2 * PI );
+		hit.uv.y = 0.5 - asin( hit.normal.y ) / PI;
 		return true;
 	}
 	return false;

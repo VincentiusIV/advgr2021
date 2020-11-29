@@ -20,8 +20,8 @@ class Game
 {
 public:
 	void SetTarget( Surface* surface ) { screen = surface; }
-  void Init();
-  void CreateBoxEnvironment( std::shared_ptr<Material> &beige, std::shared_ptr<Material> &orangeOpaque, std::shared_ptr<Material> &blueOpaque );
+	void Init();
+	void CreateBoxEnvironment();
 	void Shutdown();
 	void Tick( float deltaTime );
 	void PrintDebugInfo( float deltaTime );

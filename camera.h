@@ -13,7 +13,7 @@ public:
 	{
 		viewDirection = CalculateForwardDirection(); //vec3(0,0,1) * mat4::rotateDegrees(rotation);
 		viewDirection = normalize( viewDirection );
-		screenCenter = position + viewDirection * focalLength;
+		screenCenter = position - viewDirection * focalLength;
 		p0 = screenCenter + vec3( -aspectRatio, -1, 0 )*mat4::rotateDegrees(rotation);
 		p1 = screenCenter + vec3( aspectRatio, -1, 0 ) * mat4::rotateDegrees( rotation );
 		p2 = screenCenter + vec3( -aspectRatio, 1, 0 ) * mat4::rotateDegrees( rotation );

@@ -22,6 +22,7 @@ class WhittedRayTracer : public RayTracer
 	bool Trace( Scene *scene, Ray ray, RayHit &hit );
 	const color &HandleSkybox( Ray &ray );
 	const color &HandleNormalTestMaterial( RayHit &hit, Scene *scene );
+	const color &HandleUVTestMaterial( RayHit &hit, Scene *scene );
 	const color &HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene );
 	const color &HandleGlassMaterial( Ray &ray, RayHit &hit, Scene *scene );
 	const color &HandleDiffuseMaterial( std::shared_ptr<Material> &mat, Scene *scene, RayHit &hit );

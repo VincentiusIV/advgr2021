@@ -14,37 +14,12 @@ void Game::Init()
 {
 	scene = new Scene();
 
-	// initialize materials.
-	shared_ptr<Material> redOpaque = make_shared<Material>(color(1, 0.0, 0.0), MaterialType::DIFFUSE);
-	shared_ptr<Material> normalTest = make_shared<Material>(color(0.78, 0.0, 0.0), MaterialType::NORMAL_TEST);
-	shared_ptr<Material> greenMirror = make_shared<Material>( color( 0.0, 0.78, 0.0 ), MaterialType::MIRROR );
-	greenMirror->specularity = 0.9f;
-	greenMirror->smoothness = 0.3;
-	shared_ptr<Material> redMirror = make_shared<Material>( color( 0.78, 0.13, 0.0 ), MaterialType::MIRROR );
-	redMirror->specularity = 0.7f;
-	redMirror->smoothness = 1.0f;
-	shared_ptr<Material> blueOpaque = make_shared<Material>( color( 0.0, 0.0, 1 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> orangeOpaque = make_shared<Material>( color( 1.0, 0.55, 0 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> orangeGlass = make_shared<Material>( color( 1.0, 0.55, 0 ), MaterialType::DIELECTRIC );
-	orangeGlass->n = 1.5f;
-	orangeGlass->smoothness = 1.0f;
-	shared_ptr<Material> beige = make_shared<Material>( color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
-	
-	// initialize objects
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>( greenMirror, 1 );
-	sphere1->position = point3( 1.0, 0.0, 2.5 );
-	scene->Add( sphere1 );
-
-	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( orangeGlass, 0.7 );
-	sphere3->position = point3( -0.0, 1.5, 0.0 );
-	scene->Add( sphere3 );
-
-	shared_ptr<MeshObject> cube = make_shared<MeshObject>( normalTest, "assets/cube.obj" );
-	cube->position = point3(-2.0, 0.0, 2.0);
-	cube->rotation = point3(30, -30, 0);
-	cube->scale = point3( 0.3, 0.3, 0.3  );
-	cube->UpdateTRS();
-	scene->Add( cube );
+	//shared_ptr<MeshObject> cube = make_shared<MeshObject>( normalTest, "assets/cube.obj" );
+	//cube->position = point3(-2.0, 0.0, 2.0);
+	//cube->rotation = point3(30, -30, 0);
+	//cube->scale = point3( 0.3, 0.3, 0.3  );
+	//cube->UpdateTRS();
+	//scene->Add( cube );
 
 	//shared_ptr<MeshObject> cube1 = make_shared<MeshObject>( normalTest, "assets/pokeball.obj" );
 	//cube1->position = point3( 0, 1.5, 0.5 );
@@ -53,15 +28,7 @@ void Game::Init()
 	//cube1->UpdateTRS();
 	//scene->Add( cube1 );
 
-	CreateBoxEnvironment( beige, orangeOpaque, blueOpaque );
-
-	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 2.5, 3.0 ), 5.0 );
-	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
-	scene->Add( sceneLight );
-
-	/*shared_ptr<PointLight> sceneLight2 = make_shared<PointLight>( point3( 2.0, 3.0, 4.0 ), 7.0 );
-	sceneLight2->albedo = color( 0.74, 0.45, 0.22 );
-	scene->Add( sceneLight2 );*/
+	CreateBoxEnvironment( );
 
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
@@ -70,37 +37,64 @@ void Game::Init()
 	originalSeed = seed;
 }
 
-void Tmpl8::Game::CreateBoxEnvironment( std::shared_ptr<Material> &beige, std::shared_ptr<Material> &orangeOpaque, std::shared_ptr<Material> &blueOpaque )
+void Game::CreateBoxEnvironment()
 {
+	shared_ptr<Material> redOpaque = make_shared<Material>( color( 1, 0.0, 0.0 ), MaterialType::UV_TEST );
+	shared_ptr<Material> normalTest = make_shared<Material>( color( 0.78, 0.0, 0.0 ), MaterialType::NORMAL_TEST );
+	shared_ptr<Material> greenMirror = make_shared<Material>( color( 0.0, 0.78, 0.0 ), MaterialType::MIRROR );
+	greenMirror->specularity = 0.9f;
+	greenMirror->smoothness = 0.3;
+	shared_ptr<Material> groundMirror = make_shared<Material>( color( 1.0, 1.0, 1.0 ), MaterialType::MIRROR );
+	groundMirror->specularity = 0.4f;
+	groundMirror->smoothness = 1.0f;
+	shared_ptr<Material> blueOpaque = make_shared<Material>( color( 0.0, 0.0, 1 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> orangeOpaque = make_shared<Material>( color( 1.0, 0.55, 0 ), MaterialType::UV_TEST );
+	shared_ptr<Material> orangeGlass = make_shared<Material>( color( 1.0, 0.55, 0 ), MaterialType::DIELECTRIC );
+	orangeGlass->n = 1.5f;
+	orangeGlass->smoothness = 1.0f;
+	shared_ptr<Material> beige = make_shared<Material>( color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
+
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>( redOpaque, 1 );
+	sphere1->position = point3( 1.0, 0.0, 2.5 );
+	scene->Add( sphere1 );
+
+	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( redOpaque, 0.7 );
+	sphere3->position = point3( -1.0, 0.0, 1.0 );
+	scene->Add( sphere3 );
+
 	//ground plane
-	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ), 3, 3 );
+	shared_ptr<Plane> plane1 = make_shared<Plane>( groundMirror, vec3( 0, 1, 0 ), 3, 3 );
 	plane1->position = point3( 0, -1, 5.0 );
 	scene->Add( plane1 );
 
 	////ceiling plane
-	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
-	plane5->position = point3( 0, 3.0, 5.0 );
-	scene->Add( plane5 );
+	//shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
+	//plane5->position = point3( 0, 3.0, 5.0 );
+	//scene->Add( plane5 );
 
 	////back wall plane
-	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 0, 0, -1 ) );
-	plane2->position = point3( -3.0, 0, 5.0 );
-	scene->Add( plane2 );
+	//shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 0, 0, -1 ) );
+	//plane2->position = point3( -3.0, 0, 5.0 );
+	//scene->Add( plane2 );
 
-	//////left wall plane
+	//left wall plane
 	shared_ptr<Plane> plane3 = make_shared<Plane>( orangeOpaque, vec3( 1, 0, 0 ) );
-	plane3->position = point3( -3.0, 0, 5.0 );
+	plane3->position = point3( -5.0, 0, 10.0 );
 	scene->Add( plane3 );
 
-	//////right wall plane
+	//right wall plane
 	shared_ptr<Plane> plane4 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ) );
 	plane4->position = point3( 3.0, 0, 5.0 );
 	scene->Add( plane4 );
 
-	////behind camera wall plane
+	//behind camera wall plane
 	shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
 	plane6->position = point3( 0.0, 0, -5.0 );
 	scene->Add( plane6 );
+
+	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 1.5, 2.0 ), 5.0 );
+	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
+	scene->Add( sceneLight );
 }
  
 // -----------------------------------------------------------
@@ -154,7 +148,7 @@ void Game::RenderScene()
 			{
 				auto uOffset = (1.0 - ( 1.0 / raysPerPixel )) * ( Rand( 1.0 ) ); 
 				auto vOffset = (1.0 - ( 1.0 / raysPerPixel )) * ( Rand( 1.0 ) ); 
-				auto u = ( double( x ) + uOffset ) / ( SCRWIDTH - 1 );
+				auto u = (( double( x ) + uOffset ) / ( SCRWIDTH - 1 ));
 				auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
 				Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
 				color += raytracer->Sample( ray, scene );
@@ -173,13 +167,13 @@ void Game::KeyDown( int key )
 	switch ( keyCode )
 	{
 	case Tmpl8::KeyCode::W:
-		scene->GetCamera()->Translate( vec3( 0, 0, -cameraMoveSpeed ) * deltaTimeInSeconds );
+		scene->GetCamera()->Translate( vec3( 0, 0, cameraMoveSpeed ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::A:
 		scene->GetCamera()->Translate( vec3( -cameraMoveSpeed, 0, 0 ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::S:
-		scene->GetCamera()->Translate( vec3( 0, 0, cameraMoveSpeed ) * deltaTimeInSeconds );
+		scene->GetCamera()->Translate( vec3( 0, 0, -cameraMoveSpeed ) * deltaTimeInSeconds );
 		break;
 	case Tmpl8::KeyCode::D:
 		scene->GetCamera()->Translate( vec3( cameraMoveSpeed, 0, 0 ) * deltaTimeInSeconds );
@@ -191,16 +185,16 @@ void Game::KeyDown( int key )
 		scene->GetCamera()->Translate( vec3( 0, -cameraMoveSpeed, 0 ) * deltaTimeInSeconds );
 		break;
 	case KeyCode::LEFT_ARROW:
-		scene->GetCamera()->Rotate( vec3( 0, cameraRotateSpeed, 0 ) * deltaTimeInSeconds );
-		break;
-	case KeyCode::RIGHT_ARROW:
 		scene->GetCamera()->Rotate( vec3( 0, -cameraRotateSpeed, 0 ) * deltaTimeInSeconds );
 		break;
+	case KeyCode::RIGHT_ARROW:
+		scene->GetCamera()->Rotate( vec3( 0, cameraRotateSpeed, 0 ) * deltaTimeInSeconds );
+		break;
 	case KeyCode::UP_ARROW:
-		scene->GetCamera()->Rotate( vec3( cameraRotateSpeed, 0, 0) * deltaTimeInSeconds );
+		scene->GetCamera()->Rotate( vec3( -cameraRotateSpeed, 0, 0) * deltaTimeInSeconds );
 		break;
 	case KeyCode::DOWN_ARROW:
-		scene->GetCamera()->Rotate( vec3( -cameraRotateSpeed, 0, 0 ) * deltaTimeInSeconds );
+		scene->GetCamera()->Rotate( vec3( cameraRotateSpeed, 0, 0 ) * deltaTimeInSeconds );
 		break;
 	default:
 		break;

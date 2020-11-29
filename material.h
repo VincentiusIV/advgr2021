@@ -6,17 +6,18 @@ enum class MaterialType
 	MIRROR = 1,
 	GLASS = 2,
 	DIELECTRIC = 3,
-	NORMAL_TEST = 4,
-	EMISSIVE = 5,
-	CHECKERBOARD = 6
+	EMISSIVE = 4,
+	NORMAL_TEST = 11,
+	UV_TEST = 12
 };
 
 class Material
 {
   public:
-	Material( color color, MaterialType materialType ) : color(color), materialType(materialType) {}
+	Material( color color, MaterialType materialType ) : color( color ), materialType( materialType ), uvScale( vec2( 1.0, 1.0 ) ) {}
 
 	color color;
 	float n = 1.0f, specularity = 1.0f, smoothness = 1.0f;
+	vec2 uvScale;
 	MaterialType materialType;
 };

@@ -20,14 +20,25 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 		if ((t < ray.t) && (t > 0.0001f) )
 		{
 			point3 I = ray.At( t );
-			if ( ( I - ray.origin ).sqrLentgh() > ray.tMax )
+			vec3 toIntersation = ( I - ray.origin );
+			if ( toIntersation.sqrLentgh() > ray.tMax )
 				return false;
-
 			ray.t = t;
 			hit.material = material;
 			hit.point = I;
 			hit.isFrontFace = denom <= 0.0;
 			hit.normal = hit.isFrontFace ? planeNormal : -planeNormal;
+
+			vec3 a = cross( planeNormal, vec3( 1, 0, 0 ) );
+			vec3 b = cross( planeNormal, vec3( 0, 1, 0 ) );
+			vec3 maxAB = dot( a, a ) < dot( b, b ) ? b : a;
+			vec3 c = cross( planeNormal, vec3( 0, 0, 1 ) );
+
+			vec3 u = normalize( dot(maxAB, maxAB) < dot(c,c) ? c : maxAB );
+			vec3 v = cross( planeNormal, u );
+
+			hit.uv.x = u.dot( hit.point ) / material->uvScale.x;
+			hit.uv.y = v.dot( hit.point ) / material->uvScale.x;
 			return true; 
 		}
 	}

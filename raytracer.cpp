@@ -58,6 +58,8 @@ color WhittedRayTracer::Sample( Ray ray, Scene *scene )
 				return HandleDielectricMaterial( ray, hit, scene );
 			case MaterialType::NORMAL_TEST:
 				return HandleNormalTestMaterial( hit, scene );
+			case MaterialType::UV_TEST:
+				return HandleUVTestMaterial( hit, scene );
 			default:
 				return color( 0.0, 0.0, 0.0 );
 		}
@@ -79,6 +81,11 @@ const color &WhittedRayTracer::HandleSkybox( Ray &ray )
 const color &WhittedRayTracer::HandleNormalTestMaterial( RayHit &hit, Scene *scene )
 {
 	return 0.5 * color( hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0 ) * DirectIllumination( scene, hit.point, hit.normal );
+}
+
+const color &WhittedRayTracer::HandleUVTestMaterial( RayHit &hit, Scene *scene )
+{
+	return color(hit.uv.x, hit.uv.y, 1.0) * DirectIllumination( scene, hit.point, hit.normal );
 }
 
 const color &WhittedRayTracer::HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene )
