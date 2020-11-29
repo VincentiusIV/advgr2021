@@ -9,7 +9,11 @@ enum class KeyCode
 	S = 22,
 	D = 7,
 	R = 21,
-	F = 9
+	F = 9,
+	LEFT_ARROW = 80,
+	RIGHT_ARROW = 79,
+	UP_ARROW = 82,
+	DOWN_ARROW = 81
 };
 
 class Game

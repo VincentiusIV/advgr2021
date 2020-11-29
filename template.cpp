@@ -125,9 +125,13 @@ mat4 mat4::rotatez( const float a )
 	return M;
 }
 
-mat4 mat4::rotate( const vec3 rotation )
+mat4 mat4::rotateDegrees( const vec3 rotation )
 {
-	return rotatex( rotation.x ) * rotatey( rotation.y ) * rotatez( rotation.z );
+	vec3 rad;
+	rad.x = rotation.x * DEG_TO_RAD;
+	rad.y = rotation.y * DEG_TO_RAD;
+	rad.z = rotation.z * DEG_TO_RAD;
+	return rotatex( rad.x ) * rotatey( rad.y ) * rotatez( rad.z );
 }
 
 mat4 mat4::translate( const vec3 translation )
@@ -150,7 +154,7 @@ mat4 mat4::scale( const vec3 scale )
 
 mat4 mat4::trs( const vec3 translation, const vec3 rotation, const vec3 scale )
 {
-	return mat4::scale( scale ) * mat4::rotate( rotation ) * mat4::translate( translation );
+	return mat4::scale( scale ) * mat4::rotateDegrees( rotation ) * mat4::translate( translation );
 }
 
 void NotifyUser( const char *s )

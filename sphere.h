@@ -9,6 +9,8 @@ class Sphere : public HittableObject
 public:
 	Sphere( shared_ptr<Material> material, float radius );
 	bool Hit( Ray &ray, RayHit &hit );
+	static bool Hit( Ray &ray, RayHit &hit, point3 spherePos, float radius );
+	static bool Hit( Ray &ray, RayHit &hit, point3 spherePos, float radius, float &t );
 	float r;
 	float r2; // r*r
 };

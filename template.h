@@ -25,7 +25,7 @@ typedef unsigned int uint;
 #define clamp(v,a,b) ((std::min)((b),(std::max)((v),(a))))
 
 #define PI					3.14159265358979323846264338327950288419716939937510582097494459072381640628620899862803482534211706798f
-
+#define DEG_TO_RAD			0.0174532925f;
 #define PREFETCH(x)			_mm_prefetch((const char*)(x),_MM_HINT_T0)
 #define PREFETCH_ONCE(x)	_mm_prefetch((const char*)(x),_MM_HINT_NTA)
 #define PREFETCH_WRITE(x)	_m_prefetchw((const char*)(x))
@@ -215,7 +215,7 @@ public:
 	static mat4 rotatex( const float a );
 	static mat4 rotatey( const float a );
 	static mat4 rotatez( const float a );
-	static mat4 rotate( const vec3 rotation );
+	static mat4 rotateDegrees( const vec3 rotation );
 	static mat4 translate(const vec3 position);
 	static mat4 scale( const vec3 scale );
 	static mat4 trs( const vec3 translation, const vec3 rotation, const vec3 scale );
