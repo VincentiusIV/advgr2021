@@ -27,14 +27,16 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		}*/
 		
 		//continue in random direction
-		vec3 randomDeviation = RandomInsideUnitSphere();
+		vec3 randomDeviation = RandomInsideUnitSphere(); 
 		do
 		{
 			randomDeviation = RandomInsideUnitSphere();
 		
 		} while ( randomDeviation.dot( hit.normal ) < 0.0);
-		vec3 R =  randomDeviation;
+		vec3 R =  randomDeviation; //get a random ray in random direction (DiffuseReflection)
+		//new ray, start at intersection point, into random direction R
 		Ray r( hit.point+hit.normal*0.001f, R, INFINITY, ray.depth + 1 ); 
+		
 
 		BRDF = mCol	/ PI; //albedo -> color of the material
 
