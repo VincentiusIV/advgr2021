@@ -52,7 +52,8 @@ void Game::Init()
 	/*shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( Vector3( 0.5, -2, 1) ), 1 );
 	scene->Add( sunLight );*/
 
-	raytracer = new WhittedRayTracer(40);
+	//raytracer = new WhittedRayTracer(40);
+	raytracer = new PathTracer();
 	originalSeed = seed;
 }
 

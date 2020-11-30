@@ -83,3 +83,4 @@ using Color = vec3;
 #include "ray.h"
 #include "plane.h"
 #include "sphere.h"
+#include "pathtracer.h"
