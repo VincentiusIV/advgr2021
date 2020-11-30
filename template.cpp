@@ -86,6 +86,20 @@ vec3 operator*( const vec3 &a, const mat4 &b )
 	return vec3( r.x, r.y, r.z );
 }
 
+vec3 RandomInsideUnitSphere()
+{
+	// https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/
+	float x = Rand( 2.0f ) - 1.0f;
+	float y = Rand( 2.0f ) - 1.0f;
+	float z = Rand( 2.0f ) - 1.0f;
+	float mag = 1/sqrtf( x * x + y * y + z * z );
+	x *= mag;
+	y *= mag;
+	z *= mag;
+	float c = cbrtf( Rand(1.0f) );
+	return vec3(x*c,y*c,z*c );
+}
+
 mat4 mat4::rotate( const vec3 l, const float a )
 {
 	// http://inside.mines.edu/fs_home/gmurray/ArbitraryAxisRotation

@@ -34,8 +34,6 @@ color WhittedRayTracer::DirectIllumination( Scene *scene, point3 point, vec3 nor
 	return illumination;
 }
 
-vec3 RandomInsideUnitSphere() { return vec3( -1.0f + Rand( 2.0f ), -1.0f + Rand( 2.0f ), -1.0f + Rand( 2.0f ) ); }
-
 color WhittedRayTracer::Sample( Ray ray, Scene *scene )
 {
 	RayHit hit;
