@@ -6,7 +6,6 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 	color BRDF; //should probably be outside function
 	RayHit hit;
 
-
 	if (Trace(scene, ray, hit))
 	{
 		shared_ptr<Material> mat = hit.material;
@@ -28,26 +27,30 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		}*/
 		
 		//continue in random direction
-		vec3 R = normalize(RandomInsideUnitSphere() + hit.normal); //get a random ray in random direction (DiffuseReflection)
-		BRDF = mCol	/ PI; //Color of the material -> Albedo
+		vec3 randomDeviation = RandomInsideUnitSphere();
+		do
+		{
+			randomDeviation = RandomInsideUnitSphere();
+		
+		} while ( randomDeviation.dot( hit.normal ) < 0.0);
+		vec3 R =  randomDeviation;
+		Ray r( hit.point+hit.normal*0.001f, R, INFINITY, ray.depth + 1 ); 
+
+		BRDF = mCol	/ PI; //albedo -> color of the material
 
 		if ( ray.depth > maxDepth ) 
 			return BRDF;
-	
-		//new ray, start at intersection point, into random direction R
-		Ray r( hit.point, R, INFINITY, ray.depth + 1 ); 
 
-		//update throughout, (recursion)
-		color Ei = Sample( r, scene ) * ( dot( hit.normal, R ) ); //irradiance is what you found with that new ray
-		return (PI * 2.0f * BRDF * Ei);
-
+		float ir = dot( hit.normal, R );
+		//ir = fmin( ir, 0.3f );
+		//update throughout (recursion)
+		color Ei = Sample( r, scene ) * (ir); //irradiance is what you found with that new ray
+		return PI * 2.0f * BRDF * Ei;
 	}
 	else //no hit, ray left the scene. return black
 	{
 		return color( 0, 0, 0 );
 	}
-
-
 }
 
 bool PathTracer::Trace(Scene *scene, Ray ray, RayHit &hit ) 
