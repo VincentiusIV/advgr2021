@@ -3,7 +3,7 @@
 static float deltaTimeInSeconds, cameraMoveSpeed = 0.2f, cameraRotateSpeed = 10.0f;
 static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
-static int raysPerPixel = 1;
+static int raysPerPixel = 4;
 static float calculateChance = 0.02;
 
 // -----------------------------------------------------------
@@ -27,7 +27,7 @@ void Game::Init()
 	//cube1->UpdateTRS();
 	//scene->Add( cube1 );
 
-	CreateBoxEnvironment( );
+	CreateBoxEnvironment();
 
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
@@ -52,17 +52,22 @@ void Game::CreateBoxEnvironment()
 	orangeGlass->n = 1.5f;
 	orangeGlass->smoothness = 1.0f;
 	shared_ptr<Material> beige = make_shared<Material>( color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> lightMaterial = make_shared<Material>( color( 0.74, 0.45, 0.22 ), MaterialType::EMISSIVE );
 
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>( orangeGlass, 1 );
-	sphere1->position = point3( 1.0, 0.0, 2.5 );
-	scene->Add( sphere1 );
+	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>( orangeGlass, 1 );
+	//sphere1->position = point3( 1.0, 0.0, 2.5 );
+	//scene->Add( sphere1 );
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 0.7 );
 	sphere3->position = point3( -1.0, 0.0, 1.0 );
 	scene->Add( sphere3 );
 
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.7 );
+	lightSphere->position = point3( 0, 1.5, 2.0 );
+	scene->Add( lightSphere );
+
 	//ground plane
-	shared_ptr<Plane> plane1 = make_shared<Plane>( groundMirror, vec3( 0, 1, 0 ), 3, 3 );
+	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ), 3, 3 );
 	plane1->position = point3( 0, -1, 5.0 );
 	scene->Add( plane1 );
 
@@ -87,9 +92,9 @@ void Game::CreateBoxEnvironment()
 	scene->Add( plane4 );
 
 	//behind camera wall plane
-	shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
-	plane6->position = point3( 0.0, 0, -5.0 );
-	scene->Add( plane6 );
+	//shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
+	//plane6->position = point3( 0.0, 0, -5.0 );
+	//scene->Add( plane6 );
 
 	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 1.5, 2.0 ), 5.0 );
 	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
