@@ -7,15 +7,17 @@ class Material;
 
 class RayTracer
 {
-public:
+  public:
+	RayTracer( int maxDepth ) : maxDepth( maxDepth ) {}
 	virtual color Sample( Ray ray, Scene *scene ) = 0;
 	virtual bool Trace( Scene *scene, Ray ray, RayHit &hit ) = 0;
+	int maxDepth;
 };
 
 class WhittedRayTracer : public RayTracer
 {
   public:
-	WhittedRayTracer(int maxDepth) : maxDepth(maxDepth) {}
+	WhittedRayTracer(int maxDepth) : RayTracer(maxDepth) {}
 
 	color Sample( Ray ray, Scene *scene );
 	color DirectIllumination( Scene *scene, point3 point, vec3 normal );
@@ -28,6 +30,6 @@ class WhittedRayTracer : public RayTracer
 	const color &HandleDiffuseMaterial( std::shared_ptr<Material> &mat, Scene *scene, RayHit &hit );
 	const color &HandleMirrorMaterial( RayHit &hit, Ray &ray, Scene *scene );
 	void Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai );
-	int maxDepth;
+
 	color baseIllumination = color( 0.05f, 0.05f, 0.05f );
 };

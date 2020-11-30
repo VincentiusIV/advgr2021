@@ -10,9 +10,8 @@ class Material;
 class PathTracer : public RayTracer
 {
   public:
-	Color Sample( Ray ray, Scene *scene );
-
-    bool Trace( Scene *scene, Ray ray, RayHit &hit );
- 
+	PathTracer( int maxDepth ) : RayTracer( maxDepth ) {}
+	color Sample( Ray ray, Scene *scene );
+    bool Trace( Scene *scene, Ray ray, RayHit &hit ); 
 };
 
