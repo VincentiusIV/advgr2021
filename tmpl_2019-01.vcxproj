@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="game.cpp" />
     <ClCompile Include="meshobject.cpp" />
+    <ClCompile Include="pathtracer.cpp" />
     <ClCompile Include="plane.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="material.h" />
     <ClInclude Include="meshobject.h" />
     <ClInclude Include="objloader.h" />
+    <ClInclude Include="pathtracer.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="precomp.h" />
     <ClInclude Include="ray.h" />

@@ -5,7 +5,6 @@ static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
 static int raysPerPixel = 1;
 static float calculateChance = 0.02;
-static uint originalSeed;
 
 // -----------------------------------------------------------
 // Initialize the application
@@ -33,8 +32,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	raytracer = new WhittedRayTracer(20);
-	originalSeed = seed;
+	//raytracer = new WhittedRayTracer(40);
+	raytracer = new PathTracer(10);
 }
 
 void Game::CreateBoxEnvironment()

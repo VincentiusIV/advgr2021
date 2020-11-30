@@ -24,6 +24,7 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="meshobject.cpp">
+    <ClCompile Include="pathtracer.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -70,6 +71,7 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="meshobject.h">
+    <ClInclude Include="pathtracer.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
