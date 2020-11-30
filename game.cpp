@@ -33,7 +33,7 @@ void Game::Init()
 	//scene->Add( sunLight );
 
 	//raytracer = new WhittedRayTracer(40);
-	raytracer = new PathTracer(10);
+	raytracer = new PathTracer(5);
 }
 
 void Game::CreateBoxEnvironment()

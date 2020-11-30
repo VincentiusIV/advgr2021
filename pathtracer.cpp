@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-color PathTracer::Sample(Ray ray, Scene *scene) //added scene
+color PathTracer::Sample(Ray ray, Scene *scene)
 {
 	//initials
 	color BRDF; //should probably be outside function
@@ -15,38 +15,31 @@ color PathTracer::Sample(Ray ray, Scene *scene) //added scene
 
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			return mCol;
+			return mCol; //return color of light source. This will be the 'material' color.
 		}
 		if ( mmat == MaterialType::MIRROR )
 		{
-			Ray r( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
-			return mCol * Sample( r, scene );
+			Ray r( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 ); //new ray from intersection point
+			return mCol * Sample( r, scene ); //Color of the material -> Albedo
 		}
-		/*
-		switch ( mat ->materialType)
+		/*if (mmat == MaterialType::DIELECTRIC)
 		{
-			case MaterialType::EMISSIVE: //return color of light source
-				return mCol; // emittance == Material color? As you will give the light also a color...???  
-			case MaterialType::MIRROR: Ray r( hit.point, reflect(ray.direction, hit.normal ), INFINITY, ray.depth + 1 );  //new ray, start at intersection point
-				return mCol * Sample(r, scene); //albedo -> color of the material
-			//default:
-				//return Color( 0, 0, 0 );
+
 		}*/
 		
 		//continue in random direction
-		vec3 R = normalize(RandomInsideUnitSphere() + hit.normal); //get a random ray in random direction (DiffuseReflection). times normal???
-		BRDF = mCol	/ PI; //albedo -> color of the material
+		vec3 R = normalize(RandomInsideUnitSphere() + hit.normal); //get a random ray in random direction (DiffuseReflection)
+		BRDF = mCol	/ PI; //Color of the material -> Albedo
 
-		if ( ray.depth > maxDepth )
+		if ( ray.depth > maxDepth ) 
 			return BRDF;
 	
-		//new ray, start at intersection point, into direction R
-		Ray r( hit.point, R, INFINITY, ray.depth + 1 ); //wat doet ray depth + 1.0?
+		//new ray, start at intersection point, into random direction R
+		Ray r( hit.point, R, INFINITY, ray.depth + 1 ); 
 
-		//update throughout (recursion)
+		//update throughout, (recursion)
 		color Ei = Sample( r, scene ) * ( dot( hit.normal, R ) ); //irradiance is what you found with that new ray
-		return PI * 2.0f * BRDF * Ei;
-
+		return (PI * 2.0f * BRDF * Ei);
 
 	}
 	else //no hit, ray left the scene. return black
@@ -57,8 +50,7 @@ color PathTracer::Sample(Ray ray, Scene *scene) //added scene
 
 }
 
-
-bool PathTracer::Trace(Scene *scene, Ray ray, RayHit &hit ) // why do we need scene? //why does heritage not work? and why does the raytracer do that?
+bool PathTracer::Trace(Scene *scene, Ray ray, RayHit &hit ) 
 {
 	bool hitAny = false;
 	for ( size_t i = 0; i < scene->objects.size(); i++ )
