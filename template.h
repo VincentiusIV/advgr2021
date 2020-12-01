@@ -25,6 +25,7 @@ typedef unsigned int uint;
 #define clamp(v,a,b) ((std::min)((b),(std::max)((v),(a))))
 
 #define PI					3.14159265358979323846264338327950288419716939937510582097494459072381640628620899862803482534211706798f
+#define TWO_PI				6.2831853071795864769252867665590057683943387987502116419498891846f
 #define DEG_TO_RAD			0.0174532925f;
 #define PREFETCH(x)			_mm_prefetch((const char*)(x),_MM_HINT_T0)
 #define PREFETCH_ONCE(x)	_mm_prefetch((const char*)(x),_MM_HINT_NTA)
@@ -111,6 +112,7 @@ public:
 	vec3 operator - ( const vec3& operand ) const { return vec3( x - operand.x, y - operand.y, z - operand.z ); }
 	vec3 operator * ( const vec3& operand ) const { return vec3( x * operand.x, y * operand.y, z * operand.z ); }
 	vec3 operator/( const float a ) { return vec3( x /= a, y /= a, z /= a ); }
+	vec3 operator%( vec3 &b ) { return vec3( y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x ); } 
 	void operator -= ( const vec3& a ) { x -= a.x; y -= a.y; z -= a.z; }
 	void operator += ( const vec3& a ) { x += a.x; y += a.y; z += a.z; }
 	void operator *= ( const vec3& a ) { x *= a.x; y *= a.y; z *= a.z; }
