@@ -19,12 +19,6 @@ void Game::Init()
 	raysCounter = new int[SCRWIDTH * SCRHEIGHT];
 	ClearColorBuffer();
 
-	//shared_ptr<MeshObject> cube = make_shared<MeshObject>( normalTest, "assets/cube.obj" );
-	//cube->position = point3(-2.0, 0.0, 2.0);
-	//cube->rotation = point3(30, -30, 0);
-	//cube->scale = point3( 0.3, 0.3, 0.3  );
-	//cube->UpdateTRS();
-	//scene->Add( cube );
 
 	//shared_ptr<MeshObject> cube1 = make_shared<MeshObject>( normalTest, "assets/pokeball.obj" );
 	//cube1->position = point3( 0, 1.5, 0.5 );
@@ -72,6 +66,14 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> beige = make_shared<Material>(color(0.9, 0.9, 0.78), MaterialType::DIFFUSE);
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 0.9, 0.9), MaterialType::EMISSIVE);
 
+	//shared_ptr<MeshObject> cube = make_shared<MeshObject>( redOpaque, "assets/cube.obj" );
+	//cube->position = point3( -2.0, 0.0, 2.0 );
+	//cube->rotation = point3( 30, -30, 0 );
+	//cube->scale = point3( 0.3, 0.3, 0.3 );
+	//cube->UpdateTRS();
+	//scene->Add( cube );
+
+
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
 	sphere1->position = point3(1.0, 0.0, 2.5);
 	scene->Add(sphere1);
@@ -81,7 +83,7 @@ void Game::CreateBoxEnvironment()
 	scene->Add(sphere3);
 
 	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2.0 );
-	lightSphere->position = point3( 0, 2.0, 4.0 );
+	lightSphere->position = point3( 0, 4.0, 4.0 );
 	scene->Add( lightSphere );
 	
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 0.6 );

@@ -18,7 +18,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		}
 		if ( mmat == MaterialType::MIRROR )
 		{
-			Ray r( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 ); //new ray from intersection point
+			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
 			return mCol * Sample( r, scene ); //Color of the material -> Albedo
 		}
 		if (mmat == MaterialType::DIELECTRIC)
@@ -55,7 +55,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 			{
 				point3 p = hit.point;
 				vec3 r = reflect( ray.direction, hit.normal );	
-				Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
+				Ray reflectRay( p, r , INFINITY, ray.depth + 1 );
 				return Sample( reflectRay, scene );
 			}
 			else
@@ -79,7 +79,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		Ray r( hit.point + hit.normal * 0.001f, R, INFINITY, ray.depth + 1 ); 
 
 		float ir = dot( hit.normal, R );
-		color Ei = Sample( r, scene ) * ( 0.5 ); //irradiance is what you found with that new ray
+		color Ei = Sample( r, scene ) * ( ir ); //irradiance is what you found with that new ray
 		return PI * 2.0f * BRDF * Ei;
 	}
 	else //no hit, ray left the scene. return black
