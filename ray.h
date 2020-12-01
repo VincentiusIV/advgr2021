@@ -25,9 +25,3 @@ class Ray
 	float tMax, t; 
 	int depth;
 };
-
-
-class RayDifferential : public Ray
-{
-	// contains additional information about two auxiliary rays for better antialiasing.
-};
