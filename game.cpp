@@ -96,7 +96,7 @@ void Game::CreateBoxEnvironment()
 	scene->Add( plane1 );
 
 	////ceiling plane
-	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
+	shared_ptr<Plane> plane5 = make_shared<Plane>( lightMaterial, vec3( 0, 1, 0 ) );
 	plane5->position = point3( 0, 3.0, 5.0 );
 	scene->Add( plane5 );
 
