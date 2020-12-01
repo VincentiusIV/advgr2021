@@ -17,11 +17,11 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 			return mCol; //return color of light source. This will be the 'material' color.
 		}
 		if ( mmat == MaterialType::MIRROR )
-		{
-			Ray r( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 ); //new ray from intersection point
+		{   //+(1.0f - hit.material->smoothness)
+			Ray r( hit.point, (reflect( ray.direction, hit.normal )), INFINITY, ray.depth + 1 ); //new ray from intersection point
 			return mCol * Sample( r, scene ); //Color of the material -> Albedo
 		}
-		if (mmat == MaterialType::DIELECTRIC)
+		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
 		{
 			float cosi = fmax( -1.0, fmin( 1.0, dot( ray.direction, hit.normal ) ) );
 			float cosTheta2 = cosi * cosi;
@@ -38,9 +38,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 			}
 			float etaiOverEtat = etai / etat;
 			float k = 1.0f - etaiOverEtat * etaiOverEtat * ( 1.0 - cosTheta2 );
-			vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
-			point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
-
+			
 
 			float sinTheta = etaiOverEtat * sqrtf( max( 0.0, 1.0 - cosTheta2 ) );
 			float reflectance;
@@ -53,25 +51,24 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 			//only different code than in the witted raytracer.
 			if (reflectChance > refractChance)
 			{
-				point3 p = hit.point;
-				vec3 r = reflect( ray.direction, hit.normal );	
-				Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
+				Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
 				return Sample( reflectRay, scene );
 			}
 			else
 			{
+				vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
+				point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
 				return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), scene );
 			}
 		}
 		
-
 		BRDF = mCol / PI; //albedo -> color of the material
 
 		if ( ray.depth > maxDepth ) //reasonable number = 7
 			return color(0,0,0);
 
 		//continue in random direction on your hemisphere
-		vec3 randomDeviation;//		= RandomInsideUnitSphere(); 
+		vec3 randomDeviation;
 		do
 		{
 			randomDeviation = RandomInsideUnitSphere();
@@ -85,8 +82,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		
 
 		float ir = dot( hit.normal, R );
-		//ir = fmin( ir, 0.3f );
-
+		
 		//update throughout (recursion)
 		color Ei = Sample( r, scene ) * (ir); //irradiance is what you found with that new ray
 		return PI * 2.0f * BRDF * Ei;
