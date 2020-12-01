@@ -33,7 +33,7 @@ void Game::Init()
 	//scene->Add( sunLight );
 
 	//raytracer = new WhittedRayTracer(40);
-	raytracer = new PathTracer(5);
+	raytracer = new PathTracer(7);
 }
 
 void Game::CreateBoxEnvironment()
@@ -52,7 +52,7 @@ void Game::CreateBoxEnvironment()
 	orangeGlass->n = 1.5f;
 	orangeGlass->smoothness = 1.0f;
 	shared_ptr<Material> beige = make_shared<Material>( color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> lightMaterial = make_shared<Material>( color( 0.74, 0.45, 0.22 ), MaterialType::EMISSIVE );
+	shared_ptr<Material> lightMaterial = make_shared<Material>( color( 0.9, 0.9, 0.9 ), MaterialType::EMISSIVE );
 
 	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>( orangeGlass, 1 );
 	//sphere1->position = point3( 1.0, 0.0, 2.5 );
@@ -62,9 +62,14 @@ void Game::CreateBoxEnvironment()
 	sphere3->position = point3( -1.0, 0.0, 1.0 );
 	scene->Add( sphere3 );
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.7 );
-	lightSphere->position = point3( 0, 1.5, 2.0 );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.8 );
+	lightSphere->position = point3( 0, 1.5, 2.5 );
 	scene->Add( lightSphere );
+
+	
+	shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 0.6 );
+	lightSphere2->position = point3( -2.0, 1.0, 1.0 );
+	scene->Add( lightSphere2 );
 
 	//ground plane
 	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ), 3, 3 );

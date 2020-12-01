@@ -23,28 +23,33 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		}
 		/*if (mmat == MaterialType::DIELECTRIC)
 		{
-
+		 ex fresnel = 0.1 -> 0.1 chance for reflection and 0.9 chance for refraction (etc)
 		}*/
 		
-		//continue in random direction
-		vec3 randomDeviation = RandomInsideUnitSphere(); 
+
+		BRDF = mCol / PI; //albedo -> color of the material
+
+		if ( ray.depth > maxDepth ) //reasonable number = 7
+			return color(0,0,0);
+
+		//continue in random direction on your hemisphere
+		vec3 randomDeviation;//		= RandomInsideUnitSphere(); 
 		do
 		{
 			randomDeviation = RandomInsideUnitSphere();
 		
-		} while ( randomDeviation.dot( hit.normal ) < 0.0);
+		} while ( randomDeviation.dot( hit.normal ) < 0.00001);
 		vec3 R =  randomDeviation; //get a random ray in random direction (DiffuseReflection)
-		//new ray, start at intersection point, into random direction R
-		Ray r( hit.point+hit.normal*0.001f, R, INFINITY, ray.depth + 1 ); 
 		
 
-		BRDF = mCol	/ PI; //albedo -> color of the material
 
-		if ( ray.depth > maxDepth ) 
-			return BRDF;
+		//new ray, start at intersection point, into random direction R
+		Ray r( hit.point + hit.normal * 0.001f, R, INFINITY, ray.depth + 1 ); 
+		
 
 		float ir = dot( hit.normal, R );
 		//ir = fmin( ir, 0.3f );
+
 		//update throughout (recursion)
 		color Ei = Sample( r, scene ) * (ir); //irradiance is what you found with that new ray
 		return PI * 2.0f * BRDF * Ei;
