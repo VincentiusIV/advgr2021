@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-bool WhittedRayTracer::Trace( Scene *scene, Ray ray, RayHit& hit)
+bool RayTracer::Trace( Scene *scene, Ray ray, RayHit& hit)
 {
 	bool hitAny = false;
 	for ( size_t i = 0; i < scene->objects.size(); i++ )
@@ -86,7 +86,7 @@ const color &WhittedRayTracer::HandleUVTestMaterial( RayHit &hit, Scene *scene )
 	return color(hit.uv.x, hit.uv.y, 1.0) * DirectIllumination( scene, hit.point, hit.normal );
 }
 
-const color &WhittedRayTracer::HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene )
+const color &RayTracer::HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene )
 {
 	float cosi = fmax( -1.0, fmin( 1.0, dot( ray.direction, hit.normal ) ) );
 	float cosTheta2 = cosi * cosi;
@@ -103,21 +103,30 @@ const color &WhittedRayTracer::HandleDielectricMaterial( Ray &ray, RayHit &hit, 
 	}
 	float etaiOverEtat = etai / etat;
 	float k = 1.0f - etaiOverEtat * etaiOverEtat * ( 1.0 - cosTheta2 );
-	vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
-	point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
-
-	// Fresnel
 	float sinTheta = etaiOverEtat * sqrtf( max( 0.0, 1.0 - cosTheta2 ) );
 	float reflectance;
 	Fresnel( sinTheta, reflectance, cosi, etat, etai );
 	float transmittance = ( 1.0f - reflectance );
+	float reflectChance = reflectance * Rand( 1.0f );
+	float refractChance = transmittance * Rand( 1.0f );
 
-	point3 p = hit.point;
-	vec3 r = reflect( ray.direction, hit.normal );
-	Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
+	if ( reflectChance > refractChance )
+	{
+		Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
+		return Sample( reflectRay, scene );
+	}
+	else
+	{
+		vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
+		point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
+		return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), scene );
+	}
+
+	/*
 	color refractColor = Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), scene );
 	color reflectColor = Sample( reflectRay, scene );
 	return transmittance * refractColor + reflectance * reflectColor;
+	*/
 }
 
 const color &WhittedRayTracer::HandleGlassMaterial( Ray &ray, RayHit &hit, Scene *scene )
@@ -142,7 +151,7 @@ const color &WhittedRayTracer::HandleMirrorMaterial( RayHit &hit, Ray &ray, Scen
 	return  diffuseColor + ( hit.material->specularity * reflectColor );
 }
 
-void WhittedRayTracer::Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai )
+void RayTracer::Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai )
 {
 	if ( sinTheta >= 1.f )
 	{

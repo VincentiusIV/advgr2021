@@ -32,8 +32,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	//raytracer = new WhittedRayTracer(40);
-	raytracer = new PathTracer(7);
+	raytracer = new WhittedRayTracer(40);
+	//raytracer = new PathTracer(7);
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -96,7 +96,7 @@ void Game::CreateBoxEnvironment()
 	scene->Add( plane1 );
 
 	////ceiling plane
-	shared_ptr<Plane> plane5 = make_shared<Plane>( lightMaterial, vec3( 0, 1, 0 ) );
+	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
 	plane5->position = point3( 0, 3.0, 5.0 );
 	scene->Add( plane5 );
 
