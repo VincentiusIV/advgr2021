@@ -13,5 +13,6 @@ class PathTracer : public RayTracer
 	PathTracer( int maxDepth ) : RayTracer( maxDepth ) {}
 	color Sample( Ray ray, Scene *scene );
     bool Trace( Scene *scene, Ray ray, RayHit &hit ); 
+	void Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai );
 };
 

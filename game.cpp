@@ -3,7 +3,7 @@
 static float deltaTimeInSeconds, cameraMoveSpeed = 0.2f, cameraRotateSpeed = 10.0f;
 static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
-static int raysPerPixel = 4;
+static int raysPerPixel = 20;
 static float calculateChance = 0.02;
 
 // -----------------------------------------------------------
@@ -62,9 +62,9 @@ void Game::CreateBoxEnvironment()
 	sphere3->position = point3( -1.0, 0.0, 1.0 );
 	scene->Add( sphere3 );
 
-	//shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.8 );
-	//lightSphere->position = point3( 0, 1.5, 2.5 );
-	//scene->Add( lightSphere );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2.0 );
+	lightSphere->position = point3( 0, 2.0, 4.0 );
+	scene->Add( lightSphere );
 
 	
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 0.6 );
@@ -77,7 +77,7 @@ void Game::CreateBoxEnvironment()
 	scene->Add( plane1 );
 
 	////ceiling plane
-	shared_ptr<Plane> plane5 = make_shared<Plane>( lightMaterial, vec3( 0, 1, 0 ) );
+	shared_ptr<Plane> plane5 = make_shared<Plane>( beige, vec3( 0, 1, 0 ) );
 	plane5->position = point3( 0, 3.0, 5.0 );
 	scene->Add( plane5 );
 
