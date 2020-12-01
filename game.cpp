@@ -54,9 +54,9 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> beige = make_shared<Material>( color( 0.9, 0.9, 0.78 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> lightMaterial = make_shared<Material>( color( 0.9, 0.9, 0.9 ), MaterialType::EMISSIVE );
 
-	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>( orangeGlass, 1 );
-	//sphere1->position = point3( 2.0, 0.0, 2.5 );
-	//scene->Add( sphere1 );
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>( orangeGlass, 1.0 );
+	sphere1->position = point3( 2.0, 0.0, 2.5 );
+	scene->Add( sphere1 );
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>( greenMirror, 0.7 );
 	sphere3->position = point3( -1.0, 0.0, 1.0 );
@@ -97,9 +97,9 @@ void Game::CreateBoxEnvironment()
 	scene->Add( plane4 );
 
 	//behind camera wall plane
-	//shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
-	//plane6->position = point3( 0.0, 0, -5.0 );
-	//scene->Add( plane6 );
+	shared_ptr<Plane> plane6 = make_shared<Plane>( beige, vec3( 0, 0, 1 ) );
+	plane6->position = point3( 0.0, 0, -5.0 );
+	scene->Add( plane6 );
 
 	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 1.5, 2.0 ), 5.0 );
 	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
