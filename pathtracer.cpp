@@ -29,7 +29,7 @@ color PathTracer::Sample(Ray &ray)
 
 		BRDF = mCol / PI;
 		return LitMethod1( ray, hit, BRDF );
-		//return LitMethod2( ray, hit, BRDF );
+		/*return LitMethod2( ray, hit, BRDF );*/
 	}
 	vec3 unit_direction = ray.direction;
 	auto t = 0.5 * ( -unit_direction.y + 1.0 );
