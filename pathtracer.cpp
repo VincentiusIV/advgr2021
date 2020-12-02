@@ -20,7 +20,7 @@ color PathTracer::Sample(Ray &ray)
 		if ( mmat == MaterialType::MIRROR )
 		{
 			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			return mCol * Sample( r ); //Color of the material -> Albedo
+			return  Sample( r ); //Color of the material -> Albedo
 		}
 		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
 		{
@@ -29,12 +29,26 @@ color PathTracer::Sample(Ray &ray)
 
 
 		BRDF = mCol / PI;
-			return LitMethod2( ray, hit, BRDF );
+			return LitMethod1( ray, hit, BRDF );
 		/*if ( Rand( 1.0 ) > 0.5f )
 		else 
 			return LitMethod2( ray, hit, BRDF );*/
 	}
 	return color( 0, 0, 0 );
+}
+
+const color &PathTracer::LitMethod1( Ray &ray, RayHit &hit, color &BRDF )
+{
+	vec3 R = RandomInsideUnitSphere();
+	if ( R.dot( hit.normal ) < 0.0 )
+		R = -R;
+	R = normalize( R );
+	//new ray, start at intersection point, into random direction R
+	point3 o = hit.point + hit.normal * EPSILON;
+	Ray r( o, R, INFINITY, ray.depth + 1 );
+	float ir = dot( hit.normal, R );
+	color Ei = Sample( r ) * ( ir ); //irradiance is what you found with that new ray
+	return TWO_PI * BRDF * Ei;
 }
 
 const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
@@ -62,21 +76,4 @@ const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
 		return color( 0, 0, 0 );
 	}
 }
-
-const color &PathTracer::LitMethod1( Ray &ray, RayHit &hit, color &BRDF )
-{
-	vec3 R = RandomInsideUnitSphere();
-	if ( R.dot( hit.normal ) <= 0.0 )
-		R = -R;
-	R += hit.normal;
-	R = normalize( R );
-	//new ray, start at intersection point, into random direction R
-	point3 o = hit.point + hit.normal * EPSILON;
-	Ray r(o, R, INFINITY, ray.depth + 1 );
-	float ir = dot( hit.normal, R );
-	color Ei = Sample( r ) * ( ir ); //irradiance is what you found with that new ray
-	return TWO_PI * BRDF * Ei;
-}
-
-
 

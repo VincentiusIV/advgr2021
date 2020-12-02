@@ -26,7 +26,7 @@ color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 		shared_ptr<Light> light = scene->lights.at( i );
 		Ray shadowRay = light->CastShadowRayFrom(point);
 		RayHit hit;
-		if (Trace(shadowRay, hit))
+		if (Trace(shadowRay, hit, MaterialType::EMISSIVE))
 		{
 			continue;
 		}
@@ -44,7 +44,7 @@ color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 color WhittedRayTracer::Sample( Ray &ray )
 {
 	RayHit hit;
-	if (Trace(ray, hit))
+	if (Trace(ray, hit, MaterialType::EMISSIVE))
 	{
 		shared_ptr<Material> mat = hit.material;
 		if ( ray.depth >= maxDepth )
@@ -53,7 +53,6 @@ color WhittedRayTracer::Sample( Ray &ray )
 		switch ( mat->materialType )
 		{
 			case MaterialType::DIFFUSE:
-			case MaterialType::EMISSIVE:
 				return HandleDiffuseMaterial( mat, hit );
 			case MaterialType::MIRROR:
 				return HandleMirrorMaterial( hit, ray );
