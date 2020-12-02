@@ -1,91 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="game.cpp" />
-    <ClCompile Include="surface.cpp">
-      <Filter>template code</Filter>
-    </ClCompile>
-    <ClCompile Include="template.cpp">
-      <Filter>template code</Filter>
-    </ClCompile>
-    <ClCompile Include="ray.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="raytracer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="scene.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="sphere.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="plane.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="meshobject.cpp">
-    <ClCompile Include="pathtracer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
+    <ClCompile Include="meshobject.cpp" />
+    <ClCompile Include="pathtracer.cpp" />
+    <ClCompile Include="plane.cpp" />
+    <ClCompile Include="ray.cpp" />
+    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="template.cpp" />
+    <ClCompile Include="raytracer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="game.h" />
-    <ClInclude Include="surface.h">
-      <Filter>template code</Filter>
-    </ClInclude>
-    <ClInclude Include="template.h">
-      <Filter>template code</Filter>
-    </ClInclude>
+    <ClInclude Include="light.h" />
+    <ClInclude Include="material.h" />
+    <ClInclude Include="meshobject.h" />
+    <ClInclude Include="objloader.h" />
+    <ClInclude Include="pathtracer.h" />
+    <ClInclude Include="plane.h" />
     <ClInclude Include="precomp.h" />
-    <ClInclude Include="material.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="ray.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="transform.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="object.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="sphere.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="plane.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="raytracer.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="light.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="objloader.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="meshobject.h">
-    <ClInclude Include="pathtracer.h">
-      <Filter>src</Filter>
-    </ClInclude>
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="sphere.h" />
+    <ClInclude Include="surface.h" />
+    <ClInclude Include="template.h" />
+    <ClInclude Include="transform.h" />
+    <ClInclude Include="raytracer.h" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="template code">
-      <UniqueIdentifier>{bf32dd6e-4be7-4889-8ac6-49e7ee163c40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{73b57e05-4a6a-4a62-92ad-fc9164a71568}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="_readme.txt">
-      <Filter>template code</Filter>
-    </Text>
+    <Text Include="_readme.txt" />
   </ItemGroup>
 </Project>

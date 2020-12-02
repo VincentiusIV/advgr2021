@@ -89,8 +89,8 @@ void MeshObject::UpdateTRS()
 
 bool MeshObject::Hit( Ray &ray, RayHit &hit )
 {
-	if ( !Sphere::Hit( ray, hit, position, r2 ) )
-		return false;
+	//if ( !Sphere::Hit( ray, hit, position, r2 ) )
+	//	return false;
 
 	uint j = 0;
 	bool didHit = false;

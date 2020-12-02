@@ -20,7 +20,7 @@ color PathTracer::Sample(Ray &ray)
 		if ( mmat == MaterialType::MIRROR )
 		{
 			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			return  Sample( r ); //Color of the material -> Albedo
+			return mCol * Sample( r ); //Color of the material -> Albedo
 		}
 		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
 		{
@@ -29,12 +29,13 @@ color PathTracer::Sample(Ray &ray)
 
 
 		BRDF = mCol / PI;
-			return LitMethod1( ray, hit, BRDF );
-		/*if ( Rand( 1.0 ) > 0.5f )
-		else 
-			return LitMethod2( ray, hit, BRDF );*/
+		return LitMethod1( ray, hit, BRDF );
+		//return LitMethod2( ray, hit, BRDF );
 	}
-	return color( 0, 0, 0 );
+	vec3 unit_direction = ray.direction;
+	auto t = 0.5 * ( -unit_direction.y + 1.0 );
+	color c = ( 1.0 - t ) * color( 1.0, 1.0, 1.0 ) + t * color( 0.5, 0.7, 1.0 );
+	return c;
 }
 
 const color &PathTracer::LitMethod1( Ray &ray, RayHit &hit, color &BRDF )
@@ -46,7 +47,7 @@ const color &PathTracer::LitMethod1( Ray &ray, RayHit &hit, color &BRDF )
 	//new ray, start at intersection point, into random direction R
 	point3 o = hit.point + hit.normal * EPSILON;
 	Ray r( o, R, INFINITY, ray.depth + 1 );
-	float ir = dot( hit.normal, R );
+	double ir = dot( hit.normal, R );
 	color Ei = Sample( r ) * ( ir ); //irradiance is what you found with that new ray
 	return TWO_PI * BRDF * Ei;
 }
@@ -66,7 +67,8 @@ const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
 	point3 o = hit.point + L * EPSILON;
 	float tmax = dist - 2.0f * EPSILON;
 	Ray r( o, L, tmax, 7 );
-	if ( !Trace( r, hit, MaterialType::EMISSIVE) )
+	RayHit newHit;
+	if ( !Trace( r, newHit, MaterialType::EMISSIVE ) )
 	{
 		float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
 		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->color * solidAngle * cosI;
