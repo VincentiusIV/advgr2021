@@ -4,7 +4,7 @@ static float deltaTimeInSeconds, cameraMoveSpeed = 0.2f, cameraRotateSpeed = 10.
 static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
 static int raysPerPixel = 5000;
-static float calculateChance = 1;
+static float calculateChance = 0.02;
 static int  frameCounter = 0, pixelCounter = 0;
 static color* colorBuffer;
 static int* raysCounter;
@@ -24,8 +24,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new PathTracer( scene, 7 );
+	raytracer = new WhittedRayTracer(scene, 7);
+	//raytracer = new PathTracer( scene, 7 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -42,17 +42,17 @@ void Tmpl8::Game::ClearColorBuffer()
 
 void Game::CreateBoxEnvironment()
 {
-	shared_ptr<Material> redOpaque = make_shared<Material>(color(1, 0.0, 0.0), MaterialType::DIFFUSE);
-	shared_ptr<Material> normalTest = make_shared<Material>(color(0.78, 0.0, 0.0), MaterialType::NORMAL_TEST);
-	shared_ptr<Material> greenMirror = make_shared<Material>(color(0.0, 0.78, 0.0), MaterialType::MIRROR);
+	shared_ptr<Material> redOpaque = make_shared<Material>(color(1, 0.1, 0.1), MaterialType::DIFFUSE);
+	shared_ptr<Material> normalTest = make_shared<Material>( color( 0.78, 0.1, 0.1 ), MaterialType::NORMAL_TEST );
+	shared_ptr<Material> greenMirror = make_shared<Material>( color( 0.1, 0.78, 0.1 ), MaterialType::MIRROR );
 	greenMirror->specularity = 0.9f;
 	greenMirror->smoothness = 0.3;
 	shared_ptr<Material> groundMirror = make_shared<Material>(color(1.0, 1.0, 1.0), MaterialType::MIRROR);
 	groundMirror->specularity = 0.4f;
 	groundMirror->smoothness = 1.0f;
-	shared_ptr<Material> blueOpaque = make_shared<Material>(color(0.0, 0.0, 1), MaterialType::DIFFUSE);
-	shared_ptr<Material> orangeOpaque = make_shared<Material>(color(1.0, 0.55, 0), MaterialType::DIFFUSE);
-	shared_ptr<Material> orangeGlass = make_shared<Material>( color( 1.0, 0.55, 0 ), MaterialType::DIELECTRIC );
+	shared_ptr<Material> blueOpaque = make_shared<Material>( color( 0.1, 0.1, 1 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> orangeOpaque = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> orangeGlass = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIELECTRIC );
 	orangeGlass->n = 1.5f;
 	orangeGlass->smoothness = 1.0f;
 	shared_ptr<Material> beige = make_shared<Material>(color(0.9, 0.9, 0.78), MaterialType::DIFFUSE);
@@ -160,11 +160,11 @@ void Game::RenderScene()
 		for ( int x = 0; x < SCRWIDTH; x++ )
 		{
 			int raysForThisPixel = raysCounter[y * SCRWIDTH + x];
-			if ( raysForThisPixel >= raysPerPixel )
+			if ( raysForThisPixel >= raysPerPixel || Rand(1.0) > calculateChance)
 				continue;
 			color color = colorBuffer[y * SCRWIDTH + x];
-			auto uOffset = ( Rand( 1.0 ) ); 
-			auto vOffset = ( Rand( 1.0 ) ); 
+			auto uOffset = ( Rand( 2.0 )-1.0 ); 
+			auto vOffset = ( Rand( 2.0 )-1.0 ); 
 			auto u = (( double( x ) + uOffset ) / ( SCRWIDTH - 1 ));
 			auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
