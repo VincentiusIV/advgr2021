@@ -70,7 +70,7 @@ const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
 	if ( !Trace( r, newHit, MaterialType::EMISSIVE ) )
 	{
 		float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
-		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->color * solidAngle * cosI;
+		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->albedo * solidAngle * cosI;
 	}
 	else
 	{

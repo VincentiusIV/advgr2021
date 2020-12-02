@@ -55,7 +55,7 @@ color WhittedRayTracer::Sample( Ray &ray )
 			case MaterialType::DIFFUSE:
 				return HandleDiffuseMaterial( mat, hit );
 			case MaterialType::MIRROR:
-				return HandleMirrorMaterial( hit, ray );
+				return HandleMirrorMaterial( ray,hit );
 			case MaterialType::GLASS:
 				return HandleGlassMaterial( ray, hit );
 			case MaterialType::DIELECTRIC:

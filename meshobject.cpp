@@ -26,7 +26,7 @@ MeshObject::MeshObject( shared_ptr<Material> material, std::string filePath ) : 
 				objl::Vector2 uv = mesh.Vertices.at( i ).TextureCoordinate;
 				uvs.push_back( vec2( uv.X, uv.Y ) );
 
-				float dist = pos.length()*pos.length();
+				float dist = pos.sqrLentgh() * pos.sqrLentgh();
 				if ( dist > r2 )
 					r2 = dist;
 			}
@@ -89,8 +89,8 @@ void MeshObject::UpdateTRS()
 
 bool MeshObject::Hit( Ray &ray, RayHit &hit )
 {
-	//if ( !Sphere::Hit( ray, hit, position, r2 ) )
-	//	return false;
+	if ( !Sphere::Hit( ray, hit, position, r2 ) )
+		return false;
 
 	uint j = 0;
 	bool didHit = false;
