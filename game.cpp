@@ -24,8 +24,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new PathTracer( scene, 7 );
+	raytracer = new WhittedRayTracer(scene, 7);
+	//raytracer = new PathTracer( scene, 7 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -44,9 +44,9 @@ void Game::CreateBoxEnvironment()
 {
 	shared_ptr<Material> redOpaque = make_shared<Material>(color(1, 0.0, 0.0), MaterialType::DIFFUSE);
 	shared_ptr<Material> normalTest = make_shared<Material>(color(0.78, 0.0, 0.0), MaterialType::NORMAL_TEST);
-	shared_ptr<Material> greenMirror = make_shared<Material>(color(0.0, 0.78, 0.0), MaterialType::MIRROR);
+	shared_ptr<Material> greenMirror = make_shared<Material>(color(0.9, 0.9, 0.9), MaterialType::MIRROR);
 	greenMirror->specularity = 0.9f;
-	greenMirror->smoothness = 0.3;
+	greenMirror->smoothness = 0.6;
 	shared_ptr<Material> groundMirror = make_shared<Material>(color(1.0, 1.0, 1.0), MaterialType::MIRROR);
 	groundMirror->specularity = 0.4f;
 	groundMirror->smoothness = 1.0f;
@@ -66,7 +66,7 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( cube );
 
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
-	sphere1->position = point3(1.0, 0.0, 2.5);
+	sphere1->position = point3(2.1, 0.0, 2.5);
 	scene->Add(sphere1);
 
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>(greenMirror, 0.7);
@@ -82,7 +82,7 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( lightSphere2 );
 
 	//ground plane
-	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ), 3, 3 );
+	shared_ptr<Plane> plane1 = make_shared<Plane>( greenMirror, vec3( 0, 1, 0 ), 3, 3 );
 	plane1->position = point3( 0, -1, 5.0 );
 	scene->Add( plane1 );
 
