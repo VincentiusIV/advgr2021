@@ -1,13 +1,13 @@
 #include "precomp.h"
 
-color PathTracer::Sample(Ray ray, Scene *scene)
+color PathTracer::Sample(Ray ray)
 {
 	//initials
 	color BRDF; //should probably be outside function
 	RayHit hit;
 	if ( ray.depth > maxDepth ) //reasonable number = 7
 		return color( 0, 0, 0 );
-	if (Trace(scene, ray, hit))
+	if (Trace(ray, hit))
 	{
 		shared_ptr<Material> mat = hit.material;
 		color mCol = mat->color;
@@ -20,7 +20,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		if ( mmat == MaterialType::MIRROR )
 		{
 			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			return mCol * Sample( r, scene ); //Color of the material -> Albedo
+			return mCol * Sample( r ); //Color of the material -> Albedo
 		}
 		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
 		{
@@ -50,19 +50,19 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 			if (reflectChance > refractChance)
 			{
 				Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
-				return Sample( reflectRay, scene );
+				return Sample( reflectRay );
 			}
 			else
 			{
 				vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
 				point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
-				return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), scene );
+				return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ) );
 			}
 		}
 
 
 		BRDF = mCol / PI;
-			return LitMethod2( scene, ray, hit, BRDF );
+			return LitMethod2( ray, hit, BRDF );
 		//if ( Rand( 1.0 ) > 0.5f )
 		//else 
 		//	return LitMethod2( scene, ray, hit, BRDF );
@@ -70,7 +70,7 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 	return color( 0, 0, 0 );
 }
 
-const color &PathTracer::LitMethod2( Scene *scene, Ray &ray, RayHit &hit, color &BRDF )
+const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
 {
 	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject();
 	point3 randPoint = randLight->GetRandomPoint();
@@ -85,7 +85,7 @@ const color &PathTracer::LitMethod2( Scene *scene, Ray &ray, RayHit &hit, color 
 	point3 o = hit.point + L * EPSILON;
 	float tmax = dist - 2.0f * EPSILON;
 	Ray r( o, L, tmax, 7 );
-	if ( !Trace( scene, r, hit , MaterialType::EMISSIVE) )
+	if ( !Trace( r, hit, MaterialType::EMISSIVE) )
 	{
 		float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
 		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->color * solidAngle * cosI;
@@ -96,7 +96,7 @@ const color &PathTracer::LitMethod2( Scene *scene, Ray &ray, RayHit &hit, color 
 	}
 }
 
-const color &PathTracer::LitMethod1( Scene *scene, Ray &ray, RayHit &hit, color &BRDF )
+const color &PathTracer::LitMethod1( Ray &ray, RayHit &hit, color &BRDF )
 {
 	vec3 R = RandomInsideUnitSphere();
 	if ( R.dot( hit.normal ) <= 0.0 )
@@ -105,16 +105,16 @@ const color &PathTracer::LitMethod1( Scene *scene, Ray &ray, RayHit &hit, color 
 	point3 o = hit.point + hit.normal * EPSILON;
 	Ray r(o, R, INFINITY, ray.depth + 1 );
 	float ir = dot( hit.normal, R );
-	color Ei = Sample( r, scene ) * ( ir ); //irradiance is what you found with that new ray
+	color Ei = Sample( r ) * ( ir ); //irradiance is what you found with that new ray
 	return TWO_PI * BRDF * Ei;
 }
 
-bool PathTracer::Trace(Scene *scene, Ray ray, RayHit &hit ) 
+bool PathTracer::Trace(Ray &ray, RayHit & hit ) 
 {
-	return Trace( scene, ray, hit, MaterialType::DIFFUSE );
+	return Trace( ray, hit, MaterialType::DIFFUSE );
 }
 
-bool PathTracer::Trace( Scene *scene, Ray ray, RayHit &hit, MaterialType typeToIgnore )
+bool PathTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 {
 	bool hitAny = false;
 	for ( size_t i = 0; i < scene->objects.size(); i++ )

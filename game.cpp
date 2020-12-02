@@ -24,8 +24,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	//raytracer = new WhittedRayTracer(7);
-	raytracer = new PathTracer(7);
+	//raytracer = new WhittedRayTracer(scene, 7);
+	raytracer = new PathTracer( scene, 7 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()

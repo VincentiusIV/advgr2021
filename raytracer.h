@@ -8,27 +8,28 @@ class Material;
 class RayTracer
 {
   public:
-	RayTracer( int maxDepth ) : maxDepth( maxDepth ) {}
-	virtual color Sample( Ray ray, Scene *scene ) = 0;
-	virtual bool Trace( Scene *scene, Ray ray, RayHit &hit ) = 0;
+	RayTracer( Scene *scene, int maxDepth ) : scene(scene), maxDepth( maxDepth ) {}
+	virtual color Sample( Ray &ray ) = 0;
+	virtual bool Trace( Ray &ray, RayHit &hit ) = 0;
+	Scene *scene;
 	int maxDepth;
 };
 
 class WhittedRayTracer : public RayTracer
 {
   public:
-	WhittedRayTracer(int maxDepth) : RayTracer(maxDepth) {}
+	WhittedRayTracer( Scene *scene, int maxDepth ) : RayTracer( scene, maxDepth ) {}
 
-	color Sample( Ray ray, Scene *scene );
-	color DirectIllumination( Scene *scene, point3 point, vec3 normal );
-	bool Trace( Scene *scene, Ray ray, RayHit &hit );
+	color Sample( Ray &ray );
+	color DirectIllumination( point3 point, vec3 normal );
+	bool Trace( Ray &ray, RayHit &hit );
 	const color &HandleSkybox( Ray &ray );
-	const color &HandleNormalTestMaterial( RayHit &hit, Scene *scene );
-	const color &HandleUVTestMaterial( RayHit &hit, Scene *scene );
-	const color &HandleDielectricMaterial( Ray &ray, RayHit &hit, Scene *scene );
-	const color &HandleGlassMaterial( Ray &ray, RayHit &hit, Scene *scene );
-	const color &HandleDiffuseMaterial( std::shared_ptr<Material> &mat, Scene *scene, RayHit &hit );
-	const color &HandleMirrorMaterial( RayHit &hit, Ray &ray, Scene *scene );
+	const color &HandleNormalTestMaterial( RayHit &hit );
+	const color &HandleUVTestMaterial( RayHit &hit );
+	const color &HandleDielectricMaterial( Ray &ray, RayHit &hit );
+	const color &HandleGlassMaterial( Ray &ray, RayHit &hit );
+	const color &HandleDiffuseMaterial( std::shared_ptr<Material> &mat, RayHit &hit );
+	const color &HandleMirrorMaterial( RayHit &hit, Ray &ray );
 	void Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai );
 
 	color baseIllumination = color( 0.05f, 0.05f, 0.05f );
