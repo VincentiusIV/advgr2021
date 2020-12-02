@@ -32,8 +32,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	raytracer = new WhittedRayTracer(40);
-	//raytracer = new PathTracer(7);
+	//raytracer = new WhittedRayTracer(40);
+	raytracer = new PathTracer(7);
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -173,10 +173,10 @@ void Game::RenderScene()
 			if ( raysForThisPixel >= raysPerPixel || Rand( 1.0 ) > calculateChance )
 				continue;
 			color color = colorBuffer[y * SCRWIDTH + x];
-			auto uOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) ); 
-			auto vOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) ); 
-			auto u = (( double( x ) + uOffset ) / ( SCRWIDTH - 1 ));
-			auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
+			auto uOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) );
+			auto vOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) );
+			auto u = ( ( double( x ) + uOffset ) / ( SCRWIDTH - 1 ) );
+			auto v = 1.0 - ( ( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ) );
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
 			color += raytracer->Sample( ray, scene );
 			colorBuffer[y * SCRWIDTH + x] = color;
@@ -185,7 +185,23 @@ void Game::RenderScene()
 			raysCounter[y * SCRWIDTH + x] = raysForThisPixel + 1;
 		}
 	}
+	//place for possible vignetting
+	/*for ( int y = 0; y < SCRHEIGHT; y++ )
+	{
+		for ( int x = 0; x < SCRWIDTH; x++ )
+		{
+			if ( x > 0.8 || x < 0.2 || y > 0.8 || y < 0.2 )
+			{
 
+			}
+			if ( x > 0.9 || x < 0.1 || y > 0.9 || y < 0.1 )
+			{
+			}
+			if ( x > 0.95 || x < 0.05 || y > 0.95 || y < 0.05 )
+			{
+			}
+		}
+	} */
 }
 
 void Game::KeyDown( int key )
