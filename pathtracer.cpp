@@ -31,6 +31,7 @@ color PathTracer::Sample(Ray &ray)
 		BRDF = mCol / PI;
 			return LitMethod1( ray, hit, BRDF );
 		/*if ( Rand( 1.0 ) > 0.5f )
+			return LitMethod1( ray, hit, BRDF );
 		else 
 			return LitMethod2( ray, hit, BRDF );*/
 	}
