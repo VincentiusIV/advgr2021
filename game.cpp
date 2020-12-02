@@ -4,7 +4,7 @@ static float deltaTimeInSeconds, cameraMoveSpeed = 0.2f, cameraRotateSpeed = 10.
 static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
 static int raysPerPixel = 5000;
-static float calculateChance = 0.02;
+static float calculateChance = 1;
 static int  frameCounter = 0, pixelCounter = 0;
 static color* colorBuffer;
 static int* raysCounter;
@@ -19,21 +19,13 @@ void Game::Init()
 	raysCounter = new int[SCRWIDTH * SCRHEIGHT];
 	ClearColorBuffer();
 
-
-	//shared_ptr<MeshObject> cube1 = make_shared<MeshObject>( normalTest, "assets/pokeball.obj" );
-	//cube1->position = point3( 0, 1.5, 0.5 );
-	//cube1->rotation = point3( 0, PI, 0 );
-	//cube1->scale = point3( 1, 1, 1 );
-	//cube1->UpdateTRS();
-	//scene->Add( cube1 );
-
 	CreateBoxEnvironment();
 
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	//raytracer = new WhittedRayTracer(40);
-	raytracer = new PathTracer(7);
+	//raytracer = new WhittedRayTracer(scene, 7);
+	raytracer = new PathTracer( scene, 7 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -60,7 +52,7 @@ void Game::CreateBoxEnvironment()
 	groundMirror->smoothness = 1.0f;
 	shared_ptr<Material> blueOpaque = make_shared<Material>(color(0.0, 0.0, 1), MaterialType::DIFFUSE);
 	shared_ptr<Material> orangeOpaque = make_shared<Material>(color(1.0, 0.55, 0), MaterialType::DIFFUSE);
-	shared_ptr<Material> orangeGlass = make_shared<Material>(color(1.0, 0.55, 0), MaterialType::DIELECTRIC);
+	shared_ptr<Material> orangeGlass = make_shared<Material>( color( 1.0, 0.55, 0 ), MaterialType::DIELECTRIC );
 	orangeGlass->n = 1.5f;
 	orangeGlass->smoothness = 1.0f;
 	shared_ptr<Material> beige = make_shared<Material>(color(0.9, 0.9, 0.78), MaterialType::DIFFUSE);
@@ -73,7 +65,6 @@ void Game::CreateBoxEnvironment()
 	//cube->UpdateTRS();
 	//scene->Add( cube );
 
-
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 1);
 	sphere1->position = point3(1.0, 0.0, 2.5);
 	scene->Add(sphere1);
@@ -82,8 +73,8 @@ void Game::CreateBoxEnvironment()
 	sphere3->position = point3(-1.0, 0.0, 1.0);
 	scene->Add(sphere3);
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2.0 );
-	lightSphere->position = point3( 0, 4.0, 4.0 );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.8 );
+	lightSphere->position = point3( 0, 2.0, 2.0 );
 	scene->Add( lightSphere );
 	
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 0.6 );
@@ -110,7 +101,7 @@ void Game::CreateBoxEnvironment()
 	plane3->position = point3( -5.0, 0, 10.0 );
 	scene->Add( plane3 );
 
-	//right wall plane
+	////right wall plane
 	shared_ptr<Plane> plane4 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ) );
 	plane4->position = point3( 3.0, 0, 5.0 );
 	scene->Add( plane4 );
@@ -130,9 +121,8 @@ void Game::CreateBoxEnvironment()
 // -----------------------------------------------------------
 void Game::Shutdown()
 {
-
+	delete scene;
 }
-
 
 // -----------------------------------------------------------
 // Main application tick function
@@ -170,17 +160,20 @@ void Game::RenderScene()
 		for ( int x = 0; x < SCRWIDTH; x++ )
 		{
 			int raysForThisPixel = raysCounter[y * SCRWIDTH + x];
-			if ( raysForThisPixel >= raysPerPixel || Rand( 1.0 ) > calculateChance )
+			if ( raysForThisPixel >= raysPerPixel )
 				continue;
 			color color = colorBuffer[y * SCRWIDTH + x];
-			auto uOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) );
-			auto vOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) );
-			auto u = ( ( double( x ) + uOffset ) / ( SCRWIDTH - 1 ) );
-			auto v = 1.0 - ( ( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ) );
+			auto uOffset = ( Rand( 1.0 ) ); 
+			auto vOffset = ( Rand( 1.0 ) ); 
+			auto u = (( double( x ) + uOffset ) / ( SCRWIDTH - 1 ));
+			auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
-			color += raytracer->Sample( ray, scene );
+			color += raytracer->Sample( ray );
 			colorBuffer[y * SCRWIDTH + x] = color;
 			color = color / float( raysForThisPixel );
+			color.x = clamp( color.x, 0.0f, 1.0f );
+			color.y = clamp( color.y, 0.0f, 1.0f );
+			color.z = clamp( color.z, 0.0f, 1.0f );
 			buffer[y * SCRWIDTH + x] = CreateRGB( floor( color.x * 255.999 ), floor( color.y * 255.999 ), floor( color.z * 255.999 ) );
 			raysCounter[y * SCRWIDTH + x] = raysForThisPixel + 1;
 		}

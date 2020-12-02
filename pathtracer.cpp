@@ -1,12 +1,13 @@
 #include "precomp.h"
 
-color PathTracer::Sample(Ray ray, Scene *scene)
+color PathTracer::Sample(Ray &ray)
 {
 	//initials
 	color BRDF; //should probably be outside function
 	RayHit hit;
-
-	if (Trace(scene, ray, hit))
+	if ( ray.depth > maxDepth ) //reasonable number = 7
+		return color(0,0,0);
+	if (Trace(ray, hit))
 	{
 		shared_ptr<Material> mat = hit.material;
 		color mCol = mat->color;
@@ -19,34 +20,63 @@ color PathTracer::Sample(Ray ray, Scene *scene)
 		if ( mmat == MaterialType::MIRROR )
 		{
 			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			return mCol * Sample( r, scene ); //Color of the material -> Albedo
+			return mCol * Sample( r ); //Color of the material -> Albedo
 		}
 		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
 		{
-			return HandleDielectricMaterial( ray, hit, scene );
+			return HandleDielectricMaterial( ray, hit );
 		}
-		
-		BRDF = mCol / PI; //albedo -> color of the material
 
-		if ( ray.depth > maxDepth ) //reasonable number = 7
-			return color(0,0,0);
 
-		//continue in random direction on your hemisphere
-		vec3 R = RandomInsideUnitSphere(); 
-		if ( R.dot( hit.normal ) <= 0.0  )
-			R = -R;
-
-		//new ray, start at intersection point, into random direction R
-		Ray r( hit.point + hit.normal * 0.001f, R, INFINITY, ray.depth + 1 ); 
-
-		float ir = dot( hit.normal, R );
-		color Ei = Sample( r, scene ) * ( ir ); //irradiance is what you found with that new ray
-		return PI * 2.0f * BRDF * Ei;
+		BRDF = mCol / PI;
+			return LitMethod2( ray, hit, BRDF );
+		/*if ( Rand( 1.0 ) > 0.5f )
+		else 
+			return LitMethod2( ray, hit, BRDF );*/
 	}
-	else //no hit, ray left the scene. return black
+	return color( 0, 0, 0 );
+}
+
+const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
+{
+	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject();
+	point3 randPoint = randLight->GetRandomPoint();
+	vec3 L = randPoint - hit.point;
+	float dist = L.length();
+	L = L / dist;
+	vec3 lightNormal = randLight->GetNormalAtPoint( randPoint );
+	float cosO = ( -L ).dot( lightNormal );
+	float cosI = L.dot( hit.normal );
+	if ( ( cosO <= 0 ) || ( cosI <= 0 ) )
+		return color( 0, 0, 0 );
+	point3 o = hit.point + L * EPSILON;
+	float tmax = dist - 2.0f * EPSILON;
+	Ray r( o, L, tmax, 7 );
+	if ( !Trace( r, hit, MaterialType::EMISSIVE) )
+	{
+		float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
+		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->color * solidAngle * cosI;
+	}
+	else
 	{
 		return color( 0, 0, 0 );
 	}
 }
+
+const color &PathTracer::LitMethod1( Ray &ray, RayHit &hit, color &BRDF )
+{
+	vec3 R = RandomInsideUnitSphere();
+	if ( R.dot( hit.normal ) <= 0.0 )
+		R = -R;
+	R += hit.normal;
+	R = normalize( R );
+	//new ray, start at intersection point, into random direction R
+	point3 o = hit.point + hit.normal * EPSILON;
+	Ray r(o, R, INFINITY, ray.depth + 1 );
+	float ir = dot( hit.normal, R );
+	color Ei = Sample( r ) * ( ir ); //irradiance is what you found with that new ray
+	return TWO_PI * BRDF * Ei;
+}
+
 
 
