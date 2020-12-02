@@ -48,7 +48,7 @@ color WhittedRayTracer::Sample( Ray &ray )
 	{
 		shared_ptr<Material> mat = hit.material;
 		if ( ray.depth >= maxDepth )
-			return mat->color;
+			return mat->GetColor(hit.uv);
 
 		switch ( mat->materialType )
 		{
@@ -144,16 +144,16 @@ const color &WhittedRayTracer::HandleGlassMaterial( Ray &ray, RayHit &hit )
 
 const color &WhittedRayTracer::HandleDiffuseMaterial( std::shared_ptr<Material> &mat, RayHit &hit )
 {
-	return mat->color * DirectIllumination( hit.point, hit.normal );
+	return mat->GetColor(hit.uv) * DirectIllumination( hit.point, hit.normal );
 }
 
-const color &WhittedRayTracer::HandleMirrorMaterial( RayHit &hit, Ray &ray )
+const color &WhittedRayTracer::HandleMirrorMaterial( Ray &ray, RayHit &hit )
 {
 	point3 p = hit.point;
 	vec3 r = reflect( ray.direction, hit.normal );
 	Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
 	color reflectColor = Sample( reflectRay );
-	color diffuseColor = ( 1.0 - hit.material->specularity ) * hit.material->color * DirectIllumination( hit.point, hit.normal );
+	color diffuseColor = ( 1.0 - hit.material->specularity ) * hit.material->GetColor(hit.uv) * DirectIllumination( hit.point, hit.normal );
 	return  diffuseColor + ( hit.material->specularity * reflectColor );
 }
 

@@ -33,10 +33,8 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 			vec3 b = cross( planeNormal, vec3( 0, 1, 0 ) );
 			vec3 maxAB = dot( a, a ) < dot( b, b ) ? b : a;
 			vec3 c = cross( planeNormal, vec3( 0, 0, 1 ) );
-
 			vec3 u = normalize( dot(maxAB, maxAB) < dot(c,c) ? c : maxAB );
 			vec3 v = cross( planeNormal, u );
-
 			hit.uv.x = u.dot( hit.point ) / material->uvScale.x;
 			hit.uv.y = v.dot( hit.point ) / material->uvScale.x;
 			return true; 

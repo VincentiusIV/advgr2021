@@ -31,7 +31,7 @@ class WhittedRayTracer : public RayTracer
 	const color &HandleUVTestMaterial( RayHit &hit );
 	const color &HandleGlassMaterial( Ray &ray, RayHit &hit );
 	const color &HandleDiffuseMaterial( std::shared_ptr<Material> &mat, RayHit &hit );
-	const color &HandleMirrorMaterial( RayHit &hit, Ray &ray );
+	const color &HandleMirrorMaterial( Ray &ray, RayHit &hit );
 
 	color baseIllumination = color( 0.05f, 0.05f, 0.05f );
 };

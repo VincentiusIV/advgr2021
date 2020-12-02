@@ -10,7 +10,7 @@ color PathTracer::Sample(Ray &ray)
 	if (Trace(ray, hit))
 	{
 		shared_ptr<Material> mat = hit.material;
-		color mCol = mat->color;
+		color mCol = mat->GetColor(hit.uv);
 		MaterialType mmat = mat->materialType;
 
 		if ( mmat == MaterialType::EMISSIVE )
@@ -26,7 +26,6 @@ color PathTracer::Sample(Ray &ray)
 		{
 			return HandleDielectricMaterial( ray, hit );
 		}
-
 
 		BRDF = mCol / PI;
 		return LitMethod1( ray, hit, BRDF );

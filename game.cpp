@@ -44,6 +44,8 @@ void Tmpl8::Game::ClearColorBuffer()
 void Game::CreateBoxEnvironment()
 {
 	shared_ptr<Material> redOpaque = make_shared<Material>(color(0.9, 0.1, 0.1), MaterialType::DIFFUSE);
+	shared_ptr<Material> textureDiffuse = make_shared<Material>(color(0.9, 0.1, 0.1), MaterialType::DIFFUSE);
+	//textureDiffuse->mainTex = new Surface( "" );
 	shared_ptr<Material> normalTest = make_shared<Material>( color( 0.78, 0.1, 0.1 ), MaterialType::NORMAL_TEST );
 	shared_ptr<Material> greenMirror = make_shared<Material>( color( 0.1, 0.78, 0.1 ), MaterialType::MIRROR );
 	greenMirror->specularity = 0.4f;
@@ -77,16 +79,6 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Sphere> sphere3 = make_shared<Sphere>(greenMirror, 0.7);
 	sphere3->position = point3(4.0, 0.0, 1.0);
 	scene->Add(sphere3);
-
-	for ( int x = -5; x < 5; x++ )
-	{
-		for ( int z = -5; z < 5; z++ )
-		{
-			shared_ptr<Sphere> randSphere = make_shared<Sphere>( redOpaque, 0.1 );
-			randSphere->position = point3( x + Rand( 2.0f ) - 1.0f, 0.0, z + Rand( 2.0f ) - 1.0f );
-			scene->Add( randSphere );
-		}
-	}
 
 	//shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.8 );
 	//lightSphere->position = point3( 0, 2.0, 2.0 );
