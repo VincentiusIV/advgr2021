@@ -12,10 +12,25 @@ Scene::~Scene()
 
 }
 
+void Scene::Add(shared_ptr<HittableObject> object)
+{
+	objects.push_back( object ); 
+	if ( object->material->materialType == MaterialType::EMISSIVE )
+		emissiveObjects.push_back( object );
+}
+
 void Scene::Update(float deltaTime)
 {
 	for ( size_t i = 0; i < objects.size(); i++ )
 	{
 		objects.at( i )->Update();
 	}
+}
+
+shared_ptr<HittableObject> Scene::GetRandomEmissiveObject()
+{
+	int randIdx = RandomFloat() * emissiveObjects.size();
+	if ( randIdx >= emissiveObjects.size() )
+		randIdx = emissiveObjects.size() - 1;
+	return emissiveObjects.at( randIdx );
 }

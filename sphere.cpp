@@ -13,7 +13,7 @@ bool Sphere::Hit( Ray &ray, RayHit &hit )
 		ray.t = t;
 		hit.material = material;
 		hit.point = ray.At( t );
-		vec3 outNormal = normalize( hit.point - position );
+		vec3 outNormal = GetNormalAtPoint(hit.point);
 		hit.isFrontFace = dot( ray.direction, outNormal ) <= 0.0;
 		hit.normal = hit.isFrontFace ? outNormal : -outNormal;
 		hit.uv.x = 0.5 + atan2( hit.normal.z, hit.normal.x ) / ( 2 * PI );
@@ -49,4 +49,14 @@ bool Sphere::Hit( Ray &ray, RayHit &hit, point3 spherePos, float r2, float &t )
 	{
 		return false;
 	}
+}
+
+point3 Sphere::GetRandomPoint()
+{
+	return position + RandomInsideUnitSphere() * r;
+}
+
+vec3 Sphere::GetNormalAtPoint( const point3 &point )
+{
+	return normalize( point - position );
 }
