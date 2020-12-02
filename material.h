@@ -18,10 +18,10 @@ class Material
 
 	color GetColor( vec2 uv ) 
 	{ 
-		if (mainTex != NULL)
+		if ( mainTex != NULL )
 		{
-			int u =  uv.x * ( mainTex->GetWidth() - 1 );
-			int v =  uv.y * ( mainTex->GetHeight() - 1 );
+			int u = uv.x * ( mainTex->GetWidth() - 1 );
+			int v = uv.y * ( mainTex->GetHeight() - 1 );
 			uint intColor = mainTex->GetBuffer()[v * mainTex->GetHeight() + u];
 			const unsigned int r = ( intColor & REDMASK ) >> 16;
 			const unsigned int g = ( intColor & GREENMASK ) >> 8;
