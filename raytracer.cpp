@@ -44,6 +44,7 @@ color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 color WhittedRayTracer::Sample( Ray &ray )
 {
 	RayHit hit;
+	// Ignore emissive objects (area lights), these are not supported.
 	if (Trace(ray, hit, MaterialType::EMISSIVE))
 	{
 		shared_ptr<Material> mat = hit.material;

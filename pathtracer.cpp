@@ -2,10 +2,9 @@
 
 color PathTracer::Sample(Ray &ray)
 {
-	//initials
-	color BRDF; //should probably be outside function
+	color BRDF;
 	RayHit hit;
-	if ( ray.depth > maxDepth ) //reasonable number = 7
+	if ( ray.depth > maxDepth )
 		return color(0,0,0);
 	if (Trace(ray, hit))
 	{
@@ -15,12 +14,12 @@ color PathTracer::Sample(Ray &ray)
 
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			return mCol; //return color of light source. This will be the 'material' color.
+			return mCol;
 		}
 		if ( mmat == MaterialType::MIRROR )
 		{
 			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			return mCol * Sample( r ); //Color of the material -> Albedo
+			return (( 1.0 - hit.material->specularity ) * mCol) + ((hit.material->specularity) * Sample( r ));																					//Color of the material -> Albedo
 		}
 		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
 		{
@@ -29,7 +28,7 @@ color PathTracer::Sample(Ray &ray)
 
 		BRDF = mCol / PI;
 		return LitMethod1( ray, hit, BRDF );
-		/*return LitMethod2( ray, hit, BRDF );*/
+		//return LitMethod2( ray, hit, BRDF );
 	}
 	vec3 unit_direction = ray.direction;
 	auto t = 0.5 * ( -unit_direction.y + 1.0 );
@@ -67,7 +66,7 @@ const color &PathTracer::LitMethod2( Ray &ray, RayHit &hit, color &BRDF )
 	float tmax = dist - 2.0f * EPSILON;
 	Ray r( o, L, tmax, 7 );
 	RayHit newHit;
-	if ( !Trace( r, newHit, MaterialType::EMISSIVE ) )
+	if ( !Trace( r, newHit ) )
 	{
 		float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
 		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->albedo * solidAngle * cosI;
