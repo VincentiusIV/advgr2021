@@ -115,16 +115,23 @@ const color &RayTracer::HandleDielectricMaterial( Ray &ray, RayHit &hit )
 	float transmittance = ( 1.0f - reflectance );
 	float reflectChance = reflectance * Rand( 1.0f );
 	float refractChance = transmittance * Rand( 1.0f );
+	vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
+	point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
+		
+	Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
+	color refractColor = Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ) );
+	color reflectColor = Sample( reflectRay );
+	return transmittance * refractColor + reflectance * reflectColor;
 
 	if ( reflectChance > refractChance )
 	{
-		Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
+		//Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
 		return Sample( reflectRay );
 	}
 	else
 	{
-		vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
-		point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
+		//vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
+		//point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
 		return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ) );
 	}
 

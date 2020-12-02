@@ -4,8 +4,9 @@
 static float deltaTimeInSeconds, cameraMoveSpeed = 0.2f, cameraRotateSpeed = 10.0f;
 static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
-static int raysPerPixel = 5000;
-static float calculateChance = 1.0;
+static int raysPerPixel = 5000, rowCount = 32;
+// random chance that a pixel is calculated during a frame, reduces time to get something on the screen. 1.0 = always.
+static float calculateChance = 1.0; 
 static int  frameCounter = 0, pixelCounter = 0;
 static color* colorBuffer;
 static int* raysCounter;
@@ -25,8 +26,8 @@ void Game::Init()
 	//shared_ptr<DirectionalLight> sunLight = make_shared<DirectionalLight>( normalize( vec3( 0.5, -2, 1) ), 1 );
 	//scene->Add( sunLight );
 
-	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new PathTracer( scene, 7 );
+	raytracer = new WhittedRayTracer(scene, 7);
+	//raytracer = new PathTracer( scene, 7 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -44,56 +45,65 @@ void Tmpl8::Game::ClearColorBuffer()
 void Game::CreateBoxEnvironment()
 {
 	shared_ptr<Material> redOpaque = make_shared<Material>(color(0.9, 0.1, 0.1), MaterialType::DIFFUSE);
+	shared_ptr<Material> cyanOpaque = make_shared<Material>(color(0.0, 1, 1), MaterialType::DIFFUSE);
 	shared_ptr<Material> textureDiffuse = make_shared<Material>(color(0.9, 0.1, 0.1), MaterialType::DIFFUSE);
 	textureDiffuse->mainTex = new Surface( "assets/marble.PNG" );
 	shared_ptr<Material> normalTest = make_shared<Material>( color( 0.78, 0.1, 0.1 ), MaterialType::NORMAL_TEST );
-	shared_ptr<Material> greenMirror = make_shared<Material>( color( 0.9, 0.9, 0.9 ), MaterialType::MIRROR );
+	shared_ptr<Material> uvTest = make_shared<Material>( color( 0.78, 0.1, 0.1 ), MaterialType::UV_TEST );
+	shared_ptr<Material> greenMirror = make_shared<Material>( color( 0.1, 0.9, 0.1 ), MaterialType::MIRROR );
 	greenMirror->specularity = 0.9f;
-	greenMirror->smoothness = 0.6;
+	greenMirror->smoothness = 0.9f;
 	shared_ptr<Material> groundMirror = make_shared<Material>(color(1.0, 1.0, 1.0), MaterialType::MIRROR);
 	groundMirror->specularity = 0.4f;
-	groundMirror->smoothness = 1.0f;
+	groundMirror->smoothness = 0.3f;
 	shared_ptr<Material> blueOpaque = make_shared<Material>( color( 0.1, 0.1, 1 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeOpaque = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> orangeGlass = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIELECTRIC );
-	orangeGlass->n = 1.5f;
-	orangeGlass->smoothness = 1.0f;
-	shared_ptr<Material> beige = make_shared<Material>(color(0.3, 0.3, 0.3), MaterialType::DIFFUSE);
+	shared_ptr<Material> glass = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIELECTRIC );
+	glass->n = 1.5f;
+	glass->smoothness = 1.0f;
+	shared_ptr<Material> beige = make_shared<Material>(color(0.7, 0.7, 0.7), MaterialType::DIFFUSE);
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 0.9, 0.9), MaterialType::EMISSIVE);
 
-	//shared_ptr<MeshObject> cube = make_shared<MeshObject>( redOpaque, "assets/cube.obj" );
-	//cube->position = point3( -3.0, 0.0, 2.0 );
-	//cube->rotation = point3( 30, -120, 0 );
-	//cube->scale = point3( 0.3, 1.3, 1.0 );
-	//cube->UpdateTRS();
-	//scene->Add( cube );
+	shared_ptr<MeshObject> cube = make_shared<MeshObject>( redOpaque, "assets/cube.obj" );
+	cube->position = point3( -3.0, 0.0, 2.0 );
+	cube->rotation = point3( 30, -120, 0 );
+	cube->scale = point3( 0.3, 1.3, 1.0 );
+	cube->UpdateTRS();
+	scene->Add( cube );
 
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(orangeGlass, 0.7);
-	sphere1->position = point3(1.5, 0.0, 2.0);
+	shared_ptr<MeshObject> cube2 = make_shared<MeshObject>( cyanOpaque, "assets/cube.obj" );
+	cube2->position = point3( 2.0, 0.0, 2.0 );
+	cube2->rotation = point3( -70, 30, 0 );
+	cube2->scale = point3( 0.3, 0.7, 1.0 );
+	cube2->UpdateTRS();
+	scene->Add( cube2 );
+
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 0.6);
+	sphere1->position = point3(-0.5, 0.0, 1.0);
 	scene->Add(sphere1);
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 0.7 );
-	sphere2->position = point3( -1.0, 0.0, 1.0 );
-	scene->Add( sphere2 );
+	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( uvTest, 0.7 );
+	//sphere2->position = point3( -2.0, 0.0, 1.0 );
+	//scene->Add( sphere2 );
 
-	shared_ptr<Sphere> sphere3 = make_shared<Sphere>(greenMirror, 0.7);
-	sphere3->position = point3(-1.5, 0.0, 1.0);
+	shared_ptr<Sphere> sphere3 = make_shared<Sphere>(greenMirror, 1.0);
+	sphere3->position = point3(-2, 0.0, 3.5);
 	scene->Add(sphere3);
 
-	shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 2 );
-	sphere4->position = point3( 4.0, 1.0, 3.0 );
+	shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 0.6 );
+	sphere4->position = point3( 2.0, 1.0, 4.0 );
 	scene->Add( sphere4 );
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.8 );
-	lightSphere->position = point3( 0, 2.0, 2.0 );
-	scene->Add( lightSphere );
+	//shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.8 );
+	//lightSphere->position = point3( 0, 2.0, 2.0 );
+	//scene->Add( lightSphere );
 	
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 0.6 );
 	//lightSphere2->position = point3( -2.0, 1.0, 1.0 );
 	//scene->Add( lightSphere2 );
 
 	//ground plane
-	shared_ptr<Plane> plane1 = make_shared<Plane>( beige, vec3( 0, 1, 0 ), 3, 3 );
+	shared_ptr<Plane> plane1 = make_shared<Plane>( groundMirror, vec3( 0, 1, 0 ), 3, 3 );
 	plane1->position = point3( 0, -1, 5.0 );
 	scene->Add( plane1 );
 
@@ -109,11 +119,11 @@ void Game::CreateBoxEnvironment()
 
 	////left wall plane
 	shared_ptr<Plane> plane3 = make_shared<Plane>( orangeOpaque, vec3( 1, 0, 0 ) );
-	plane3->position = point3( -5.0, 0, 10.0 );
+	plane3->position = point3( -3.0, 0, 10.0 );
 	scene->Add( plane3 );
 
 	//////right wall plane
-	shared_ptr<Plane> plane4 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ) );
+	shared_ptr<Plane> plane4 = make_shared<Plane>( textureDiffuse, vec3( 1, 0, 0 ) );
 	plane4->position = point3( 3.0, 0, 5.0 );
 	scene->Add( plane4 );
 
@@ -122,9 +132,13 @@ void Game::CreateBoxEnvironment()
 	plane6->position = point3( 0.0, 0, -5.0 );
 	scene->Add( plane6 );
 
-	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 1.5, 2.0 ), 5.0 );
+	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 1, 2.5, 3 ), 5.0 );
 	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
 	scene->Add( sceneLight );
+
+	shared_ptr<PointLight> sceneLight2 = make_shared<PointLight>( point3( -1, 2.5, 0 ), 5.0 );
+	sceneLight2->albedo = color( 0.74, 0.45, 0.22 );
+	scene->Add( sceneLight2 );
 }
  
 // -----------------------------------------------------------
@@ -166,7 +180,6 @@ void Game::RenderScene()
 {
 	++frameCounter;
 	Pixel *buffer = screen->GetBuffer();
-	static int rowCount = 32;
 
 	#pragma omp parallel for schedule( dynamic, 1 )
 	for ( int i = 0; i < rowCount; i++ )
@@ -197,8 +210,6 @@ void Game::RenderScene()
 			}
 		}
 	}
-
-
 }
 
 void Game::KeyDown( int key )

@@ -20,8 +20,8 @@ class Material
 	{ 
 		if ( mainTex != NULL )
 		{
-			int u = uv.x * ( mainTex->GetWidth() - 1 );
-			int v = uv.y * ( mainTex->GetHeight() - 1 );
+			int u = fmin(uv.x, 1.0) * ( mainTex->GetWidth() - 1 );
+			int v = fmin(uv.y, 1.0 ) * ( mainTex->GetHeight() - 1 );
 			uint intColor = mainTex->GetBuffer()[v * mainTex->GetHeight() + u];
 			const unsigned int r = ( intColor & REDMASK ) >> 16;
 			const unsigned int g = ( intColor & GREENMASK ) >> 8;

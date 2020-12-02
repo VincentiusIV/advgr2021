@@ -64,6 +64,7 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 		vec3 intersection = ray.At( t );
 		if ( ( intersection - ray.origin ).sqrLentgh() > ray.tMax )
 			return false;
+		// ray hit this triangle, record it!
 		ray.t = t;
 		hit.point = intersection;
 		hit.normal = normalize(v0v1.cross( v0v2 ));
@@ -89,8 +90,9 @@ void MeshObject::UpdateTRS()
 
 bool MeshObject::Hit( Ray &ray, RayHit &hit )
 {
-	if ( !Sphere::Hit( ray, hit, position, r2 ) )
-		return false;
+	// Bounding sphere, doesnt yet work correctly and we probably want AABB's for this purpose.
+	//if ( !Sphere::Hit( ray, hit, position, r2 ) )
+	//	return false;
 
 	uint j = 0;
 	bool didHit = false;
