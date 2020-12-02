@@ -160,15 +160,15 @@ void Game::RenderScene()
 		for ( int x = 0; x < SCRWIDTH; x++ )
 		{
 			int raysForThisPixel = raysCounter[y * SCRWIDTH + x];
-			if ( raysForThisPixel >= raysPerPixel || Rand( 1.0 ) > calculateChance )
+			if ( raysForThisPixel >= raysPerPixel )
 				continue;
 			color color = colorBuffer[y * SCRWIDTH + x];
-			auto uOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) ); 
-			auto vOffset = ( 1.0 - ( 1.0 / raysForThisPixel ) ) * ( Rand( 1.0 ) ); 
+			auto uOffset = ( Rand( 1.0 ) ); 
+			auto vOffset = ( Rand( 1.0 ) ); 
 			auto u = (( double( x ) + uOffset ) / ( SCRWIDTH - 1 ));
 			auto v = 1.0 - (( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ));
 			Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
-			color += raytracer->Sample( ray, scene );
+			color += raytracer->Sample( ray );
 			colorBuffer[y * SCRWIDTH + x] = color;
 			color = color / float( raysForThisPixel );
 			color.x = clamp( color.x, 0.0f, 1.0f );

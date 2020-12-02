@@ -14,9 +14,6 @@ class PathTracer : public RayTracer
 	color Sample( Ray &ray );
 	const color &LitMethod1( Ray &ray, RayHit &hit, color &BRDF );
 	const color &LitMethod2( Ray &ray, RayHit &hit, color &BRDF );
-	bool Trace( Ray &ray, RayHit &hit );
-	bool Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore ); 
-	void Fresnel( float sinTheta, float &reflectance, float &cosi, float etat, float etai );
 
 };
 
