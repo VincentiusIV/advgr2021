@@ -23,6 +23,9 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 			vec3 toIntersation = ( I - ray.origin );
 			if ( toIntersation.sqrLentgh() > ray.tMax )
 				return false;
+			toIntersation = (I - position);
+			if ( fabs( toIntersation.x ) > scale.x || fabs( toIntersation.y ) > scale.y || fabs( toIntersation.z ) > scale.z )
+				return false;
 			ray.t = t;
 			hit.material = material;
 			hit.point = I;

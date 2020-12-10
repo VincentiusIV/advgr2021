@@ -1,5 +1,7 @@
 #pragma once
 
+class HittableObject;
+
 struct RayHit
 {
   public:
@@ -7,6 +9,7 @@ struct RayHit
 	vec3 normal;
 	vec2 uv;
 	shared_ptr<Material> material;
+	shared_ptr<HittableObject> hitObject;
 	bool isFrontFace;
 };
 
