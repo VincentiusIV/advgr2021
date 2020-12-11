@@ -15,5 +15,4 @@ class Plane : public HittableObject
 
 protected:
 	void UpdateAABB();
-
 };

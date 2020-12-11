@@ -10,7 +10,6 @@ void BVH::ConstructBVH( Scene *scene )
 	pool = new BVHNode[N * 2 - 1];
 	root = pool[0];
 	poolPtr = 2;
-
 	root.leftFirst = 0;
 	root.count = scene->objects.size();
 	root.bounds = CalculateBounds( scene, root.leftFirst, root.count );
@@ -19,7 +18,24 @@ void BVH::ConstructBVH( Scene *scene )
 
 AABB BVH::CalculateBounds( Scene *scene, int first, int count )
 {
-	return AABB();
+	vec3 min, max;
+	for ( size_t i = first; i < count; i++ )
+	{
+		shared_ptr<HittableObject> obj = scene->objects.at( i );
+		if ( obj->aabb.min.x < min.x )
+			min.x = obj->aabb.min.x;
+		if ( obj->aabb.min.y < min.y )
+			min.y = obj->aabb.min.y;
+		if ( obj->aabb.min.z < min.z )
+			min.z = obj->aabb.min.z;
+		if ( obj->aabb.max.x > max.x )
+			min.x = obj->aabb.max.x;
+		if ( obj->aabb.max.y > max.y )
+			min.y = obj->aabb.max.y;
+		if ( obj->aabb.max.z > max.z )
+			min.z = obj->aabb.max.z;
+	}
+	return AABB( min, max );
 }
 
 void BVH::Subdivide( BVHNode &node )
