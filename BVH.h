@@ -10,10 +10,10 @@ struct BVHNode
 class BVH
 {
   public:
-	BVH();
+	BVH( Scene *scene ) : scene( scene ) {}
 	
-	void ConstructBVH( Scene *scene );
-	AABB CalculateBounds( Scene *scene, int first, int count );
+	void ConstructBVH();
+	AABB CalculateBounds(int first, int count );
 	void Subdivide( BVHNode &node );
 	void Partition( BVHNode &node );
 	bool Intersect( Ray &r, RayHit &hit );
@@ -22,5 +22,6 @@ class BVH
 	int poolPtr;
 	BVHNode root;
 	BVHNode *pool;
+	Scene *scene;
 };
 

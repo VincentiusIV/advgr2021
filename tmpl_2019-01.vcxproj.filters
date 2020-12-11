@@ -32,7 +32,6 @@
     <ClInclude Include="transform.h" />
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="BVH.h" />
-    <ClInclude Include="bvhnode.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
