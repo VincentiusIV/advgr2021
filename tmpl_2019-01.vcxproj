@@ -119,7 +119,6 @@
   <!-- END Custom section -->
   <ItemGroup>
     <ClCompile Include="BVH.cpp" />
-    <ClCompile Include="bvhnode.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="meshobject.cpp" />
     <ClCompile Include="pathtracer.cpp" />
