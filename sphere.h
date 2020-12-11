@@ -16,4 +16,7 @@ public:
 	float GetArea() { return powf(4.0f * PI * r, 2.0f); }
 	float r;
 	float r2; // r*r
+
+protected:
+	void UpdateAABB();
 };

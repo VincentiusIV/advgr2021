@@ -51,3 +51,10 @@ vec3 Sphere::GetNormalAtPoint( const point3 &point )
 {
 	return normalize( point - position );
 }
+
+void Sphere::UpdateAABB()
+{
+	float halfRadius = r / 2;
+	aabb.min = position - vec3( halfRadius, halfRadius, halfRadius );
+	aabb.max = position + vec3( halfRadius, halfRadius, halfRadius );
+}

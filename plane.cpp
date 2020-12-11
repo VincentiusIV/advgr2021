@@ -47,4 +47,13 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 	}
 	return false;
 }
+
+void Plane::UpdateAABB()
+{
+	float halfScaleX = scale.x / 2;
+	float halfScaleY = scale.y / 2;
+	float halfScaleZ = scale.z / 2;
+	aabb.min = position - vec3(halfScaleX, halfScaleY, halfScaleZ);
+	aabb.min = position + vec3(halfScaleX, halfScaleY, halfScaleZ);
+}
 	

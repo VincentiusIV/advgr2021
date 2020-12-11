@@ -17,9 +17,9 @@ void BVH::ConstructBVH( Scene *scene )
 	Subdivide(root);
 }
 
-aabb BVH::CalculateBounds( Scene *scene, int first, int count )
+AABB BVH::CalculateBounds( Scene *scene, int first, int count )
 {
-	return aabb();
+	return AABB();
 }
 
 void BVH::Subdivide( BVHNode &node )
@@ -40,7 +40,7 @@ void BVH::Partition( BVHNode &node )
 
 bool BVH::Intersect( Ray &r, RayHit &hit )
 {
-	return false;
+	
 }
 
 void BVH::FindSplitPlane()
