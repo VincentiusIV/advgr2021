@@ -5,6 +5,8 @@ struct BVHNode
 	AABB bounds;
 	int leftFirst;
 	int count;
+
+	int right() { return leftFirst + 1;  }
 };
 
 class BVH
@@ -15,9 +17,8 @@ class BVH
 	void ConstructBVH();
 	AABB CalculateBounds(int first, int count );
 	void Subdivide( BVHNode &node );
-	void Partition( BVHNode &node );
+	void SplitNode( BVHNode &node );
 	bool Intersect( Ray &r, RayHit &hit );
-	void FindSplitPlane();
 
 	int poolPtr;
 	BVHNode root;

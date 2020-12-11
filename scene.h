@@ -5,6 +5,8 @@
 #include "camera.h"
 #include "light.h"
 
+class BVH;
+
 class Scene
 {
   public:
@@ -17,6 +19,8 @@ class Scene
 	shared_ptr<Camera> GetCamera() { return camera; };
 	vector<shared_ptr<HittableObject>> objects, emissiveObjects;
 	vector<shared_ptr<Light>> lights;
+	BVH *bvh;
   private:	
 	shared_ptr<Camera> camera;
+
 };
