@@ -116,6 +116,8 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<PointLight> sceneLight2 = make_shared<PointLight>( point3( -1, 2.5, 0 ), 5.0 );
 	sceneLight2->albedo = color( 0.74, 0.45, 0.22 );
 	scene->Add( sceneLight2 );
+
+	scene->bvh->ConstructBVH();
 }
  
 // -----------------------------------------------------------
