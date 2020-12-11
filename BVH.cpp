@@ -28,12 +28,13 @@ AABB BVH::CalculateBounds( Scene *scene, int first, int count )
 			min.y = obj->aabb.min.y;
 		if ( obj->aabb.min.z < min.z )
 			min.z = obj->aabb.min.z;
+
 		if ( obj->aabb.max.x > max.x )
-			min.x = obj->aabb.max.x;
+			max.x = obj->aabb.max.x;
 		if ( obj->aabb.max.y > max.y )
-			min.y = obj->aabb.max.y;
+			max.y = obj->aabb.max.y;
 		if ( obj->aabb.max.z > max.z )
-			min.z = obj->aabb.max.z;
+			max.z = obj->aabb.max.z;
 	}
 	return AABB( min, max );
 }
