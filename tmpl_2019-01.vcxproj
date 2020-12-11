@@ -118,6 +118,8 @@
   </ItemDefinitionGroup>
   <!-- END Custom section -->
   <ItemGroup>
+    <ClCompile Include="BVH.cpp" />
+    <ClCompile Include="bvhnode.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="meshobject.cpp" />
     <ClCompile Include="pathtracer.cpp" />
@@ -132,6 +134,8 @@
     <ClCompile Include="raytracer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BVH.h" />
+    <ClInclude Include="bvhnode.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="light.h" />

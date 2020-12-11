@@ -11,6 +11,8 @@
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp" />
     <ClCompile Include="raytracer.cpp" />
+    <ClCompile Include="BVH.cpp" />
+    <ClCompile Include="bvhnode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -30,6 +32,8 @@
     <ClInclude Include="template.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="raytracer.h" />
+    <ClInclude Include="BVH.h" />
+    <ClInclude Include="bvhnode.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
