@@ -12,7 +12,6 @@
     <ClCompile Include="template.cpp" />
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="BVH.cpp" />
-    <ClCompile Include="bvhnode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
