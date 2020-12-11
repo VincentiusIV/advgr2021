@@ -29,8 +29,7 @@ color PathTracer::Sample( Ray &ray, RayHit &hit )
 		RayHit indirectHit, directHit;
 		color indirectColor = IndirectIllumination( ray, hit, BRDF, indirectHit );
 		color directColor = DirectIllumiation( ray, hit, BRDF, directHit);
-		return directColor + indirectColor;
-		//return directColor;
+		return ( directColor + indirectColor ) / 2;
 	}
 	return color( 0, 0, 0 );
 	vec3 unit_direction = ray.direction;
@@ -59,7 +58,7 @@ const color &PathTracer::DirectIllumiation( Ray &ray, RayHit &hit, color &BRDF, 
 	point3 randPoint = randLight->GetRandomPoint();
 	vec3 L = randPoint - hit.point;
 	float dist = L.length();
-	L = L / dist;
+	L = normalize(L);
 	vec3 lightNormal = randLight->GetNormalAtPoint( randPoint );
 	float cosO = ( -L ).dot( lightNormal );
 	float cosI = L.dot( hit.normal );
@@ -70,7 +69,7 @@ const color &PathTracer::DirectIllumiation( Ray &ray, RayHit &hit, color &BRDF, 
 	float tmax = dist - 2.0f * EPSILON;
 	Ray r( o, L, tmax, maxDepth );
 
-	if ( !Trace( r, directHit ) )
+	if ( !Trace( r, directHit, MaterialType::EMISSIVE ) )
 	{
 		float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
 		return BRDF * (double)scene->emissiveObjects.size() * randLight->material->albedo * solidAngle * cosI;

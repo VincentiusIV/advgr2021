@@ -38,22 +38,13 @@ bool Sphere::Hit( Ray &ray, RayHit &hit, point3 spherePos, float r2, float &t )
 	if ( p2 > r2 )
 		return false;
 	t -= sqrt( r2 - p2 );
-	if ( ( t < ray.t ) && ( t > 0 ) )
-	{
-		point3 intersection = ray.At( t );
-		if ( ( intersection - ray.origin ).sqrLentgh() > ray.tMax )
-			return false;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return  (( t < ray.t ) && ( t > 0 ) && t < ray.tMax );
 }
 
 point3 Sphere::GetRandomPoint()
 {
-	return position + RandomInsideUnitSphere() * r;
+	vec3 randPoint = RandomInsideUnitSphere() * r;
+	return position + randPoint;
 }
 
 vec3 Sphere::GetNormalAtPoint( const point3 &point )

@@ -20,11 +20,11 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 		if ((t < ray.t) && (t > 0.0001f) )
 		{
 			point3 I = ray.At( t );
-			vec3 toIntersation = ( I - ray.origin );
-			if ( toIntersation.sqrLentgh() > ray.tMax )
+
+			if ( t > ray.tMax )
 				return false;
-			toIntersation = (I - position);
-			if ( fabs( toIntersation.x ) > scale.x || fabs( toIntersation.y ) > scale.y || fabs( toIntersation.z ) > scale.z )
+			vec3 toIntersation = project ( I - position, planeNormal );
+			if ( fabs( toIntersation.x ) > scale.x / 2 || fabs( toIntersation.y ) > scale.y / 2 || fabs( toIntersation.z ) > scale.z / 2 )
 				return false;
 			ray.t = t;
 			hit.material = material;
