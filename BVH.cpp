@@ -19,7 +19,7 @@ AABB BVH::CalculateBounds(int first, int count )
 	vec3 bmin = vec3(), bmax = vec3();
 	for ( size_t i = first; i < first+count; i++ )
 	{
-		shared_ptr<HittableObject> obj = scene->objects.at( i );
+		shared_ptr<HittableObject> obj = scene->objects.at( i ); //error 2nd //i=10 (first=9 en count=3(or 2)
 		if ( obj->aabb.min.x < bmin.x )
 			bmin.x = obj->aabb.min.x;
 		if ( obj->aabb.min.y < bmin.y )
@@ -45,7 +45,7 @@ void BVH::Subdivide( BVHNode &node )
 	poolPtr += 2;
 	SplitNode(node);
 	Subdivide( pool[node.leftFirst] );
-	Subdivide( pool[node.right()] );
+	Subdivide( pool[node.right()] ); //error with split
 }
 
 bool BVH::Intersect( Ray &r, RayHit &hit )
@@ -87,7 +87,7 @@ void BVH::SplitNode( BVHNode &node )
 	int rightCount = node.count - leftCount;
 
 	AABB left = CalculateBounds( leftFirst, leftCount );
-	AABB right = CalculateBounds( rightFirst, rightCount);
+	AABB right = CalculateBounds( rightFirst, rightCount); //error
 
 	pool[node.leftFirst].leftFirst = leftFirst;
 	pool[node.leftFirst].count = leftCount;
