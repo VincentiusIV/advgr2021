@@ -2,12 +2,12 @@
 
 Plane::Plane( shared_ptr<Material> material, vec3 normal ) : HittableObject( material ), planeNormal( normal ), width( INFINITY ), height( INFINITY )
 {
-
+	UpdateAABB();
 }
 
 Plane::Plane( shared_ptr<Material> material, vec3 normal, float width, float height ) : HittableObject( material ), planeNormal( normal ), width( width ), height( height )
 {
-
+	UpdateAABB();
 }
 
 bool Plane::Hit( Ray &ray, RayHit &hit )
@@ -54,6 +54,6 @@ void Plane::UpdateAABB()
 	float halfScaleY = scale.y / 2;
 	float halfScaleZ = scale.z / 2;
 	aabb.min = position - vec3(halfScaleX, halfScaleY, halfScaleZ);
-	aabb.min = position + vec3(halfScaleX, halfScaleY, halfScaleZ);
+	aabb.max = position + vec3(halfScaleX, halfScaleY, halfScaleZ);
 }
 	

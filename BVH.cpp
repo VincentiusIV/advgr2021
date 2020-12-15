@@ -6,20 +6,21 @@ void BVH::ConstructBVH()
 {
 	int N = scene->objects.size();
 	pool = new BVHNode[N * 2 - 1];
-	root = pool[0];
-	poolPtr = 2;
-	root.leftFirst = 0;
-	root.count = scene->objects.size();
-	root.bounds = CalculateBounds( root.leftFirst, root.count );
-	Subdivide(root);
+	root = &pool[0];
+	poolPtr = 1;
+	root->first = 0;
+	root->count = scene->objects.size();
+	root->bounds = CalculateBounds( root->first, root->count );
+	Subdivide(0);
 }
 
-AABB BVH::CalculateBounds(int first, int count )
+AABB BVH::CalculateBounds(int first, int count)
 {
-	vec3 bmin = vec3(), bmax = vec3();
+	vec3 bmin = vec3( 3.40282e+038 ), bmax = vec3( 1.17549e-038 );
 	for ( size_t i = first; i < first+count; i++ )
 	{
 		shared_ptr<HittableObject> obj = scene->objects.at( i ); //error 2nd //i=10 (first=9 en count=3(or 2)
+		obj->UpdateAABB();
 		if ( obj->aabb.min.x < bmin.x )
 			bmin.x = obj->aabb.min.x;
 		if ( obj->aabb.min.y < bmin.y )
@@ -37,87 +38,93 @@ AABB BVH::CalculateBounds(int first, int count )
 	return AABB( bmin, bmax );
 }
 
-void BVH::Subdivide( BVHNode &node )
+void BVH::Subdivide( int nodeIdx )
 {
-	if ( node.count < MAX_OBJECTS_PER_LEAF  )
+	BVHNode &node = pool[nodeIdx];
+	if (node.count < MAX_OBJECTS_PER_LEAF)
+	{
+		node.isLeaf = true;
 		return;
-	node.leftFirst = poolPtr;
-	poolPtr += 2;
-	SplitNode(node);
-	Subdivide( pool[node.leftFirst] );
-	Subdivide( pool[node.right()] ); //error with split
+	}
+	node.isLeaf = false;
+	node.left = poolPtr++;
+	node.right = poolPtr++;
+	SplitNode(nodeIdx);
+	Subdivide( node.left );
+	Subdivide( node.right );
 }
 
-bool BVH::Intersect( Ray &r, RayHit &hit )
+void BVH::SplitNode( int nodeIdx )
 {
-	vector<int> open = vector<int>();
-	open.push_back( 0 );
-	bool hitAnything = false;
-	while (open.size() > 0)
-	{
-		BVHNode current = pool[open.at(0)];
-		open.erase( open.begin() );
+	BVHNode &node = pool[nodeIdx];
+	BVHNode &left = pool[node.left];
+	left.first = node.first;
+	left.count = node.count / 2;
+	left.bounds = CalculateBounds( left.first, left.count );
 
-		if (current.count >= MAX_OBJECTS_PER_LEAF)
+	BVHNode &right = pool[node.right];
+	right.first = left.first+left.count;
+	right.count = node.count - left.count;
+	right.bounds = CalculateBounds( right.first, right.count );
+}
+
+bool BVH::IntersectRecursive( Ray &r, RayHit &hit, BVHNode &current, int &depth )
+{
+	++depth;
+	bool hitAnything = false;
+	if ( current.isLeaf )
+	{
+		int last = current.first + current.count;
+		for ( int i = current.first; i < last; i++ )
 		{
-			BVHNode left = pool[current.leftFirst];
-			BVHNode right = pool[current.right()];
-			if ( left.bounds.Intersect( r ) )
-				open.push_back( current.leftFirst );
-			if ( right.bounds.Intersect( r ) )
-				open.push_back( current.right() );
+			shared_ptr<HittableObject> obj = scene->objects.at( i );
+			hitAnything |= obj->Hit( r, hit );
 		}
-		else
-		{
-			for ( size_t i = current.leftFirst; i < current.leftFirst + current.count; i++ )
-			{
-				shared_ptr<HittableObject> obj = scene->objects.at( i );
-				hitAnything |= obj->Hit( r, hit );
-			}
-		}
-	} 
+	}
+	else
+	{
+		BVHNode &left = pool[current.left];
+		if ( left.bounds.Intersect( r ) )
+			hitAnything |= IntersectRecursive( r, hit, left, depth );
+		BVHNode &right = pool[current.right];
+		if ( right.bounds.Intersect( r ) )
+			hitAnything |= IntersectRecursive( r, hit, right, depth );
+	}
 	return hitAnything;
 }
 
-void BVH::SplitNode( BVHNode &node )
+
+bool BVH::Intersect( Ray &r, RayHit &hit, int &depth )
 {
-	int leftFirst = node.leftFirst;
-	int leftCount = node.count / 2;
-	int rightFirst = node.right();
-	int rightCount = node.count - leftCount;
+	depth = 0;
+	return IntersectRecursive( r, hit, *root, depth );
 
-	AABB left = CalculateBounds( leftFirst, leftCount );
-	AABB right = CalculateBounds( rightFirst, rightCount); //error
+	queue<int> open = queue<int>();
+	open.emplace( 0 );
+	bool hitAnything = false;
 
-	pool[node.leftFirst].leftFirst = leftFirst;
-	pool[node.leftFirst].count = leftCount;
-	pool[node.leftFirst].bounds = left;
+	while (open.size() > 0)
+	{
+		int currentIdx = open.front();
+		open.pop();
+		BVHNode &current = pool[currentIdx];
 
-	pool[node.right()].leftFirst = rightFirst;
-	pool[node.right()].count = rightCount;
-	pool[node.right()].bounds = right;
-
-	//vec3 sizeDiff = node.bounds.max - node.bounds.min;
-	//AABB left, right;
-	//if (sizeDiff.x > sizeDiff.y && sizeDiff.x > sizeDiff.z)
-	//{
-	//	// Split on x
-	//	left = AABB( node.bounds.min, vec3( node.bounds.min.x + sizeDiff.x / 2, node.bounds.max.y, node.bounds.max.z ) );
-	//	right = AABB( node.bounds.min + vec3( sizeDiff.x / 2, 0, 0), node.bounds.max );
-	//}
-	//else if ( sizeDiff.y > sizeDiff.x && sizeDiff.y > sizeDiff.z )
-	//{
-	//	// Split on y
-	//	left = AABB( node.bounds.min, vec3( node.bounds.min.x, node.bounds.max.y + sizeDiff.y / 2, node.bounds.max.z ) );
-	//	right = AABB( node.bounds.min + vec3( 0, sizeDiff.y / 2, 0 ), node.bounds.max );
-	//}
-	//else
-	//{
-	//	// Split on z
-	//	left = AABB( node.bounds.min, vec3( node.bounds.min.x, node.bounds.max.y, node.bounds.max.z + sizeDiff.z / 2 ) );
-	//	right = AABB( node.bounds.min + vec3( 0, 0, sizeDiff.z / 2 ), node.bounds.max );
-	//}
-
+		if ( current.isLeaf )
+		{
+			for ( int i = current.first; i < current.first + current.count; i++ )
+			{
+				hitAnything |= scene->objects.at( i )->Hit( r, hit );
+			}
+		}
+		else
+		{
+			if ( pool[current.left].bounds.Intersect( r ) )
+				open.push( current.left );
+			if ( pool[current.right].bounds.Intersect( r ) )
+				open.push( current.right );
+		}
+	} 
+	return hitAnything;
 }
 
 bool AABB::Contains( const point3 &p )
@@ -129,42 +136,16 @@ bool AABB::Contains( const point3 &p )
 
 bool AABB::Intersect( const Ray &r )
 {
-	float tmin = ( min.x - r.origin.x ) / r.direction.x;
-	float tmax = ( max.x - r.origin.x ) / r.direction.x;
+	vec3 invD = vec3( 1.0 / r.direction.x, 1.0 / r.direction.y, 1.0 / r.direction.z );
+	vec3 t0s = ( min - r.origin ) * invD;
+	vec3 t1s = ( max - r.origin ) * invD;
 
-	if ( tmin > tmax ) 
-		swap( tmin, tmax );
+	vec3 tsmaller = vec3( fmin( t0s.x, t1s.x ), fmin( t0s.y, t1s.y), fmin( t0s.z, t1s.z ) );
+	vec3 tbigger = vec3( fmax( t0s.x, t1s.x ), fmax( t0s.y, t1s.y ), fmax( t0s.z, t1s.z ) );
 
-	float tymin = ( min.y - r.origin.y ) / r.direction.y;
-	float tymax = ( max.y - r.origin.y ) / r.direction.y;
+	float tmin = fmax( 0.0f, fmax( tsmaller.x, fmax( tsmaller.y, tsmaller.z ) ) );
+	float tmax = fmin( r.tMax, fmin( tbigger.x, fmin( tbigger.y, tbigger.z ) ) );
 
-	if ( tymin > tymax ) 
-		swap( tymin, tymax );
-
-	if ( ( tmin > tymax ) || ( tymin > tmax ) )
-		return false;
-
-	if ( tymin > tmin )
-		tmin = tymin;
-
-	if ( tymax < tmax )
-		tmax = tymax;
-
-	float tzmin = ( min.z - r.origin.z ) / r.direction.z;
-	float tzmax = ( max.z - r.origin.z ) / r.direction.z;
-
-	if ( tzmin > tzmax ) 
-		swap( tzmin, tzmax );
-
-	if ( ( tmin > tzmax ) || ( tzmin > tmax ) )
-		return false;
-
-	if ( tzmin > tmin )
-		tmin = tzmin;
-
-	if ( tzmax < tmax )
-		tmax = tzmax;
-
-	return true;
+	return ( tmin < tmax );
 }
 

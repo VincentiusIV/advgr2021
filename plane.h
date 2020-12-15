@@ -10,9 +10,7 @@ class Plane : public HittableObject
 	Plane( shared_ptr<Material> material, vec3 normal );
 	Plane( shared_ptr<Material> material, vec3 normal, float width, float height );
 	bool Hit( Ray &ray, RayHit &hit );
+	void UpdateAABB();
 	vec3 planeNormal;
 	float width, height; 
-
-protected:
-	void UpdateAABB();
 };
