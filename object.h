@@ -32,6 +32,5 @@ class HittableObject : public Transform
 	shared_ptr<Material> material; 
 	AABB aabb;
 
-protected:
 	virtual void UpdateAABB() { aabb.min = aabb.max = position; }
 };

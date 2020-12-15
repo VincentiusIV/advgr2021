@@ -43,6 +43,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <queue>
 
 // Namespaced C headers:
 #include <cassert>

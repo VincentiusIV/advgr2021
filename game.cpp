@@ -63,6 +63,25 @@ void Game::CreateBoxEnvironment()
 	checkerboard->isCheckerboard = true;
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
 
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2 );
+	lightSphere->position = point3( 0, 8, 5 );
+	scene->Add( lightSphere );
+	//ground plane
+	shared_ptr<Plane> plane1 = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
+	plane1->position = point3( 0, 0, 0.0 );
+	plane1->scale = point3( 100, 1, 100 );
+	scene->Add( plane1 );
+
+	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 1, 0, 0 ), 3, 3 );
+	plane2->position = point3( 5, 5, 5 );
+	plane2->scale = point3( 1, 1, 1 );
+	scene->Add( plane2 );
+
+	shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
+	plane3->position = point3( 7, 5, 5 );
+	plane3->scale = point3( 10, 10, 10 );
+	scene->Add( plane3 );
+
 	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
 	baseSphere->position = point3( 2.5, -1.5, 2.5 );
 	scene->Add( baseSphere );
@@ -85,29 +104,13 @@ void Game::CreateBoxEnvironment()
 	sphere4->position = point3( -2.5, 1.5, 2.5 );
 	scene->Add( sphere4 );
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2 );
-	lightSphere->position = point3(0, 8, 5);
-	scene->Add(lightSphere);
+
 
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 1 );
 	//lightSphere2->position = point3( 5, 4, -5 );
 	//scene->Add( lightSphere2 );
 
-	//ground plane
-	shared_ptr<Plane> plane1 = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
-	plane1->position = point3( 0, 0, 5.0 );
-	plane1->scale = point3( 100, 1, 100 );
-	scene->Add( plane1 );
 
-	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 1, 0, 0 ), 3, 3 );
-	plane2->position = point3( 5, 5, 5 );
-	plane2->scale = point3( 1, 1, 1);
-	scene->Add( plane2 );
-
-	shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
-	plane3->position = point3( 7, 5, 5 );
-	plane3->scale = point3( 10, 10, 10 );
-	scene->Add( plane3 );
 
 	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 4.0, 2.0 ), 10.0 );
 	sceneLight->albedo = color( 0.74, 0.45, 0.22 );

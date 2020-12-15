@@ -54,7 +54,6 @@ vec3 Sphere::GetNormalAtPoint( const point3 &point )
 
 void Sphere::UpdateAABB()
 {
-	float halfRadius = r / 2;
-	aabb.min = position - vec3( halfRadius, halfRadius, halfRadius );
-	aabb.max = position + vec3( halfRadius, halfRadius, halfRadius );
+	aabb.min = position - vec3( r, r, r );
+	aabb.max = position + vec3( r, r, r );
 }
