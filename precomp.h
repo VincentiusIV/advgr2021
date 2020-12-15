@@ -78,6 +78,7 @@ using color = vec3;
 #include "transform.h"
 #include "object.h"
 #include "meshobject.h"
+#include "meshloader.h"
 #include "light.h"
 #include "camera.h"
 #include "ray.h"

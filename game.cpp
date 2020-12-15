@@ -82,35 +82,42 @@ void Game::CreateBoxEnvironment()
 	plane3->scale = point3( 10, 10, 10 );
 	scene->Add( plane3 );
 
-	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
-	baseSphere->position = point3( 2.5, -1.5, 2.5 );
-	scene->Add( baseSphere );
-	shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
-	baseSphere1->position = point3( 0, -1.5, 2.5 );
-	scene->Add( baseSphere1 );
-	shared_ptr<Sphere> baseSphere2 = make_shared<Sphere>( beige, 2 );
-	baseSphere2->position = point3( -2.5, -1.5, 2.5 );
-	scene->Add( baseSphere2 );
+	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/cybertruck.obj", groundMirror );
+	for ( size_t i = 0; i < cybertruck.size(); i++ )
+	{
+		shared_ptr<MeshObject> current = cybertruck.at( i );
+		current->position = point3( 0, 0.5, 2 );
 
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
-	sphere1->position = point3(0, 1.5, 2.5);
-	scene->Add(sphere1);
+		current->scale = point3( 10 );
+		current->UpdateTRS();
+		scene->Add( current);
+	}
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
-	sphere2->position = point3( 2.5, 1.5, 2.5 );
-	scene->Add( sphere2 );
+	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
+	//baseSphere->position = point3( 2.5, -1.5, 2.5 );
+	//scene->Add( baseSphere );
+	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
+	//baseSphere1->position = point3( 0, -1.5, 2.5 );
+	//scene->Add( baseSphere1 );
+	//shared_ptr<Sphere> baseSphere2 = make_shared<Sphere>( beige, 2 );
+	//baseSphere2->position = point3( -2.5, -1.5, 2.5 );
+	//scene->Add( baseSphere2 );
 
-	shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
-	sphere4->position = point3( -2.5, 1.5, 2.5 );
-	scene->Add( sphere4 );
+	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
+	//sphere1->position = point3(0, 1.5, 2.5);
+	//scene->Add(sphere1);
 
+	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
+	//sphere2->position = point3( 2.5, 1.5, 2.5 );
+	//scene->Add( sphere2 );
 
+	//shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
+	//sphere4->position = point3( -2.5, 1.5, 2.5 );
+	//scene->Add( sphere4 );
 
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 1 );
 	//lightSphere2->position = point3( 5, 4, -5 );
 	//scene->Add( lightSphere2 );
-
-
 
 	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 4.0, 2.0 ), 10.0 );
 	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
@@ -120,6 +127,11 @@ void Game::CreateBoxEnvironment()
 	sceneLight2->albedo = color( 0.74, 0.45, 0.22 );
 	scene->Add( sceneLight2 );
 
+	for ( size_t i = 0; i < scene->objects.size(); i++ )
+	{
+		shared_ptr<HittableObject> obj = scene->objects.at( i );
+		obj->UpdateAABB();
+	}
 	scene->bvh->ConstructBVH();
 }
  

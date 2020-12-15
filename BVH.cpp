@@ -20,7 +20,6 @@ AABB BVH::CalculateBounds(int first, int count)
 	for ( size_t i = first; i < first+count; i++ )
 	{
 		shared_ptr<HittableObject> obj = scene->objects.at( i );
-		obj->UpdateAABB();
 		if ( obj->aabb.min.x < bmin.x )
 			bmin.x = obj->aabb.min.x;
 		if ( obj->aabb.min.y < bmin.y )

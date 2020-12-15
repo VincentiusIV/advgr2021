@@ -12,6 +12,7 @@
     <ClCompile Include="template.cpp" />
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="BVH.cpp" />
+    <ClCompile Include="meshloader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -32,6 +33,7 @@
     <ClInclude Include="transform.h" />
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="BVH.h" />
+    <ClInclude Include="meshloader.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
