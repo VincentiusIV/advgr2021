@@ -13,6 +13,21 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit )
 
 bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 {
+	// Bruteforce method
+	//bool hitAny = false;
+	//for ( size_t i = 0; i < scene->objects.size(); i++ )
+	//{
+	//	shared_ptr<HittableObject> obj = scene->objects.at( i );
+	//	if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
+	//		continue;
+	//	if (obj->Hit(ray, hit))
+	//	{
+	//		hit.hitObject = obj;
+	//		hitAny |= true;
+	//	}
+	//}
+
+	// TODO: Implement typeToIgnore with bvh.
 	int depth;
 	return scene->bvh->Intersect(ray, hit, depth);
 }
