@@ -14,6 +14,8 @@ class BVH
 	virtual AABB CalculateBounds( int first, int count ) = 0;
 	void Subdivide( int nodeIdx );
 	void SplitNode( int nodeIdx );
+	void SplitNodeSAH( int nodeIdx );
+	void SplitNodeBin( int nodeIdx );
 	bool Intersect( Ray &r, RayHit &hit );
 	bool IntersectRecursive( Ray &r, RayHit &hit, BVHNode &current );
 	virtual bool IntersectNode( BVHNode &node, Ray &r, RayHit &hit ) = 0;
