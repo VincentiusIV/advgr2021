@@ -17,6 +17,8 @@ class BVH
 	AABB CalculateBounds(int first, int count );
 	void Subdivide( int nodeIdx );
 	void SplitNode( int nodeIdx );
+	void SplitNodeSAH( int nodeIdx );
+	void SplitNodeBin( int nodeIdx );
 	bool Intersect( Ray &r, RayHit &hit, int &depth );
 	bool IntersectRecursive( Ray &r, RayHit &hit, BVHNode &current, int &depth );
 

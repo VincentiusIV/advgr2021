@@ -25,8 +25,9 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 	//		hitAny |= true;
 	//	}
 	//}
+	int depth;
 	
-	return scene->bvh->Intersect(ray, hit);
+	return scene->bvh->Intersect(ray, hit, depth);
 }
 
 color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
