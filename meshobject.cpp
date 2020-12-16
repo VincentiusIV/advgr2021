@@ -8,7 +8,7 @@ MeshObject::MeshObject( shared_ptr<Material> material ) : HittableObject( materi
 	indices = vector<uint>();
 	triangleCount = 0;	
 	subbvh = new TriangleBVH( this );
-	subbvh->maxObjectsPerLeaf = 6;
+	subbvh->maxObjectsPerLeaf = 3;
 }
 
 bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, vec3 v1, vec3 v2 )

@@ -95,7 +95,6 @@ void BVH::SplitNodeSAH(int nodeIdx)
 	}
 
 	//final split
-	left.first = node.first;
 	left.count = perfSplit;
 
 	right.first = left.first + left.count;
