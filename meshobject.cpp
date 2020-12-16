@@ -7,6 +7,8 @@ MeshObject::MeshObject( shared_ptr<Material> material ) : HittableObject( materi
 	uvs = vector<vec2>();
 	indices = vector<uint>();
 	triangleCount = 0;	
+	subbvh = new TriangleBVH( this );
+	subbvh->maxObjectsPerLeaf = 6;
 }
 
 bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, vec3 v1, vec3 v2 )
@@ -30,7 +32,7 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 	if (t > 0.00001f && t < ray.t)
 	{
 		vec3 intersection = ray.At( t );
-		if ( ( intersection - ray.origin ).sqrLentgh() > ray.tMax )
+		if ( t > ray.tMax )
 			return false;
 		// ray hit this triangle, record it!
 		ray.t = t;
@@ -48,12 +50,12 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 void MeshObject::UpdateTRS()
 {
 	localToWorldMatrix = mat4::trs( position, rotation, scale );
-	// Transform all vertices to world space vertices.
 	worldVertices.clear();
 	for ( size_t i = 0; i < vertices.size(); i++ )
 	{
 		worldVertices.push_back( localToWorldMatrix * vertices.at( i ) );
 	}
+	subbvh->ConstructBVH();
 }
 
 void MeshObject::UpdateAABB()
@@ -62,19 +64,8 @@ void MeshObject::UpdateAABB()
 	for ( size_t i = 0; i < worldVertices.size(); i++ )
 	{
 		vec3 p = worldVertices.at( i );
-		if ( p.x < bmin.x )
-			bmin.x = p.x;
-		if ( p.y < bmin.y )
-			bmin.y = p.y;
-		if ( p.z < bmin.z )
-			bmin.z = p.z;
-
-		if ( p.x > bmax.x )
-			bmax.x = p.x;
-		if ( p.y > bmax.y )
-			bmax.y = p.y;
-		if ( p.z > bmax.z )
-			bmax.z = p.z;
+		bmin = MinPerAxis( bmin, p );
+		bmax = MaxPerAxis( bmax, p );
 	}
 	aabb = AABB( bmin, bmax );
 }
@@ -84,27 +75,33 @@ bool MeshObject::Hit( Ray &ray, RayHit &hit )
 	// Bounding sphere, doesnt yet work correctly and we probably want AABB's for this purpose.
 	if ( !aabb.Intersect( ray ) )
 		return false;
-
-	uint j = 0;
-	bool didHit = false;
-
-	for ( int i = 0; i < triangleCount; i++ )
-	{
-		vec3 v0 = worldVertices[indices[j]];
-		vec3 v1 = worldVertices[indices[j + 1]];
-		vec3 v2 = worldVertices[indices[j + 2]];
-
-		if ( CheckRayTriangleIntersection( ray, hit, v0, v1, v2) )
-		{
-			didHit = true;
-			//hit.normal = normals[indices[j]];
-			hit.isFrontFace = true;
-			hit.material = material;
-		}
-
-		j += 3;
+	if (subbvh->Intersect(ray, hit))
+	{ 		
+		hit.isFrontFace = true;
+		hit.material = material;
+		return true;
 	}
+	return false;
+	//uint j = 0;
+	//bool didHit = false;
 
-	return didHit;
+	//for ( int i = 0; i < triangleCount; i++ )
+	//{
+	//	vec3 v0 = worldVertices[indices[j]];
+	//	vec3 v1 = worldVertices[indices[j + 1]];
+	//	vec3 v2 = worldVertices[indices[j + 2]];
+
+	//	if ( CheckRayTriangleIntersection( ray, hit, v0, v1, v2) )
+	//	{
+	//		didHit = true;
+	//		//hit.normal = normals[indices[j]];
+	//		hit.isFrontFace = true;
+	//		hit.material = material;
+	//	}
+
+	//	j += 3;
+	//}
+
+	//return didHit;
 }
 

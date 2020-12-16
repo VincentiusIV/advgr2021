@@ -10,7 +10,8 @@ vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath, sha
 		for ( size_t j = 0; j < loader.LoadedMeshes.size(); j++ )
 		{
 			objl::Mesh mesh = loader.LoadedMeshes.at( j );
-			shared_ptr<Material> mat = make_shared<Material>( color( mesh.MeshMaterial.Kd.X, mesh.MeshMaterial.Kd.Y, mesh.MeshMaterial.Kd.Z ), MaterialType::DIFFUSE );
+			color meshColor = color( mesh.MeshMaterial.Kd.X, mesh.MeshMaterial.Kd.Y, mesh.MeshMaterial.Kd.Z );
+			shared_ptr<Material> mat = make_shared<Material>( meshColor, MaterialType::DIFFUSE );
 			shared_ptr<MeshObject> newObject = make_shared<MeshObject>( mat );
 			meshes.push_back( newObject );
 			for ( size_t i = 0; i < mesh.Vertices.size(); i++ )

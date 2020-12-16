@@ -71,6 +71,7 @@ using namespace Tmpl8;
 using point3 = vec3;
 using color = vec3;
 
+#include "aabb.h"
 #include "raytracer.h"
 #include "scene.h"
 #include "game.h"
@@ -86,3 +87,5 @@ using color = vec3;
 #include "sphere.h"
 #include "pathtracer.h"
 #include "bvh.h"
+#include "scenebvh.h"
+#include "trianglebvh.h"

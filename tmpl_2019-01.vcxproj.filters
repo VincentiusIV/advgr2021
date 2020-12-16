@@ -13,6 +13,9 @@
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="BVH.cpp" />
     <ClCompile Include="meshloader.cpp" />
+    <ClCompile Include="scenebvh.cpp" />
+    <ClCompile Include="trianglebvh.cpp" />
+    <ClCompile Include="aabb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -34,6 +37,9 @@
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="BVH.h" />
     <ClInclude Include="meshloader.h" />
+    <ClInclude Include="scenebvh.h" />
+    <ClInclude Include="trianglebvh.h" />
+    <ClInclude Include="aabb.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
