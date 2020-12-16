@@ -64,8 +64,8 @@ void Game::CreateBoxEnvironment()
 	checkerboard->isCheckerboard = true;
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2 );
-	lightSphere->position = point3( 0, 8, 2 );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 3 );
+	lightSphere->position = point3( 6, 12, 6 );
 	scene->Add( lightSphere );
 	//ground plane
 	shared_ptr<Plane> plane1 = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
@@ -73,23 +73,23 @@ void Game::CreateBoxEnvironment()
 	plane1->scale = point3( 100, 1, 100 );
 	scene->Add( plane1 );
 
-	shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 1, 0, 0 ), 3, 3 );
-	plane2->position = point3( 5, 5, 5 );
-	plane2->scale = point3( 1, 1, 1 );
-	scene->Add( plane2 );
+	//shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 1, 0, 0 ), 3, 3 );
+	//plane2->position = point3( 5, 5, 5 );
+	//plane2->scale = point3( 1, 1, 1 );
+	//scene->Add( plane2 );
 
-	shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
-	plane3->position = point3( 7, 5, 5 );
-	plane3->scale = point3( 10, 10, 10 );
-	scene->Add( plane3 );
+	//shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
+	//plane3->position = point3( 7, 5, 5 );
+	//plane3->scale = point3( 10, 10, 10 );
+	//scene->Add( plane3 );
 
-	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/cybertruck.obj", groundMirror );
+	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/apartment/Futuristic Apartment.obj" );
 	for ( size_t i = 0; i < cybertruck.size(); i++ )
 	{
 		shared_ptr<MeshObject> current = cybertruck.at( i );
-		current->position = point3( 0, 0.5, 2 );
+		current->position = point3( 0, 0, 2 );
 
-		current->scale = point3( 10 );
+		current->scale = point3( 0.1 );
 		current->UpdateTRS();
 		scene->Add( current);
 	}

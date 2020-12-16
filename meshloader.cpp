@@ -1,7 +1,7 @@
 #include "precomp.h"
 #include "objloader.h"
 
-vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath, shared_ptr<Material> defaultMaterial )
+vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath)
 {
 	vector<shared_ptr<MeshObject>> meshes = vector<shared_ptr<MeshObject>>();
 	objl::Loader loader;

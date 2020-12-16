@@ -35,7 +35,11 @@ bool TriangleBVH::IntersectNode( BVHNode &node, Ray &r, RayHit &hit )
 		vec3 v0 = mesh->worldVertices[mesh->indices[j]];
 		vec3 v1 = mesh->worldVertices[mesh->indices[j + 1]];
 		vec3 v2 = mesh->worldVertices[mesh->indices[j + 2]];
-		hitAnything = MeshObject::CheckRayTriangleIntersection( r, hit, v0, v1, v2 );
+		if (MeshObject::CheckRayTriangleIntersection(r, hit, v0, v1, v2))
+		{
+			hitAnything = true;
+			hit.normal = mesh->normals[mesh->indices[j]];
+		}
 		j += 3;
 	}
 	return hitAnything;

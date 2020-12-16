@@ -31,15 +31,14 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 	float t = v0v2.dot( qvec ) * inverseDeterminant;
 	if (t > 0.00001f && t < ray.t)
 	{
-		vec3 intersection = ray.At( t );
 		if ( t > ray.tMax )
 			return false;
 		// ray hit this triangle, record it!
 		ray.t = t;
-		hit.point = intersection;
+		hit.point = ray.At( t );
 		hit.normal = normalize(v0v1.cross( v0v2 ));
-		if ( hit.normal.dot( ray.direction ) > 0.0000001f )
-			hit.normal = -hit.normal;
+		//if ( hit.normal.dot( ray.direction ) > 0.0000001f )
+		//	hit.normal = -hit.normal;
 		hit.uv.x = u;
 		hit.uv.y = v;
 		return true;
