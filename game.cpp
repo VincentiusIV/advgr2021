@@ -10,7 +10,8 @@ static float calculateChance = 0.05;
 static int  frameCounter = 0, pixelCounter = 0;
 static color* colorBuffer;
 static int* raysCounter;
-
+static bool visualizeBvh = false;
+static int maxBvhDepth = 100;
 // -----------------------------------------------------------
 // Initialize the application
 // -----------------------------------------------------------
@@ -64,7 +65,7 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
 
 	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 2 );
-	lightSphere->position = point3( 0, 8, 5 );
+	lightSphere->position = point3( 0, 8, 2 );
 	scene->Add( lightSphere );
 	//ground plane
 	shared_ptr<Plane> plane1 = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
@@ -82,35 +83,42 @@ void Game::CreateBoxEnvironment()
 	plane3->scale = point3( 10, 10, 10 );
 	scene->Add( plane3 );
 
-	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
-	baseSphere->position = point3( 2.5, -1.5, 2.5 );
-	scene->Add( baseSphere );
-	shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
-	baseSphere1->position = point3( 0, -1.5, 2.5 );
-	scene->Add( baseSphere1 );
-	shared_ptr<Sphere> baseSphere2 = make_shared<Sphere>( beige, 2 );
-	baseSphere2->position = point3( -2.5, -1.5, 2.5 );
-	scene->Add( baseSphere2 );
+	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/cybertruck.obj", groundMirror );
+	for ( size_t i = 0; i < cybertruck.size(); i++ )
+	{
+		shared_ptr<MeshObject> current = cybertruck.at( i );
+		current->position = point3( 0, 0.5, 2 );
 
-	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
-	sphere1->position = point3(0, 1.5, 2.5);
-	scene->Add(sphere1);
+		current->scale = point3( 10 );
+		current->UpdateTRS();
+		scene->Add( current);
+	}
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
-	sphere2->position = point3( 2.5, 1.5, 2.5 );
-	scene->Add( sphere2 );
+	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
+	//baseSphere->position = point3( 2.5, -1.5, 2.5 );
+	//scene->Add( baseSphere );
+	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
+	//baseSphere1->position = point3( 0, -1.5, 2.5 );
+	//scene->Add( baseSphere1 );
+	//shared_ptr<Sphere> baseSphere2 = make_shared<Sphere>( beige, 2 );
+	//baseSphere2->position = point3( -2.5, -1.5, 2.5 );
+	//scene->Add( baseSphere2 );
 
-	shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
-	sphere4->position = point3( -2.5, 1.5, 2.5 );
-	scene->Add( sphere4 );
+	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
+	//sphere1->position = point3(0, 1.5, 2.5);
+	//scene->Add(sphere1);
 
+	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
+	//sphere2->position = point3( 2.5, 1.5, 2.5 );
+	//scene->Add( sphere2 );
 
+	//shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
+	//sphere4->position = point3( -2.5, 1.5, 2.5 );
+	//scene->Add( sphere4 );
 
 	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 1 );
 	//lightSphere2->position = point3( 5, 4, -5 );
 	//scene->Add( lightSphere2 );
-
-
 
 	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 4.0, 2.0 ), 10.0 );
 	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
@@ -120,6 +128,11 @@ void Game::CreateBoxEnvironment()
 	sceneLight2->albedo = color( 0.74, 0.45, 0.22 );
 	scene->Add( sceneLight2 );
 
+	for ( size_t i = 0; i < scene->objects.size(); i++ )
+	{
+		shared_ptr<HittableObject> obj = scene->objects.at( i );
+		obj->UpdateAABB();
+	}
 	scene->bvh->ConstructBVH();
 }
  
@@ -175,19 +188,26 @@ void Game::RenderScene()
 				int raysForThisPixel = raysCounter[y * SCRWIDTH + x];
 				if ( raysForThisPixel >= raysPerPixel || Rand( 1.0 ) > calculateChance )
 					continue;
-				color color = colorBuffer[y * SCRWIDTH + x];
+				color pixelColor = colorBuffer[y * SCRWIDTH + x];
 				auto uOffset = ( Rand( 2.0 ) - 1.0 );
 				auto vOffset = ( Rand( 2.0 ) - 1.0 );
 				auto u = ( ( double( x ) + uOffset ) / ( SCRWIDTH - 1 ) );
 				auto v = 1.0 - ( ( double( y ) + vOffset ) / ( SCRHEIGHT - 1 ) );
 				Ray ray = scene->GetCamera()->CastRayFromScreenPoint( u, v );
-				color += raytracer->Sample( ray );
-				colorBuffer[y * SCRWIDTH + x] = color;
-				color = color / float( raysForThisPixel );
-				color.x = clamp( color.x, 0.0f, 1.0f );
-				color.y = clamp( color.y, 0.0f, 1.0f );
-				color.z = clamp( color.z, 0.0f, 1.0f );
-				buffer[y * SCRWIDTH + x] = CreateRGB( floor( color.x * 255.999 ), floor( color.y * 255.999 ), floor( color.z * 255.999 ) );
+				pixelColor += raytracer->Sample( ray );
+
+				colorBuffer[y * SCRWIDTH + x] = pixelColor;
+				pixelColor = pixelColor / float( raysForThisPixel );
+				pixelColor.x = clamp( pixelColor.x, 0.0f, 1.0f );
+				pixelColor.y = clamp( pixelColor.y, 0.0f, 1.0f );
+				pixelColor.z = clamp( pixelColor.z, 0.0f, 1.0f );
+				if ( visualizeBvh )
+				{
+					maxBvhDepth = max( ray.bvhDepth, maxBvhDepth );
+					pixelColor += color( 0.9, 0.1, 0.1 ) * ( double( ray.bvhDepth ) / double( maxBvhDepth ) ) + color( 0.1, 0.9, 0.1 ) * ( 1.0 - ( double( ray.bvhDepth ) / double( maxBvhDepth ) ) );
+					pixelColor *= 0.5f;
+				}
+				buffer[y * SCRWIDTH + x] = CreateRGB( floor( pixelColor.x * 255.999 ), floor( pixelColor.y * 255.999 ), floor( pixelColor.z * 255.999 ) );
 				raysCounter[y * SCRWIDTH + x] = raysForThisPixel + 1;
 			}
 		}

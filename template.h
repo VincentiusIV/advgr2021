@@ -324,6 +324,8 @@ vec4 operator * ( const vec4& a, const mat4& b );
 vec3 operator*( const mat4 &a, const vec3 &b );
 vec3 operator*( const vec3 &a, const mat4 &b );
 vec3 RandomInsideUnitSphere();
+vec3 MinPerAxis( const vec3 &a, const vec3 &b );
+vec3 MaxPerAxis( const vec3 &a, const vec3 &b );
 #define BADFLOAT(x) ((*(uint*)&x & 0x7f000000) == 0x7f000000)
 
 }; // namespace Tmpl8

@@ -13,6 +13,7 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit )
 
 bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 {
+	// Bruteforce method
 	//bool hitAny = false;
 	//for ( size_t i = 0; i < scene->objects.size(); i++ )
 	//{
@@ -25,9 +26,9 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 	//		hitAny |= true;
 	//	}
 	//}
-	int depth;
-	
-	return scene->bvh->Intersect(ray, hit, depth);
+
+	// TODO: Implement typeToIgnore with bvh.
+	return scene->bvh->Intersect(ray, hit);
 }
 
 color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )

@@ -1,44 +1,14 @@
 #include "precomp.h"
-#include "objloader.h"
 
-MeshObject::MeshObject( shared_ptr<Material> material, std::string filePath ) : HittableObject( material )
+MeshObject::MeshObject( shared_ptr<Material> material ) : HittableObject( material )
 {
 	vertices = vector<vec3>();
 	normals = vector<vec3>();
 	uvs = vector<vec2>();
 	indices = vector<uint>();
-	triangleCount = 0;
-	
-	objl::Loader loader;
-	if (loader.LoadFile(filePath))
-	{
-		uint indicesCount = 0;
-		for ( size_t j = 0; j < loader.LoadedMeshes.size(); j++ )
-		{
-			objl::Mesh mesh = loader.LoadedMeshes.at( j );
-			for ( size_t i = 0; i < mesh.Vertices.size(); i++ )
-			{
-				objl::Vector3 p = mesh.Vertices.at( i ).Position;
-				vec3 pos = vec3( p.X, p.Y, p.Z );
-				vertices.push_back( pos);
-				objl::Vector3 n = mesh.Vertices.at( i ).Normal;
-				normals.push_back( vec3( n.X, n.Y, n.Z ) );
-				objl::Vector2 uv = mesh.Vertices.at( i ).TextureCoordinate;
-				uvs.push_back( vec2( uv.X, uv.Y ) );
-
-				float dist = pos.sqrLentgh() * pos.sqrLentgh();
-				if ( dist > r2 )
-					r2 = dist;
-			}
-			for ( size_t i = 0; i < mesh.Indices.size(); i++ )
-			{
-				uint index = indicesCount + mesh.Indices.at( i );
-				indices.push_back( index );
-			}
-			indicesCount += mesh.Indices.size();
-			triangleCount = (uint)indices.size() / 3;
-		}
-	}
+	triangleCount = 0;	
+	subbvh = new TriangleBVH( this );
+	subbvh->maxObjectsPerLeaf = 6;
 }
 
 bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, vec3 v1, vec3 v2 )
@@ -62,7 +32,7 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 	if (t > 0.00001f && t < ray.t)
 	{
 		vec3 intersection = ray.At( t );
-		if ( ( intersection - ray.origin ).sqrLentgh() > ray.tMax )
+		if ( t > ray.tMax )
 			return false;
 		// ray hit this triangle, record it!
 		ray.t = t;
@@ -80,39 +50,58 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 void MeshObject::UpdateTRS()
 {
 	localToWorldMatrix = mat4::trs( position, rotation, scale );
-	// Transform all vertices to world space vertices.
 	worldVertices.clear();
 	for ( size_t i = 0; i < vertices.size(); i++ )
 	{
 		worldVertices.push_back( localToWorldMatrix * vertices.at( i ) );
 	}
+	subbvh->ConstructBVH();
+}
+
+void MeshObject::UpdateAABB()
+{
+	vec3 bmin = vec3( 3.40282e+038 ), bmax = vec3( 1.17549e-038 );
+	for ( size_t i = 0; i < worldVertices.size(); i++ )
+	{
+		vec3 p = worldVertices.at( i );
+		bmin = MinPerAxis( bmin, p );
+		bmax = MaxPerAxis( bmax, p );
+	}
+	aabb = AABB( bmin, bmax );
 }
 
 bool MeshObject::Hit( Ray &ray, RayHit &hit )
 {
 	// Bounding sphere, doesnt yet work correctly and we probably want AABB's for this purpose.
-	//if ( !Sphere::Hit( ray, hit, position, r2 ) )
-	//	return false;
-
-	uint j = 0;
-	bool didHit = false;
-
-	for ( int i = 0; i < triangleCount; i++ )
-	{
-		vec3 v0 = worldVertices[indices[j]];
-		vec3 v1 = worldVertices[indices[j + 1]];
-		vec3 v2 = worldVertices[indices[j + 2]];
-
-		if ( CheckRayTriangleIntersection( ray, hit, v0, v1, v2) )
-		{
-			didHit = true;
-			//hit.normal = normals[indices[j]];
-			hit.isFrontFace = true;
-			hit.material = material;
-		}
-
-		j += 3;
+	if ( !aabb.Intersect( ray ) )
+		return false;
+	if (subbvh->Intersect(ray, hit))
+	{ 		
+		hit.isFrontFace = true;
+		hit.material = material;
+		return true;
 	}
+	return false;
+	//uint j = 0;
+	//bool didHit = false;
 
-	return didHit;
+	//for ( int i = 0; i < triangleCount; i++ )
+	//{
+	//	vec3 v0 = worldVertices[indices[j]];
+	//	vec3 v1 = worldVertices[indices[j + 1]];
+	//	vec3 v2 = worldVertices[indices[j + 2]];
+
+	//	if ( CheckRayTriangleIntersection( ray, hit, v0, v1, v2) )
+	//	{
+	//		didHit = true;
+	//		//hit.normal = normals[indices[j]];
+	//		hit.isFrontFace = true;
+	//		hit.material = material;
+	//	}
+
+	//	j += 3;
+	//}
+
+	//return didHit;
 }
+
