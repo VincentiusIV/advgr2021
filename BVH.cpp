@@ -45,12 +45,16 @@ void BVH::SplitNodeSAH(int nodeIdx)
 	BVHNode &left = pool[node.left];
 	BVHNode &right = pool[node.right];
 	
-	node.bounds = CalculateBounds( node.first, node.count );
+	//node.bounds = CalculateBounds( node.first, node.count );
 	float areaNode = ( node.bounds.max.x - node.bounds.min.x ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
 	float costParent = areaNode * node.count;
 
 	float smallestCost = costParent;
 	float perfSplit = node.count/2;
+
+	float areaLeft;
+	float areaRight;
+	float costSplit;
 
 	//this stays the same during the whole for loop, so it can stay outside of the forloop
 	left.first = node.first; 
@@ -69,12 +73,12 @@ void BVH::SplitNodeSAH(int nodeIdx)
 		right.count = node.count - left.count; 
 
 		left.bounds = CalculateBounds(left.first, left.count);
-		float areaLeft = ( left.bounds.max.x - left.bounds.min.x ) * ( left.bounds.max.y - left.bounds.min.y ) * ( left.bounds.max.z - left.bounds.min.z );
+		areaLeft = ( left.bounds.max.x - left.bounds.min.x ) * ( left.bounds.max.y - left.bounds.min.y ) * ( left.bounds.max.z - left.bounds.min.z );
 
 		right.bounds = CalculateBounds(right.first, right.count);
-		float areaRight = ( right.bounds.max.x - right.bounds.min.x ) * ( right.bounds.max.y - right.bounds.min.y ) * ( right.bounds.max.z - right.bounds.min.z );
+		areaRight = ( right.bounds.max.x - right.bounds.min.x ) * ( right.bounds.max.y - right.bounds.min.y ) * ( right.bounds.max.z - right.bounds.min.z );
 		
-		float costSplit = ( areaLeft * left.count ) + ( areaRight * right.count );
+		costSplit = ( areaLeft * left.count ) + ( areaRight * right.count );
 
 		//check if the split with obj i is smaller than the previous split
 		if (costSplit < smallestCost)
@@ -106,6 +110,82 @@ void BVH::SplitNodeSAH(int nodeIdx)
 
 void BVH::SplitNodeBin(int nodeIdx)
 {
+	//split into a certain number (ex 4/8/16 preferably 8)
+
+	BVHNode &node = pool[nodeIdx];
+	BVHNode &left = pool[node.left];
+	BVHNode &right = pool[node.right];
+
+	//node.bounds = CalculateBounds( node.first, node.count );
+	float widthP = node.bounds.max.x - node.bounds.min.x;
+	float areaNode = ( widthP ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
+	float costParent = areaNode * node.count;
+
+	
+
+	float smallestCost = costParent;
+	float perfSplit = node.count / 2;
+
+	float areaLeft;
+	float areaRight;
+	float costSplit;
+
+	//this stays the same during the whole for loop, so it can stay outside of the forloop
+	left.first = node.first;
+
+	//Split the plane on each primitive. When splitting on a primitive, it goes to the right side.
+	for ( int i = 1; i < 8; i++ ) //we start at i=1, as we do not care about the first split as it would give an empty left node.
+	{
+		AABB aabb = AABB(node.bounds.min.x, ((widthP / 8)*i));
+		for (int i = 1; i < node.count; i++)
+		{
+			//shared_ptr<HittableObject> obj = scene->objects.at( i );
+
+			if (aabb.Contains(i)) //niet pointer i, maar i'ste object en dan de locatie daarvan
+			{
+				left.count += 1;
+			}
+		}
+
+		//left.count = i * (ceilf(node.count/8)); //obj.i is not in the left node, however the list starts at 0 but you do not have 0 objects
+
+		right.first = left.first + left.count;
+		right.count = node.count - left.count;
+
+		left.bounds = CalculateBounds( left.first, left.count );
+		areaLeft = ( left.bounds.max.x - left.bounds.min.x ) * ( left.bounds.max.y - left.bounds.min.y ) * ( left.bounds.max.z - left.bounds.min.z );
+
+		right.bounds = CalculateBounds( right.first, right.count );
+		areaRight = ( right.bounds.max.x - right.bounds.min.x ) * ( right.bounds.max.y - right.bounds.min.y ) * ( right.bounds.max.z - right.bounds.min.z );
+
+		costSplit = ( areaLeft * left.count ) + ( areaRight * right.count );
+
+		//check if the split with obj i is smaller than the previous split
+		if ( costSplit < smallestCost )
+		{
+			smallestCost = costSplit;
+			perfSplit = i;
+		}
+		//Don't do 'not greedy' way!(child cost split: Aleft0* (Aleft1*Nleft1 + Aright1*Nright1 ) + Aright0 *(etc)
+		//greedy == assume that the split is for a leaf node (last split)
+	}
+
+	// split is 'not worth it' if cost is higher than cost of parent node
+	//^this decides when you stop as well
+	if ( smallestCost + 0.000001 >= costParent )
+	{
+		//return leaf; //no split
+		//TODO: move to subdivide
+	}
+
+	//final split
+	left.count = perfSplit;
+
+	right.first = left.first + left.count;
+	right.count = node.count - left.count;
+
+	left.bounds = CalculateBounds( left.first, left.count );
+	right.bounds = CalculateBounds( right.first, right.count );
 
 }
 
