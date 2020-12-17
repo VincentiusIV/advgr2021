@@ -87,7 +87,7 @@ void Game::CreateBoxEnvironment()
 	//plane3->scale = point3( 10, 10, 10 );
 	//scene->Add( plane3 );
 
-	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/apartment/Futuristic Apartment.obj" );
+	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
 	for ( size_t i = 0; i < cybertruck.size(); i++ )
 	{
 		shared_ptr<MeshObject> current = cybertruck.at( i );

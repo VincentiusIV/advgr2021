@@ -1,41 +1,68 @@
 #include "precomp.h"
+#include <omp.h>
 
 void BVH::ConstructBVH()
 {
 	printf( "Started BVH Construction\n" );
 	timer t;
 	t.reset();
-	pool = new BVHNode[N * 2 - 1];
+	nodeCount = N * 2 - 1;
+	pool = new BVHNode[nodeCount];
 	root = &pool[0];
+	poolPtr = 2;
 	root->first = 0;
 	root->count = N;
 	root->bounds = CalculateBounds( root->first, root->count );
-	Subdivide( 0 );
+
+//	Subdivide( 0, nodeCount );
+	progressCounter = 0;
+	if (false)
+	{
+		int segmentCount = 4;
+		int segment = fmax( 1, ( N * 2 - 1 ) / segmentCount );
+
+		#pragma omp parallel for schedule( dynamic, 1 )
+		for ( int i = 0; i < segmentCount; i++ )
+		{
+			int nodeIdx = ( i * segment );
+			int lastIdx = fmin( nodeCount, ( nodeIdx + segment ) );
+			Subdivide( nodeIdx, lastIdx );
+		}
+	}
+	else
+	{
+		Subdivide( 0, nodeCount);	
+	}
+
 	string timeString = "Finished BVH Construction after t=" + to_string( t.elapsed() ) + "\n";
 	printf( timeString.c_str());
 }
 
-void BVH::Subdivide( int nodeIdx )
+void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 {
+	++progressCounter;
+	std::cerr << "\rBVH subdivisions: " << double(progressCounter) << ", for N = " << N << "\n"<< std::flush;
 	BVHNode &node = pool[nodeIdx];
-	if (node.count < maxObjectsPerLeaf)
+	if (node.count < maxObjectsPerLeaf || nodeIdx >= maxNodeIdx)
 	{
 		return;
 	}
+	node.left = poolPtr++;
+	node.right = poolPtr++;
 	SplitNodeSAH(nodeIdx);
-	Subdivide( nodeIdx * 2 + 1);
-	Subdivide( nodeIdx * 2 + 2);
+	Subdivide( node.left, maxNodeIdx );
+	Subdivide( node.right, maxNodeIdx );
 }
 
 void BVH::SplitNode( int nodeIdx )
 {
 	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[nodeIdx*2+1];
+	BVHNode &left = pool[node.left];
 	left.first = node.first;
 	left.count = node.count / 2;
 	left.bounds = CalculateBounds( left.first, left.count );
 
-	BVHNode &right = pool[nodeIdx * 2 + 2];
+	BVHNode &right = pool[node.right];
 	right.first = left.first+left.count;
 	right.count = node.count - left.count;
 	right.bounds = CalculateBounds( right.first, right.count );
@@ -43,10 +70,13 @@ void BVH::SplitNode( int nodeIdx )
 
 void BVH::SplitNodeSAH(int nodeIdx)
 {
+	if ( nodeIdx >= nodeCount )
+		return;
+
 	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[nodeIdx * 2 + 1];
-	BVHNode &right = pool[nodeIdx * 2 + 2];
-	
+	BVHNode &left = pool[node.left];
+	BVHNode &right = pool[node.right];
+
 	float areaNode = ( node.bounds.max.x - node.bounds.min.x ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
 	float costParent = areaNode * node.count;
 	float smallestCost = costParent;
@@ -194,26 +224,24 @@ bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
 	}
 	else
 	{
-		int leftIdx = nodeIdx * 2 + 1;
-		BVHNode &left = pool[leftIdx];
+		BVHNode &left = pool[current.left];
 		if ( left.bounds.Intersect( r ) )
-			hitAnything |= IntersectRecursive( r, hit, leftIdx );
-		int rightIdx = nodeIdx * 2 + 2;
-		BVHNode &right = pool[rightIdx];
+			hitAnything |= IntersectRecursive( r, hit, current.left );
+		BVHNode &right = pool[current.right];
 		if ( right.bounds.Intersect( r ) )
-			hitAnything |= IntersectRecursive( r, hit, rightIdx );
+			hitAnything |= IntersectRecursive( r, hit, current.right );
 	}
 	return hitAnything;
 }
-
 
 bool BVH::Intersect( Ray &r, RayHit &hit )
 {
 	return IntersectRecursive( r, hit, 0);
 
 	// While method, doesnt work better than recursive cause of queue<int> allocation?
+	// having static/member open is not thread-safe
 
-	queue<int> open = queue<int>();
+	/*queue<int> open = queue<int>();
 	open.emplace( 0 );
 	bool hitAnything = false;
 	while ( open.size() > 0 )
@@ -235,6 +263,6 @@ bool BVH::Intersect( Ray &r, RayHit &hit )
 				open.push( rightIdx );
 		}
 	}
-	return hitAnything;
+	return hitAnything;*/
 }
 
