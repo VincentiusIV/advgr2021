@@ -13,7 +13,8 @@ enum class KeyCode
 	LEFT_ARROW = 80,
 	RIGHT_ARROW = 79,
 	UP_ARROW = 82,
-	DOWN_ARROW = 81
+	DOWN_ARROW = 81,
+	F1 = 53
 };
 
 class Game

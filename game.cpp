@@ -264,6 +264,9 @@ void Game::KeyDown( int key )
 	case KeyCode::DOWN_ARROW:
 		scene->GetCamera()->Rotate( vec3( cameraRotateSpeed, 0, 0 ) * deltaTimeInSeconds );
 		break;
+	case KeyCode::F1:
+		visualizeBvh = !visualizeBvh;
+		break;
 	default:
 		break;
 	}

@@ -5,10 +5,8 @@ void BVH::ConstructBVH()
 	printf( "Started BVH Construction\n" );
 	timer t;
 	t.reset();
-	
 	pool = new BVHNode[N * 2 - 1];
 	root = &pool[0];
-	poolPtr = 1;
 	root->first = 0;
 	root->count = N;
 	root->bounds = CalculateBounds( root->first, root->count );
@@ -24,22 +22,20 @@ void BVH::Subdivide( int nodeIdx )
 	{
 		return;
 	}
-	node.left = poolPtr;
-	poolPtr += 2;
-	SplitNodeSAH(nodeIdx);
-	Subdivide( node.left );
-	Subdivide( node.right());
+	SplitNode(nodeIdx);
+	Subdivide( nodeIdx * 2 + 1);
+	Subdivide( nodeIdx * 2 + 2);
 }
 
 void BVH::SplitNode( int nodeIdx )
 {
 	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[node.left];
+	BVHNode &left = pool[nodeIdx*2+1];
 	left.first = node.first;
 	left.count = node.count / 2;
 	left.bounds = CalculateBounds( left.first, left.count );
 
-	BVHNode &right = pool[node.right()];
+	BVHNode &right = pool[nodeIdx * 2 + 2];
 	right.first = left.first+left.count;
 	right.count = node.count - left.count;
 	right.bounds = CalculateBounds( right.first, right.count );
@@ -48,8 +44,8 @@ void BVH::SplitNode( int nodeIdx )
 void BVH::SplitNodeSAH(int nodeIdx)
 {
 	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[node.left];
-	BVHNode &right = pool[node.right()];
+	BVHNode &left = pool[nodeIdx * 2 + 1];
+	BVHNode &right = pool[nodeIdx * 2 + 2];
 	
 	//node.bounds = CalculateBounds( node.first, node.count );
 	float areaNode = ( node.bounds.max.x - node.bounds.min.x ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
@@ -113,53 +109,58 @@ void BVH::SplitNodeBin(int nodeIdx)
 
 }
 
-bool BVH::IntersectRecursive( Ray &r, RayHit &hit, BVHNode &current )
+bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
 {
 	++r.bvhDepth;
 	bool hitAnything = false;
+	BVHNode &current = pool[nodeIdx];
 	if ( current.count < maxObjectsPerLeaf )
 	{
 		hitAnything |= IntersectNode( current, r, hit );
 	}
 	else
 	{
-		BVHNode &left = pool[current.left];
+		int leftIdx = nodeIdx * 2 + 1;
+		BVHNode &left = pool[leftIdx];
 		if ( left.bounds.Intersect( r ) )
-			hitAnything |= IntersectRecursive( r, hit, left );
-		BVHNode &right = pool[current.right()];
+			hitAnything |= IntersectRecursive( r, hit, leftIdx );
+		int rightIdx = nodeIdx * 2 + 2;
+		BVHNode &right = pool[rightIdx];
 		if ( right.bounds.Intersect( r ) )
-			hitAnything |= IntersectRecursive( r, hit, right );
+			hitAnything |= IntersectRecursive( r, hit, rightIdx );
 	}
 	return hitAnything;
 }
 
+
 bool BVH::Intersect( Ray &r, RayHit &hit )
 {
-	return IntersectRecursive( r, hit, *root );
+	return IntersectRecursive( r, hit, 0);
 
 	// While method, doesnt work better than recursive cause of queue<int> allocation?
-	//queue<int> open = queue<int>();
-	//open.emplace( 0 );
-	//bool hitAnything = false;
 
-	//while ( open.size() > 0 )
-	//{
-	//	int currentIdx = open.front();
-	//	open.pop();
-	//	BVHNode &current = pool[currentIdx];
-
-	//	if ( current.count < maxObjectsPerLeaf )
-	//	{
-	//		hitAnything |= IntersectNode( current, r, hit );
-	//	}
-	//	else
-	//	{
-	//		if ( pool[current.left].bounds.Intersect( r ) )
-	//			open.push( current.left );
-	//		if ( pool[current.right].bounds.Intersect( r ) )
-	//			open.push( current.right );
-	//	}
-	//}
-	//return hitAnything;
+	queue<int> open = queue<int>();
+	open.emplace( 0 );
+	bool hitAnything = false;
+	while ( open.size() > 0 )
+	{
+		int currentIdx = open.front();
+		BVHNode &current = pool[currentIdx];
+		open.pop();
+		if ( current.count < maxObjectsPerLeaf )
+		{
+			hitAnything |= IntersectNode( current, r, hit );
+		}
+		else
+		{
+			int leftIdx = currentIdx * 2 + 1;
+			if ( pool[leftIdx].bounds.Intersect( r ) )
+				open.push( leftIdx );
+			int rightIdx = currentIdx * 2 + 1;
+			if ( pool[rightIdx].bounds.Intersect( r ) )
+				open.push( rightIdx );
+		}
+	}
+	return hitAnything;
 }
 
