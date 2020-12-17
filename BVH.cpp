@@ -1,30 +1,42 @@
 #include "precomp.h"
+#include <omp.h>
 
 void BVH::ConstructBVH()
 {
 	printf( "Started BVH Construction\n" );
 	timer t;
 	t.reset();
-	pool = new BVHNode[N * 2 - 1];
+	int nodeCount = N * 2 - 1;
+	pool = new BVHNode[nodeCount];
 	root = &pool[0];
 	root->first = 0;
 	root->count = N;
 	root->bounds = CalculateBounds( root->first, root->count );
-	Subdivide( 0 );
+
+	Subdivide( 0, nodeCount );
+
+	//int segment = (N * 2 - 1) / 4;
+	//for ( int i = 0; i < 4; i++ )
+	//{
+	//	int nodeIdx = ( i * segment );
+	//	int lastIdx = fmin( nodeCount, ( nodeIdx + segment ) );
+	//	Subdivide( nodeIdx, lastIdx);
+	//}
+
 	string timeString = "Finished BVH Construction after t=" + to_string( t.elapsed() ) + "\n";
 	printf( timeString.c_str());
 }
 
-void BVH::Subdivide( int nodeIdx )
+void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 {
 	BVHNode &node = pool[nodeIdx];
-	if (node.count < maxObjectsPerLeaf)
+	if (node.count < maxObjectsPerLeaf || nodeIdx >= maxNodeIdx)
 	{
 		return;
 	}
 	SplitNode(nodeIdx);
-	Subdivide( nodeIdx * 2 + 1);
-	Subdivide( nodeIdx * 2 + 2);
+	Subdivide( nodeIdx * 2 + 1, maxNodeIdx );
+	Subdivide( nodeIdx * 2 + 2, maxNodeIdx );
 }
 
 void BVH::SplitNode( int nodeIdx )
@@ -132,14 +144,14 @@ bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
 	return hitAnything;
 }
 
-
 bool BVH::Intersect( Ray &r, RayHit &hit )
 {
 	return IntersectRecursive( r, hit, 0);
 
 	// While method, doesnt work better than recursive cause of queue<int> allocation?
+	// having static/member open is not thread-safe
 
-	queue<int> open = queue<int>();
+	/*queue<int> open = queue<int>();
 	open.emplace( 0 );
 	bool hitAnything = false;
 	while ( open.size() > 0 )
@@ -161,6 +173,6 @@ bool BVH::Intersect( Ray &r, RayHit &hit )
 				open.push( rightIdx );
 		}
 	}
-	return hitAnything;
+	return hitAnything;*/
 }
 

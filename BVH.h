@@ -11,7 +11,7 @@ class BVH
   public:	
 	virtual void ConstructBVH();
 	virtual AABB CalculateBounds( int first, int count ) = 0;
-	void Subdivide( int nodeIdx );
+	void Subdivide( int nodeIdx, int maxNodeIdx );
 	void SplitNode( int nodeIdx );
 	void SplitNodeSAH( int nodeIdx );
 	void SplitNodeBin( int nodeIdx );
