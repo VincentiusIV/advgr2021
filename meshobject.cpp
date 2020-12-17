@@ -1,5 +1,7 @@
 #include "precomp.h"
 
+bool MeshObject::BRUTE_FORCE = false;
+
 MeshObject::MeshObject( shared_ptr<Material> material ) : HittableObject( material )
 {
 	vertices = vector<vec3>();
@@ -8,7 +10,7 @@ MeshObject::MeshObject( shared_ptr<Material> material ) : HittableObject( materi
 	indices = vector<uint>();
 	triangleCount = 0;	
 	subbvh = new TriangleBVH( this );
-	subbvh->maxObjectsPerLeaf = 3;
+	subbvh->maxObjectsPerLeaf = 5;
 }
 
 bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, vec3 v1, vec3 v2 )
@@ -29,14 +31,10 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 	if ( v < 0 || u+v > 1 )
 		return false;
 	float t = v0v2.dot( qvec ) * inverseDeterminant;
-	if (t > 0.00001f && t < ray.t)
+	if (t > 0.00001f && t < ray.t && t <= ray.tMax)
 	{
-		vec3 intersection = ray.At( t );
-		if ( t > ray.tMax )
-			return false;
-		// ray hit this triangle, record it!
 		ray.t = t;
-		hit.point = intersection;
+		hit.point = ray.At( t );
 		hit.normal = normalize(v0v1.cross( v0v2 ));
 		if ( hit.normal.dot( ray.direction ) > 0.0000001f )
 			hit.normal = -hit.normal;
@@ -55,7 +53,9 @@ void MeshObject::UpdateTRS()
 	{
 		worldVertices.push_back( localToWorldMatrix * vertices.at( i ) );
 	}
-	subbvh->ConstructBVH();
+
+	if(!MeshObject::BRUTE_FORCE)
+		subbvh->ConstructBVH();
 }
 
 void MeshObject::UpdateAABB()
@@ -72,36 +72,38 @@ void MeshObject::UpdateAABB()
 
 bool MeshObject::Hit( Ray &ray, RayHit &hit )
 {
-	// Bounding sphere, doesnt yet work correctly and we probably want AABB's for this purpose.
 	if ( !aabb.Intersect( ray ) )
 		return false;
-	if (subbvh->Intersect(ray, hit))
-	{ 		
-		hit.isFrontFace = true;
-		hit.material = material;
-		return true;
+
+	if (MeshObject::BRUTE_FORCE)
+	{
+		uint j = 0;
+		bool didHit = false;
+		for ( int i = 0; i < triangleCount; i++ )
+		{
+			vec3 v0 = worldVertices[indices[j]];
+			vec3 v1 = worldVertices[indices[j + 1]];
+			vec3 v2 = worldVertices[indices[j + 2]];
+			if ( CheckRayTriangleIntersection( ray, hit, v0, v1, v2) )
+			{
+				didHit = true;
+				//hit.normal = normals[indices[j]];
+				hit.isFrontFace = true;
+				hit.material = material;
+			}
+			j += 3;
+		}
+		return didHit;
 	}
-	return false;
-	//uint j = 0;
-	//bool didHit = false;
-
-	//for ( int i = 0; i < triangleCount; i++ )
-	//{
-	//	vec3 v0 = worldVertices[indices[j]];
-	//	vec3 v1 = worldVertices[indices[j + 1]];
-	//	vec3 v2 = worldVertices[indices[j + 2]];
-
-	//	if ( CheckRayTriangleIntersection( ray, hit, v0, v1, v2) )
-	//	{
-	//		didHit = true;
-	//		//hit.normal = normals[indices[j]];
-	//		hit.isFrontFace = true;
-	//		hit.material = material;
-	//	}
-
-	//	j += 3;
-	//}
-
-	//return didHit;
+	else
+	{
+		if ( subbvh->Intersect( ray, hit ) )
+		{
+			hit.isFrontFace = true;
+			hit.material = material;
+			return true;
+		}
+		return false;
+	}
 }
 

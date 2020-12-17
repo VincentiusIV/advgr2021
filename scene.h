@@ -1,15 +1,14 @@
 #pragma once
 
-#include "object.h"
-#include "ray.h"
-#include "camera.h"
-#include "light.h"
-
+class HittableObject;
+class Camera;
+class Light;
 class BVH;
 
 class Scene
 {
   public:
+	static bool BRUTE_FORCE;
 	Scene();
 	~Scene();
 	void Update(float deltaTime);
@@ -20,6 +19,7 @@ class Scene
 	vector<shared_ptr<HittableObject>> objects, emissiveObjects;
 	vector<shared_ptr<Light>> lights;
 	BVH *bvh;
+
   private:	
 	shared_ptr<Camera> camera;
 

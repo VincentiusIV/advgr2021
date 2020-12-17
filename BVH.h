@@ -3,7 +3,6 @@
 struct BVHNode
 {
 	AABB bounds;
-	int left, right;
 	int first, count;
 };
 
@@ -17,10 +16,11 @@ class BVH
 	void SplitNodeSAH( int nodeIdx );
 	void SplitNodeBin( int nodeIdx );
 	bool Intersect( Ray &r, RayHit &hit );
-	bool IntersectRecursive( Ray &r, RayHit &hit, BVHNode &current );
+	bool IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx );
 	virtual bool IntersectNode( BVHNode &node, Ray &r, RayHit &hit ) = 0;
+	virtual vec3 GetPosition( int objIdx ) = 0; 
 
-	int poolPtr = 0, N = 0, maxObjectsPerLeaf = 3;
+	int N = 0, maxObjectsPerLeaf = 3;
 	BVHNode* root;
 	BVHNode *pool;
 };
