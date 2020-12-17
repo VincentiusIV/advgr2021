@@ -19,7 +19,7 @@ void BVH::ConstructBVH()
 	progressCounter = 0;
 	if (false)
 	{
-		int segmentCount = 4;
+		int segmentCount = 16;
 		int segment = fmax( 1, ( N * 2 - 1 ) / segmentCount );
 
 		#pragma omp parallel for schedule( dynamic, 1 )
@@ -91,6 +91,8 @@ void BVH::SplitNodeSAH(int nodeIdx)
 	//Split the plane on each primitive. When splitting on a primitive, it goes to the right side. 
 	for (int i = 1; i< node.count; i++) //we start at i=1, as we do not care about the first split as it would give an empty left node.
 	{
+		if (node.count > 10000)
+			std::cerr << "\rLarge SAH Subdivision: " << double( i )/double(node.count)*100 << "%" << std::flush;
 		//object i; 
 		//shared_ptr<HittableObject> obj = scene->objects.at( i );
 		//obj.pos;
