@@ -3,7 +3,8 @@
 
 void BVH::ConstructBVH()
 {
-	printf( "Started BVH Construction\n" );
+	std::string notifyString = "Started BVH Construction for N=" + to_string( N ) + " \n"; 
+	printf( notifyString.c_str());
 	timer t;
 	t.reset();
 	nodeCount = N * 2 - 1;
@@ -41,7 +42,7 @@ void BVH::ConstructBVH()
 void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 {
 	++progressCounter;
-	std::cerr << "\rBVH subdivisions: " << double(progressCounter) << ", for N = " << N << "\n"<< std::flush;
+	std::cerr << "\rBVH subdivisions: " << double(progressCounter) << ' ' << std::flush;
 	BVHNode &node = pool[nodeIdx];
 	if (node.count < maxObjectsPerLeaf || nodeIdx >= maxNodeIdx)
 	{
