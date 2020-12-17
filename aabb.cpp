@@ -13,15 +13,10 @@ bool AABB::Intersect( Ray &r )
 	vec3 t0s = ( min - r.origin ) * invD;
 	vec3 t1s = ( max - r.origin ) * invD;
 
-	vec3 tsmaller = vec3( fmin( t0s.x, t1s.x ), fmin( t0s.y, t1s.y ), fmin( t0s.z, t1s.z ) );
-	vec3 tbigger = vec3( fmax( t0s.x, t1s.x ), fmax( t0s.y, t1s.y ), fmax( t0s.z, t1s.z ) );
+	vec3 tsmaller = MinPerAxis( t0s, t1s );
+	vec3 tbigger = MaxPerAxis( t0s, t1s );
 
-	float tmin = fmax( 0.0f, fmax( tsmaller.x, fmax( tsmaller.y, tsmaller.z ) ) );
-	float tmax = fmin( r.tMax, fmin( tbigger.x, fmin( tbigger.y, tbigger.z ) ) );
-	if (tmin < tmax)
-	{
-		//r.tMax = tmax;
-		return true;
-	}
-	return false;
+	float tmin = fmax( -INFINITY, fmax( tsmaller.x, fmax( tsmaller.y, tsmaller.z ) ) );
+	float tmax = fmin( INFINITY, fmin( tbigger.x, fmin( tbigger.y, tbigger.z ) ) );
+	return ( tmin < tmax );
 }

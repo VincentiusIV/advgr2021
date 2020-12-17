@@ -18,11 +18,15 @@ static int maxBvhDepth = 100;
 void Game::Init()
 {
 	scene = new Scene();
+	scene->GetCamera()->Translate( vec3( 1.5, 1.0, 3 ) );
+	scene->GetCamera()->Rotate( vec3( 1.0, -120.0, 0.0 ) );
 	colorBuffer = (color*)MALLOC64(SCRWIDTH * SCRHEIGHT * sizeof(color));
 	raysCounter = new int[SCRWIDTH * SCRHEIGHT];
 	ClearColorBuffer();
-
 	CreateBoxEnvironment();
+
+	Scene::BRUTE_FORCE = false;
+	MeshObject::BRUTE_FORCE = false;
 
 	//raytracer = new WhittedRayTracer(scene, 7);
 	raytracer = new PathTracer( scene, 7 );
@@ -87,12 +91,21 @@ void Game::CreateBoxEnvironment()
 	for ( size_t i = 0; i < cybertruck.size(); i++ )
 	{
 		shared_ptr<MeshObject> current = cybertruck.at( i );
-		current->position = point3( 0, 0, 2 );
-
+		current->position = point3( 0, 0, 0 );
 		current->scale = point3( 0.1 );
 		current->UpdateTRS();
 		scene->Add( current);
 	}
+
+	//for ( int x = -5; x < 5; x++ )
+	//{
+	//	for ( int z = -5; z < 5; z++ )
+	//	{
+	//		shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 0.5 );
+	//		baseSphere->position = point3( x, 0.0, z);
+	//		scene->Add( baseSphere );
+	//	}
+	//}
 
 	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
 	//baseSphere->position = point3( 2.5, -1.5, 2.5 );

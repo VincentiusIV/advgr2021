@@ -17,12 +17,9 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 	{
 		vec3 p0l0 = ( position - ray.origin );
 		float t = dot( p0l0, planeNormal ) / (denom);
-		if ((t < ray.t) && (t > 0.0001f) )
+		if ( ( t < ray.t ) && ( t > 0.0001f ) && t < ray.tMax )
 		{
 			point3 I = ray.At( t );
-
-			if ( t > ray.tMax )
-				return false;
 			vec3 toIntersation = project ( I - position, planeNormal );
 			if ( fabs( toIntersation.x ) > scale.x / 2 || fabs( toIntersation.y ) > scale.y / 2 || fabs( toIntersation.z ) > scale.z / 2 )
 				return false;
