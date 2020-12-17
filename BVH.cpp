@@ -50,7 +50,7 @@ void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 	}
 	node.left = poolPtr++;
 	node.right = poolPtr++;
-	SplitNodeSAH(nodeIdx);
+	SplitNodeBin(nodeIdx);
 	Subdivide( node.left, maxNodeIdx );
 	Subdivide( node.right, maxNodeIdx );
 }
@@ -120,11 +120,11 @@ void BVH::SplitNodeSAH(int nodeIdx)
 		
 	// split is 'not worth it' if cost is higher than cost of parent node 
 	//^this decides when you stop as well
-	if(smallestCost + 0.000001 >= costParent) 
-	{
+	//if(smallestCost + 0.000001 >= costParent) 
+	//{
 		//return leaf; //no split
 		//TODO: move to subdivide
-	}
+	//}
 
 	//final split
 	left.count = perfSplit;
@@ -139,8 +139,8 @@ void BVH::SplitNodeSAH(int nodeIdx)
 void BVH::SplitNodeBin(int nodeIdx)
 {
 	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[nodeIdx * 2 + 1];
-	BVHNode &right = pool[nodeIdx * 2 + 2];
+	BVHNode &left = pool[node.left];
+	BVHNode &right = pool[node.right];
 
 	float widthP = node.bounds.max.x - node.bounds.min.x;
 	float areaNode = ( widthP ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
@@ -158,21 +158,27 @@ void BVH::SplitNodeBin(int nodeIdx)
 	//outside of forloop as it doesn't change.
 	left.first = node.first;
 	
-	left.count = 0;
+	
 
 	//split into a certain number (ex 4/8/16 preferably 8)
 	for ( int i = 1; i < 8; i++ ) 
 	{
+		left.count = 0;
 		//create new bounding box 
-		AABB aabb = AABB(node.bounds.min, (vec3((widthP / 8)*i, node.bounds.max.y, node.bounds.max.z)));
+		AABB aabb = AABB(node.bounds.min, (vec3((node.bounds.min.x+((widthP / 8)*i)), node.bounds.max.y, node.bounds.max.z)));
 
 		//check if object is in the bounding box or not.
-		for (int j = 1; j < node.count; j++)
+		for (int j = node.first; j < (node.first +node.count); j++)
 		{
 			if (aabb.Contains(GetPosition(j)))
 			{
 				left.count += 1;
 			}
+		}
+
+		if (left.count == 0)
+		{
+			continue; 
 		}
 
 		right.first = left.first + left.count;
