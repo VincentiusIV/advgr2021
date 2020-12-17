@@ -12,9 +12,9 @@ AABB TriangleBVH::CalculateBounds( int first, int count )
 	vec3 bmin = vec3( 3.40282e+038 ), bmax = vec3( 1.17549e-038 );
 	for ( int i = 0; i < count; i++ )
 	{
-		vec3 v0 = mesh->worldVertices.at(mesh->indices[j]);
-		vec3 v1 = mesh->worldVertices.at(mesh->indices[j + 1]);
-		vec3 v2 = mesh->worldVertices.at(mesh->indices[j + 2]);
+		vec3 v0 = mesh->worldVertices[(mesh->indices[j])];
+		vec3 v1 = mesh->worldVertices[(mesh->indices[j + 1])];
+		vec3 v2 = mesh->worldVertices[(mesh->indices[j + 2])];
 		bmin = MinPerAxis( bmin, MinPerAxis( MinPerAxis( v0, v1 ), v2) );
 		bmax = MaxPerAxis( bmax, MaxPerAxis( MaxPerAxis( v0, v1 ), v2 ) );
 		j += 3;

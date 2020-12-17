@@ -2,13 +2,17 @@
 
 bool MeshObject::BRUTE_FORCE = false;
 
-MeshObject::MeshObject( shared_ptr<Material> material ) : HittableObject( material )
+MeshObject::MeshObject( vec3 *vertices, int vertexCount, vec3 *normals, vec2 *uvs, uint *indices, int indexCount, shared_ptr<Material> material ) 
+	: HittableObject( material ),
+	  vertices( vertices ),
+	  normals( normals ),
+	  uvs(uvs),
+	  indices(indices),
+	  vertexCount(vertexCount),
+	  indexCount(indexCount)
 {
-	vertices = vector<vec3>();
-	normals = vector<vec3>();
-	uvs = vector<vec2>();
-	indices = vector<uint>();
-	triangleCount = 0;	
+	worldVertices = new vec3[vertexCount];
+	triangleCount = indexCount / 3;	
 	subbvh = new TriangleBVH( this );
 	subbvh->maxObjectsPerLeaf = 5;
 }
@@ -48,10 +52,9 @@ bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, v
 void MeshObject::UpdateTRS()
 {
 	localToWorldMatrix = mat4::trs( position, rotation, scale );
-	worldVertices.clear();
-	for ( size_t i = 0; i < vertices.size(); i++ )
+	for ( size_t i = 0; i < vertexCount; i++ )
 	{
-		worldVertices.push_back( localToWorldMatrix * vertices.at( i ) );
+		worldVertices[i] = ( localToWorldMatrix * vertices[ i ] );
 	}
 
 	if(!MeshObject::BRUTE_FORCE)
@@ -61,9 +64,9 @@ void MeshObject::UpdateTRS()
 void MeshObject::UpdateAABB()
 {
 	vec3 bmin = vec3( 3.40282e+038 ), bmax = vec3( 1.17549e-038 );
-	for ( size_t i = 0; i < worldVertices.size(); i++ )
+	for ( size_t i = 0; i < vertexCount; i++ )
 	{
-		vec3 p = worldVertices.at( i );
+		vec3 p = worldVertices[ i];
 		bmin = MinPerAxis( bmin, p );
 		bmax = MaxPerAxis( bmax, p );
 	}

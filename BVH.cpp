@@ -8,6 +8,13 @@ void BVH::ConstructBVH()
 	timer t;
 	t.reset();
 	nodeCount = N * 2 - 1;
+
+	if (nodeCount <= 0)
+	{
+		printf( "Error: Trying to construct a BVH for <= 0 objects..." );
+		return;
+	}
+
 	pool = new BVHNode[nodeCount];
 	root = &pool[0];
 	poolPtr = 2;
