@@ -22,7 +22,7 @@ void BVH::Subdivide( int nodeIdx )
 	{
 		return;
 	}
-	SplitNode(nodeIdx);
+	SplitNodeSAH(nodeIdx);
 	Subdivide( nodeIdx * 2 + 1);
 	Subdivide( nodeIdx * 2 + 2);
 }
@@ -47,27 +47,24 @@ void BVH::SplitNodeSAH(int nodeIdx)
 	BVHNode &left = pool[nodeIdx * 2 + 1];
 	BVHNode &right = pool[nodeIdx * 2 + 2];
 	
-	//node.bounds = CalculateBounds( node.first, node.count );
 	float areaNode = ( node.bounds.max.x - node.bounds.min.x ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
 	float costParent = areaNode * node.count;
 	float smallestCost = costParent;
-	float perfSplit = node.count/2;
+	int perfSplit = node.count/2;
 
 	float areaLeft;
 	float areaRight;
 	float costSplit;
 
-	//this stays the same during the whole for loop, so it can stay outside of the forloop
+	//outside of forloop as it doesn't change.
 	left.first = node.first; 
 
 	//Split the plane on each primitive. When splitting on a primitive, it goes to the right side. 
-	for (int i = 1; i< node.count; i++) //we start at i=1, as we do not care about the first split as it would give an empty left node.
+	//we start at i=1, as we do not care about the first split as it would give an empty left node.
+	for (int i = 1; i< node.count; i++) 
 	{
-		//object i; 
-		//shared_ptr<HittableObject> obj = scene->objects.at( i );
-		//obj.pos;
-
-		left.count = i; //obj.i is not in the left node, however the list starts at 0 but you do not have 0 objects
+		//obj.i is not in the left node, however the list starts at 0 and you do not have 0 objects.
+		left.count = i; 
 
 		right.first = left.first + left.count;
 		right.count = node.count - left.count; 
@@ -110,44 +107,42 @@ void BVH::SplitNodeSAH(int nodeIdx)
 
 void BVH::SplitNodeBin(int nodeIdx)
 {
-	//split into a certain number (ex 4/8/16 preferably 8)
-
 	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[node.left];
-	BVHNode &right = pool[node.right];
+	BVHNode &left = pool[nodeIdx * 2 + 1];
+	BVHNode &right = pool[nodeIdx * 2 + 2];
 
-	//node.bounds = CalculateBounds( node.first, node.count );
 	float widthP = node.bounds.max.x - node.bounds.min.x;
 	float areaNode = ( widthP ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
 	float costParent = areaNode * node.count;
 
-	
 
 	float smallestCost = costParent;
-	float perfSplit = node.count / 2;
+	int perfSplit = node.count / 2;
 
 	float areaLeft;
 	float areaRight;
 	float costSplit;
 
-	//this stays the same during the whole for loop, so it can stay outside of the forloop
+
+	//outside of forloop as it doesn't change.
 	left.first = node.first;
+	
+	left.count = 0;
 
-	//Split the plane on each primitive. When splitting on a primitive, it goes to the right side.
-	for ( int i = 1; i < 8; i++ ) //we start at i=1, as we do not care about the first split as it would give an empty left node.
+	//split into a certain number (ex 4/8/16 preferably 8)
+	for ( int i = 1; i < 8; i++ ) 
 	{
-		AABB aabb = AABB(node.bounds.min.x, ((widthP / 8)*i));
-		for (int i = 1; i < node.count; i++)
-		{
-			//shared_ptr<HittableObject> obj = scene->objects.at( i );
+		//create new bounding box 
+		AABB aabb = AABB(node.bounds.min, (vec3((widthP / 8)*i, node.bounds.max.y, node.bounds.max.z)));
 
-			if (aabb.Contains(i)) //niet pointer i, maar i'ste object en dan de locatie daarvan
+		//check if object is in the bounding box or not.
+		for (int j = 1; j < node.count; j++)
+		{
+			if (aabb.Contains(GetPosition(j)))
 			{
 				left.count += 1;
 			}
 		}
-
-		//left.count = i * (ceilf(node.count/8)); //obj.i is not in the left node, however the list starts at 0 but you do not have 0 objects
 
 		right.first = left.first + left.count;
 		right.count = node.count - left.count;
@@ -172,11 +167,10 @@ void BVH::SplitNodeBin(int nodeIdx)
 
 	// split is 'not worth it' if cost is higher than cost of parent node
 	//^this decides when you stop as well
-	if ( smallestCost + 0.000001 >= costParent )
-	{
+	// ( smallestCost + 0.000001 >= costParent )
+	//{
 		//return leaf; //no split
-		//TODO: move to subdivide
-	}
+	//}
 
 	//final split
 	left.count = perfSplit;
