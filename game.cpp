@@ -68,6 +68,8 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> checkerboard = make_shared<Material>(color(0.7, 0.7, 0.7), MaterialType::DIFFUSE);
 	checkerboard->isCheckerboard = true;
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
+	textureDiffuse->mainTex = new Surface( "assets/apartment/building_col_3.jpg" );
+
 
 	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 3 );
 	lightSphere->position = point3( 6, 12, 6 );
@@ -78,9 +80,9 @@ void Game::CreateBoxEnvironment()
 	plane1->scale = point3( 100, 1, 100 );
 	scene->Add( plane1 );
 
-	//shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 1, 0, 0 ), 3, 3 );
-	//plane2->position = point3( 5, 5, 5 );
-	//plane2->scale = point3( 1, 1, 1 );
+	//shared_ptr<Plane> plane2 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
+	//plane2->position = point3( -10, 40, 25 );
+	//plane2->scale = point3( 100, 100, 100 );
 	//scene->Add( plane2 );
 
 	//shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
@@ -88,21 +90,21 @@ void Game::CreateBoxEnvironment()
 	//plane3->scale = point3( 10, 10, 10 );
 	//scene->Add( plane3 );
 
-	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
+	vector<shared_ptr<MeshObject>> meshObject1 = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
 
 	#pragma omp parallel for schedule( dynamic, 1 )
-	for ( int i = 0; i < cybertruck.size(); i++ )
+	for ( int i = 0; i < meshObject1.size(); i++ )
 	{
-		shared_ptr<MeshObject> current = cybertruck.at( i );
-		current->scale = point3( 0.1 );
+		shared_ptr<MeshObject> current = meshObject1.at( i );
+		current->scale = point3( 0.12 );
 		current->UpdateTRS();
 		if(!MeshObject::BRUTE_FORCE)
 			current->subbvh->ConstructBVH();
 	}
 
-	for ( size_t i = 0; i < cybertruck.size(); i++ )
+	for ( size_t i = 0; i < meshObject1.size(); i++ )
 	{
-		shared_ptr<MeshObject> current = cybertruck.at( i );
+		shared_ptr<MeshObject> current = meshObject1.at( i );
 		scene->Add( current );
 	}
 
@@ -116,9 +118,9 @@ void Game::CreateBoxEnvironment()
 	//	}
 	//}
 
-	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
-	//baseSphere->position = point3( 2.5, -1.5, 2.5 );
-	//scene->Add( baseSphere );
+	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, 2 );
+	baseSphere->position = point3( -2.5, 2, 3 );
+	scene->Add( baseSphere );
 	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
 	//baseSphere1->position = point3( 0, -1.5, 2.5 );
 	//scene->Add( baseSphere1 );
