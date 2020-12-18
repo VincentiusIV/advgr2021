@@ -38,18 +38,47 @@ AABB TriangleBVH::CalculateBounds( int first, int count )
 bool TriangleBVH::IntersectNode( BVHNode &node, Ray &r, RayHit &hit )
 {	
 	bool hitAnything = false;
-	uint j = node.first*3;
-	for ( int i = 0; i < node.count; i++ )
+	uint j;
+	for ( int i = 0; i < node.count(); i++ )
 	{
+		j = node.objIndices[i] * 3;
 		vec3 v0 = mesh->worldVertices[mesh->indices[j]];
 		vec3 v1 = mesh->worldVertices[mesh->indices[j + 1]];
 		vec3 v2 = mesh->worldVertices[mesh->indices[j + 2]];
 		if (MeshObject::CheckRayTriangleIntersection(r, hit, v0, v1, v2))
 		{
 			hitAnything = true;
-			//hit.normal = mesh->normals[mesh->indices[j]];
 		}
-		j += 3;
 	}
 	return hitAnything;
+}
+
+AABB TriangleBVH::GetObjectAABB( uint objIdx )
+{
+	AABB aabb;
+	int j = objIdx * 3;
+	int i0 = mesh->indices[j];
+	int i1 = mesh->indices[j + 1];
+	int i2 = mesh->indices[j + 2];
+	vec3 v0 = mesh->worldVertices[i0];
+	vec3 v1 = mesh->worldVertices[i1];
+	vec3 v2 = mesh->worldVertices[i2];
+	aabb.min = MinPerAxis( aabb.min, MinPerAxis( MinPerAxis( v0, v1 ), v2 ) );
+	aabb.max = MaxPerAxis( aabb.max, MaxPerAxis( MaxPerAxis( v0, v1 ), v2 ) );
+	if ( aabb.max.x - aabb.min.x == 0.0f )
+	{
+		aabb.max.x += 0.001f;
+		aabb.min.x -= 0.001f;
+	}
+	if ( aabb.max.y - aabb.min.y == 0.0f )
+	{
+		aabb.max.y += 0.001f;
+		aabb.min.y -= 0.001f;
+	}
+	if ( aabb.max.z - aabb.min.z == 0.0f )
+	{
+		aabb.max.z += 0.001f;
+		aabb.min.z -= 0.001f;
+	}
+	return aabb;
 }

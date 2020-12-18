@@ -9,7 +9,7 @@ class SceneBVH : public BVH
 	}
 	AABB CalculateBounds( int first, int count );
 	bool IntersectNode( BVHNode &node, Ray &r, RayHit &hit );
-	vec3 GetPosition( int objIdx ) { return scene->objects.at(objIdx)->position; }
-
+	vec3 GetObjectPosition( uint objIdx ) { return scene->objects.at( objIdx )->position; }
+	AABB GetObjectAABB( uint objIdx ) { return scene->objects.at( objIdx )->aabb; }
 	Scene *scene;
 };
