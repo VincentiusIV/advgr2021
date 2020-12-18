@@ -2,11 +2,11 @@
 
 struct BVHNode
 {
-	AABB bounds;
-	int left;
-	int first, count;
-	bool isLeaf;
-	//vector<int> objIndices;
+	AABB bounds = AABB();
+	int left = 0;
+	bool isLeaf = false;
+	vector<uint> objIndices = vector<uint>();
+	int count() { return objIndices.size(); }
 };
 
 class BVH
@@ -25,18 +25,14 @@ class BVH
 	void ConstructBVH();
 	virtual AABB CalculateBounds( int first, int count ) = 0;
 	void Subdivide( int nodeIdx, int maxNodeIdx );
-	void SplitNodeBinary( int nodeIdx );
-	void SplitNodeAt( int nodeIdx, int splitIndex );
-	float SplitCost( int nodeCount, int leftFirst, int leftCount );
-	float SmallestCostSAH( int nodeIdx, int &perfectSplit );
-	float SmallestCostBin( int nodeIdx, int &perfectSplit );
 	void SplitNodeSAH( int nodeIdx );
 	void SplitNodeBin( int nodeIdx );
+	void EnsureCorrectSize();
 	bool Intersect( Ray &r, RayHit &hit );
 	bool IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx );
 	virtual bool IntersectNode( BVHNode &node, Ray &r, RayHit &hit ) = 0;
-	virtual vec3 GetPosition( int objIdx ) = 0; 
-
+	virtual vec3 GetObjectPosition( uint objIdx ) = 0; 
+	virtual AABB GetObjectAABB( uint objIdx ) = 0;
 	int poolPtr, N, nodeCount, maxObjectsPerLeaf, progressCounter;
 	
 protected:

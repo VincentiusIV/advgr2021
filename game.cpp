@@ -98,7 +98,8 @@ void Game::CreateBoxEnvironment()
 		shared_ptr<MeshObject> current = meshObject1.at( i );
 		current->scale = point3( 0.12 );
 		current->UpdateTRS();
-		current->subbvh->ConstructBVH();
+		if(!MeshObject::BRUTE_FORCE)
+			current->subbvh->ConstructBVH();
 	}
 
 	for ( size_t i = 0; i < meshObject1.size(); i++ )
@@ -157,8 +158,8 @@ void Game::CreateBoxEnvironment()
 		obj->UpdateAABB();
 	}
 
-	scene->Init();
-
+	if ( !Scene::BRUTE_FORCE )
+		scene->Init();
 }
  
 // -----------------------------------------------------------

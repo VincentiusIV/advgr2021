@@ -15,14 +15,13 @@ void BVH::ConstructBVH()
 		return;
 	}
 
-	for ( size_t i = 0; i < nodeCount; i++ )
-	{
-		pool[i].isLeaf = false;
-	}
+	root->bounds = CalculateBounds( 0, N );
 
-	root->first = 0;
-	root->count = N;
-	root->bounds = CalculateBounds( root->first, root->count );
+	root->objIndices = vector<uint>();
+	for ( int i = 0; i < N; i++ )
+	{
+		root->objIndices.push_back( i );
+	}
 
 	progressCounter = 0;
 	Subdivide( 0, nodeCount );	
@@ -37,130 +36,136 @@ void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 		return;
 	BVHNode &node = pool[nodeIdx];
 	++progressCounter;
-	std::cerr << "\rBVH subdivisions: " << double(progressCounter) << ' ' << std::flush;
-	if ( node.isLeaf || node.count < maxObjectsPerLeaf )
+	//std::cerr << "\rBVH subdivisions: " << double(progressCounter) << ' ' << std::flush;
+	if ( node.isLeaf || node.objIndices.size() < maxObjectsPerLeaf )
 	{
 		node.isLeaf = true;
 		return;
 	}
 	node.left = poolPtr;
 	poolPtr += 2;
-	SplitNodeSAH(nodeIdx);
+	SplitNodeBin( nodeIdx );
 	Subdivide( node.left, maxNodeIdx );
 	Subdivide( node.left+1, maxNodeIdx );
+
+	//EnsureCorrectSize();
 }
 
-void BVH::SplitNodeBinary( int nodeIdx )
+void BVH::EnsureCorrectSize()
 {
-	BVHNode &node = GetNode(nodeIdx);
-	SplitNodeAt( nodeIdx, node.count / 2 );
-}
-
-void BVH::SplitNodeAt( int nodeIdx, int splitIndex )
-{
-	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[node.left];
-	left.first = node.first;
-	left.count = splitIndex;
-	left.bounds = CalculateBounds( left.first, left.count );
-	BVHNode &right = pool[node.left + 1];
-	right.first = left.first + left.count;
-	right.count = node.count - left.count;
-	right.bounds = CalculateBounds( right.first, right.count );
-}
-
-float BVH::SplitCost( int nodeCount, int nodeFirst, int splitCount )
-{
-	int rigthFirst = nodeFirst + splitCount;
-	int rightCount = nodeCount - splitCount;
-	AABB leftAABB = CalculateBounds( nodeFirst, splitCount );
-	AABB rightAABB = CalculateBounds( rigthFirst, rightCount );
-	return ( leftAABB.Area() * splitCount ) + ( rightAABB.Area() * rightCount );
-}
-
-float BVH::SmallestCostSAH( int nodeIdx, int &bestSplit )
-{
-	BVHNode &node = GetNode( nodeIdx );
-	BVHNode &left = GetLeftNode( nodeIdx );
-	float areaNode = node.bounds.Area();
-	float smallestCost = areaNode * node.count;
-	for ( int i = 1; i < node.count; i++ )
+	for ( int i = 0; i < nodeCount; i++ )
 	{
-		//std::cerr << "\rLarge SAH Subdivision: " << double( i ) / double( node.count ) * 100 << "%" << std::flush;
-		float costSplit = SplitCost( node.count, node.first, i );
-		if ( costSplit < bestSplit )
+		BVHNode &node = pool[i];
+		for ( int i = 0; i < node.count(); i++ )
 		{
-			smallestCost = costSplit;
-			bestSplit = i;
+			AABB aabb = GetObjectAABB( node.objIndices[i] );
+			node.bounds.min = MinPerAxis( node.bounds.min, aabb.min );
+			node.bounds.max = MaxPerAxis( node.bounds.max, aabb.max );
 		}
 	}
-	return smallestCost;
 }
 
 void BVH::SplitNodeSAH(int nodeIdx)
 {
-	//BVHNode &node = GetNode( nodeIdx );
-	//int bestSplit = node.count/2;
-	//SmallestCostSAH( node.first, bestSplit );		
-	////if(smallestCost + 0.000001 >= costParent) 
-	////{
-	////	node.isLeaf = true;
-	////	return;
-	////}
-	//SplitNodeAt( nodeIdx, bestSplit );
-	//return;
-	BVHNode &node = pool[nodeIdx];
-	BVHNode &left = pool[node.left];
-	BVHNode &right = pool[node.left + 1];
-	float areaNode = node.bounds.Area();
-	float costParent = areaNode * node.count;
+	BVHNode &node = GetNode( nodeIdx );
+	BVHNode &left = GetLeftNode( nodeIdx );
+	BVHNode &right = GetRightNode( nodeIdx );
+
+	vec3 size = node.bounds.max - node.bounds.min;
+	float costParent = node.bounds.Area() * node.count();
 	float smallestCost = costParent;
-	int perfSplit = node.count / 2;
-	float areaLeft;
-	float areaRight;
-	float costSplit;
-	//outside of forloop as it doesn't change.
-	left.first = node.first;
-	//Split the plane on each primitive. When splitting on a primitive, it goes to the right side.
-	//we start at i=1, as we do not care about the first split as it would give an empty left node.
-	for ( int i = 1; i < node.count; i++ )
+
+	AABB leftBin, rightBin, bestLeftBin, bestRightBin;
+	vector<uint> leftIndices = vector<uint>(), rightIndices = vector<uint>(), bestLeftIndices = vector<uint>(), bestRightIndices = vector<uint>();
+
+	for ( int i = 1; i < node.count()*3; i++ )
 	{
-		std::cerr << "\rLarge SAH Subdivision: " << double( i ) / double( node.count ) * 100 << "%" << std::flush;
-		left.count = i; //obj.i is not in the left node, however the list starts at 0 but you do not have 0 objects
-		right.first = left.first + left.count;
-		right.count = node.count - left.count;
-		left.bounds = CalculateBounds( left.first, left.count );
-		areaLeft = ( left.bounds.max.x - left.bounds.min.x ) * ( left.bounds.max.y - left.bounds.min.y ) * ( left.bounds.max.z - left.bounds.min.z );
-		right.bounds = CalculateBounds( right.first, right.count );
-		areaRight = ( right.bounds.max.x - right.bounds.min.x ) * ( right.bounds.max.y - right.bounds.min.y ) * ( right.bounds.max.z - right.bounds.min.z );
-		costSplit = ( areaLeft * left.count ) + ( areaRight * right.count );
-		//check if the split with obj i is smaller than the previous split
+		leftIndices.clear();
+		rightIndices.clear();
+
+		// Make new bins
+		leftBin.min = node.bounds.min;
+		rightBin.max = node.bounds.max;
+
+		if ( i < node.count() ) // test x-axis split
+		{
+			uint objIdx = node.objIndices[i];
+			vec3 objPos = GetObjectPosition( objIdx ); 
+			leftBin.max = ( vec3( objPos.x, node.bounds.max.y, node.bounds.max.z ) );
+			rightBin.min = node.bounds.min;
+			rightBin.min.x = leftBin.max.x;
+		}
+		else if ( i < node.count() * 2 ) // text y-axis split
+		{
+			uint objIdx = node.objIndices[i - node.count()];
+			vec3 objPos = GetObjectPosition( objIdx ); 
+			leftBin.max = vec3( node.bounds.max.x, objPos.y, node.bounds.max.z );
+			rightBin.min = node.bounds.min;
+			rightBin.min.y = leftBin.max.y;
+		}
+		else // text z-axis split
+		{
+			uint objIdx = node.objIndices[i - node.count()*2];
+			vec3 objPos = GetObjectPosition( objIdx ); 
+			leftBin.max = vec3( node.bounds.max.x, node.bounds.max.y, objPos.z );
+			rightBin.min = node.bounds.min;
+			rightBin.min.z = leftBin.max.z;
+		}
+
+		// Test which objects are in which bin
+		for ( int j = 0; j < node.objIndices.size(); j++ )
+		{
+			int x = node.objIndices[j];
+			if ( leftBin.Contains( GetObjectPosition( x ) ) )
+			{
+				leftIndices.push_back( x );
+			}
+			else
+			{
+				rightIndices.push_back( x );
+			}
+		}
+
+		if ( leftIndices.size() == 0 )
+			continue;
+
+		float costSplit = ( leftBin.Area() * leftIndices.size() ) + ( rightBin.Area() * rightIndices.size() );
 		if ( costSplit < smallestCost )
 		{
 			smallestCost = costSplit;
-			perfSplit = i;
+			bestLeftBin = leftBin;
+			bestRightBin = rightBin;
+			bestLeftIndices.clear();
+			for ( int i = 0; i < leftIndices.size(); i++ )
+				bestLeftIndices.push_back( leftIndices[i] );
+			bestRightIndices.clear();
+			for ( int i = 0; i < rightIndices.size(); i++ )
+				bestRightIndices.push_back( rightIndices[i] );
 		}
-		//Don't do 'not greedy' way!(child cost split: Aleft0* (Aleft1*Nleft1 + Aright1*Nright1 ) + Aright0 *(etc)
-		//greedy == assume that the split is for a leaf node (last split)
 	}
-	// split is 'not worth it' if cost is higher than cost of parent node
-	//^this decides when you stop as well
-	//if(smallestCost + 0.000001 >= costParent)
-	//{
-	//return leaf; //no split
-	//TODO: move to subdivide
-	//}
-	//final split
-	left.count = perfSplit;
-	right.first = left.first + left.count;
-	right.count = node.count - left.count;
-	left.bounds = CalculateBounds( left.first, left.count );
-	right.bounds = CalculateBounds( right.first, right.count );
-}
 
-float BVH::SmallestCostBin( int nodeIdx, int &perfectSplit )
-{
-	return 0.0f;
+	if ( smallestCost >= costParent )
+	{
+		node.isLeaf = true;
+		return;
+	}
+
+	left.bounds = bestLeftBin;
+	for (int i = 0; i < bestLeftIndices.size(); i++)
+	{
+		left.objIndices.push_back( bestLeftIndices[i] );
+		AABB aabb = GetObjectAABB( bestLeftIndices[i] );
+		left.bounds.min = MinPerAxis(left.bounds.min, aabb.min );
+		left.bounds.max = MaxPerAxis(left.bounds.max, aabb.max );
+	}
+	right.bounds = bestRightBin;
+	for (int i = 0; i < bestRightIndices.size(); i++)
+	{
+		right.objIndices.push_back( bestRightIndices[i] );
+		AABB aabb = GetObjectAABB( bestRightIndices[i] );
+		right.bounds.min = MinPerAxis( right.bounds.min, aabb.min );
+		right.bounds.max = MaxPerAxis( right.bounds.max, aabb.max );
+	}
 }
 
 void BVH::SplitNodeBin(int nodeIdx)
@@ -170,56 +175,96 @@ void BVH::SplitNodeBin(int nodeIdx)
 	BVHNode &right = GetRightNode( nodeIdx );
 
 	vec3 size = node.bounds.max - node.bounds.min;
-	float costParent = node.bounds.Area() * node.count;
+	float costParent = node.bounds.Area() * node.count();
 	float smallestCost = costParent;
 
-	AABB aabb;
-	int tempLeftCount;
-	int bestLeftCount = node.count / 2;
+	AABB leftBin, rightBin, bestLeftBin, bestRightBin;
+	vector<uint> leftIndices = vector<uint>(), rightIndices = vector<uint>(), bestLeftIndices = vector<uint>(), bestRightIndices = vector<uint>();
 
 	for ( int i = 1; i < 22; i++ ) 
 	{
-		tempLeftCount = 0;
-		aabb.min = node.bounds.min;
-		if (i < 8)
-			aabb.max = ( vec3( ( node.bounds.min.x + ( ( size.x / 8 ) * i ) ), node.bounds.max.y, node.bounds.max.z ) );
-		else if (i < 15)
-			aabb.max = vec3( node.bounds.max.x, node.bounds.min.y + ( ( size.y / 8 ) * ( i - 7 ) ), node.bounds.max.z );
-		else if ( i < 22 )
-			aabb.max = vec3( node.bounds.max.x, node.bounds.max.y, node.bounds.min.z + ( ( size.z / 8 ) * ( i - 14 ) ) );
+		leftIndices.clear();
+		rightIndices.clear();
 
-		for (int j = node.first; j < (node.first +node.count); j++)
+		// Make new bins
+		leftBin.min = node.bounds.min;
+
+		if (i < 8) 
 		{
-			if (aabb.Contains(GetPosition(j)))
+			leftBin.max = ( vec3( ( node.bounds.min.x + ( ( size.x / 8 ) * i ) ), node.bounds.max.y, node.bounds.max.z ) );
+			rightBin.min = node.bounds.min;
+			rightBin.min.x = leftBin.max.x;
+		}
+		else if (i < 15)
+		{
+			leftBin.max = vec3( node.bounds.max.x, node.bounds.min.y + ( ( size.y / 8 ) * ( i - 7 ) ), node.bounds.max.z );
+			rightBin.min = node.bounds.min;
+			rightBin.min.y = leftBin.max.y;
+		
+		}
+		else if ( i < 22 )
+		{
+			leftBin.max = vec3( node.bounds.max.x, node.bounds.max.y, node.bounds.min.z + ( ( size.z / 8 ) * ( i - 14 ) ) );
+			rightBin.min = node.bounds.min;
+			rightBin.min.z = leftBin.max.z;
+		}
+		
+		rightBin.max = node.bounds.max;
+
+		for (int j = 0; j < node.objIndices.size(); j++)
+		{
+			int x = node.objIndices[j];
+			AABB aabb = GetObjectAABB( x );
+			if ( leftBin.Contains( GetObjectPosition(x ) ) )
 			{
-				tempLeftCount += 1;
+				leftIndices.push_back( x );
+				leftBin.min = MinPerAxis( leftBin.min, aabb.min );
+				leftBin.max = MaxPerAxis( leftBin.max, aabb.max );
+			}
+			else
+			{
+				rightIndices.push_back( x );
+				rightBin.min = MinPerAxis( rightBin.min, aabb.min );
+				rightBin.max = MaxPerAxis( rightBin.max, aabb.max );
 			}
 		}
 
-		if ( tempLeftCount == 0 )
+		if ( leftIndices.size() == 0 )
 			continue; 
-		float costSplit = SplitCost( node.count, node.first, tempLeftCount );
+
+		float costSplit = ( leftBin.Area() * leftIndices.size() ) + ( rightBin.Area() * rightIndices.size() );
 		if ( costSplit < smallestCost )
 		{
 			smallestCost = costSplit;
-			bestLeftCount = tempLeftCount;
+			bestLeftBin = leftBin;
+			bestRightBin = rightBin;
+			bestLeftIndices.clear();
+			for ( int i = 0; i < leftIndices.size(); i++ )
+				bestLeftIndices.push_back( leftIndices[i] ); 
+			bestRightIndices.clear();
+			for ( int i = 0; i < rightIndices.size(); i++ )
+				bestRightIndices.push_back( rightIndices[i] ); 
 		}
 	}
 
-	if ( smallestCost + 0.0001f >= costParent )
+	if ( smallestCost >= costParent )
 	{
 		node.isLeaf = true;
-		//SplitNode( nodeIdx );
 		return;
 	}
 
-	//final split
-	left.first = node.first;
-	left.count = bestLeftCount;
-	right.first = left.first + left.count;
-	right.count = node.count - left.count;
-	left.bounds = CalculateBounds( left.first, left.count );
-	right.bounds = CalculateBounds( right.first, right.count );
+	left.bounds = bestLeftBin;
+	for ( int i = 0; i < bestLeftIndices.size(); i++ )
+	{
+		left.objIndices.push_back( bestLeftIndices[i] );
+	}
+
+	right.bounds = bestRightBin;
+	for ( int i = 0; i < bestRightIndices.size(); i++ )
+	{
+		right.objIndices.push_back( bestRightIndices[i] );
+
+	}
 }
 
 bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
