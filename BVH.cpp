@@ -124,15 +124,11 @@ void BVH::SplitNodeBin(int nodeIdx)
 	vec3 size = node.bounds.max - node.bounds.min;
 	float costParent = node.bounds.Area() * node.count;
 	float smallestCost = costParent;
-	float areaLeft;
-	float areaRight;
-	float costSplit;
-	//outside of forloop as it doesn't change.
 
-	AABB aabb, newRightAABB, newLeftAABB;
-	int tempLeftFirst = node.first, tempLeftCount, tempRightFirst, tempRightCount;
+	AABB aabb;
+	int tempLeftCount;
 	int bestLeftCount = node.count / 2;
-	//split into a certain number (ex 4/8/16 preferably 8)
+
 	for ( int i = 1; i < 22; i++ ) 
 	{
 		tempLeftCount = 0;
@@ -142,7 +138,7 @@ void BVH::SplitNodeBin(int nodeIdx)
 		else if (i < 15)
 			aabb.max = vec3( node.bounds.min.x, node.bounds.max.y + ( ( size.y / 8 ) * (i-7)  ), node.bounds.max.z );
 		else if ( i < 22 )
-			aabb.max = vec3( node.bounds.min.x, node.bounds.max.y + ( ( size.y / 8 ) * (i-14)  ), node.bounds.max.z );
+			aabb.max = vec3( node.bounds.min.x, node.bounds.max.y, node.bounds.max.z + ( ( size.z / 8 ) * ( i - 14 ) ) );
 
 		for (int j = node.first; j < (node.first +node.count); j++)
 		{
@@ -151,6 +147,7 @@ void BVH::SplitNodeBin(int nodeIdx)
 				tempLeftCount += 1;
 			}
 		}
+
 		if ( tempLeftCount == 0 )
 			continue; 
 		float costSplit = SplitCost( node.count, node.first, tempLeftCount );
