@@ -6,6 +6,7 @@ struct BVHNode
 	int left;
 	int first, count;
 	bool isLeaf;
+	//vector<int> objIndices;
 };
 
 class BVH

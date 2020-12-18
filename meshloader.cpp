@@ -16,29 +16,29 @@ vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath)
 			mat->mainTex = new Surface(( "assets/" + mesh.MeshMaterial.map_Kd ).c_str());
 
 			int vertexCount = mesh.Vertices.size();
-			vec3 *vertices = new vec3[vertexCount];
-			vec3 *normals = new vec3[vertexCount];
-			vec2 *uvs = new vec2[vertexCount];
+			int indexCount = mesh.Indices.size();
+			shared_ptr<MeshObject> newObject = make_shared<MeshObject>( vertexCount, indexCount, mat );
 
 			for ( size_t i = 0; i < vertexCount; i++ )
 			{
 				objl::Vector3 p = mesh.Vertices.at( i ).Position;
 				vec3 pos = vec3( p.X, p.Y, p.Z );
-				vertices[i] = ( pos );
+				newObject->vertices[i] = ( pos );
 				objl::Vector3 n = mesh.Vertices.at( i ).Normal;
-				normals[i] = ( vec3( n.X, n.Y, n.Z ) );
+				newObject->normals[i] = ( vec3( n.X, n.Y, n.Z ) );
 				objl::Vector2 uv = mesh.Vertices.at( i ).TextureCoordinate;
-				uvs[i] = vec2( uv.X, uv.Y );
+				newObject->uvs[i] = vec2( uv.X, uv.Y );
 			}
-			int indexCount = mesh.Indices.size();
-			uint *indices = new uint[indexCount];
 			for ( size_t i = 0; i < indexCount; i++ )
 			{
-				uint index = mesh.Indices.at( i );
-				indices[i] = index;
+				int index = mesh.Indices.at( i );
+				if (index < 0 || index >= vertexCount)
+				{
+					printf( "wtf" );
+				}
+				newObject->indices[i] = index;
 			}
 
-			shared_ptr<MeshObject> newObject = make_shared<MeshObject>( vertices, vertexCount, normals, uvs, indices, indexCount, mat );
 			meshes.push_back( newObject );
 		}
 	}

@@ -20,6 +20,7 @@ void Game::Init()
 	scene = new Scene();
 	scene->GetCamera()->Translate( vec3( 1.5, 1.0, 3 ) );
 	scene->GetCamera()->Rotate( vec3( 1.0, -120.0, 0.0 ) );
+
 	colorBuffer = (color*)MALLOC64(SCRWIDTH * SCRHEIGHT * sizeof(color));
 	raysCounter = new int[SCRWIDTH * SCRHEIGHT];
 	ClearColorBuffer();

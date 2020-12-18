@@ -2,14 +2,16 @@
 
 AABB TriangleBVH::CalculateBounds( int first, int count )
 {
-	uint j = first*3;
+	int j = first * 3;
 	vec3 bmin = vec3( 3.40282e+038 ), bmax = vec3( 1.17549e-038 );
 	for ( int i = 0; i < count; i++ )
 	{
-		uint i0 = mesh->indices[j];
+		int i0 = mesh->indices[j];
+		int i1 = mesh->indices[j + 1];
+		int i2 = mesh->indices[j + 2];
 		vec3 v0 = mesh->worldVertices[i0];
-		vec3 v1 = mesh->worldVertices[mesh->indices[j + 1]];
-		vec3 v2 = mesh->worldVertices[mesh->indices[j + 2]];
+		vec3 v1 = mesh->worldVertices[i1];
+		vec3 v2 = mesh->worldVertices[i2];
 		bmin = MinPerAxis( bmin, MinPerAxis( MinPerAxis( v0, v1 ), v2) );
 		bmax = MaxPerAxis( bmax, MaxPerAxis( MaxPerAxis( v0, v1 ), v2 ) );
 		j += 3;

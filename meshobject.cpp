@@ -2,16 +2,16 @@
 
 bool MeshObject::BRUTE_FORCE = false;
 
-MeshObject::MeshObject( vec3 *vertices, int vertexCount, vec3 *normals, vec2 *uvs, uint *indices, int indexCount, shared_ptr<Material> material ) 
+MeshObject::MeshObject( int vertexCount, int indexCount, shared_ptr<Material> material ) 
 	: HittableObject( material ),
-	  vertices( vertices ),
-	  normals( normals ),
-	  uvs(uvs),
-	  indices(indices),
 	  vertexCount(vertexCount),
 	  indexCount(indexCount)
 {
+	vertices = new vec3[vertexCount];
+	normals = new vec3[vertexCount];
 	worldVertices = new vec3[vertexCount];
+	uvs = new vec2[vertexCount];
+	indices = new int[indexCount];
 	triangleCount = indexCount / 3;	
 	subbvh = new TriangleBVH( this, triangleCount );
 	subbvh->maxObjectsPerLeaf = 5;
@@ -83,7 +83,7 @@ bool MeshObject::Hit( Ray &ray, RayHit &hit )
 
 	if (MeshObject::BRUTE_FORCE)
 	{
-		uint j = 0;
+		int j = 0;
 		bool didHit = false;
 		for ( int i = 0; i < triangleCount; i++ )
 		{
