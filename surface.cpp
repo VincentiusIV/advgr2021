@@ -40,7 +40,7 @@ Surface::Surface( const char *a_File ) :
 	{
 		char t[128];
 		sprintf( t, "File not found: %s", a_File );
-		NotifyUser( t );
+		//NotifyUser( t );
 		return;
 	}
 	else fclose( f );

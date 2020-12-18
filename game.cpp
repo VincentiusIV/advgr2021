@@ -88,13 +88,20 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( plane3 );
 
 	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
-	for ( size_t i = 0; i < cybertruck.size(); i++ )
+
+	#pragma omp parallel for schedule( dynamic, 1 )
+	for ( int i = 0; i < cybertruck.size(); i++ )
 	{
 		shared_ptr<MeshObject> current = cybertruck.at( i );
 		current->scale = point3( 0.1 );
 		current->UpdateTRS();
 		current->subbvh->ConstructBVH();
-		scene->Add( current);
+	}
+
+	for ( size_t i = 0; i < cybertruck.size(); i++ )
+	{
+		shared_ptr<MeshObject> current = cybertruck.at( i );
+		scene->Add( current );
 	}
 
 	//for ( int x = -5; x < 5; x++ )

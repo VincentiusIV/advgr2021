@@ -9,6 +9,11 @@ class TriangleBVH : public BVH
 	}
 	AABB CalculateBounds( int first, int count );
 	bool IntersectNode( BVHNode &node, Ray &r, RayHit &hit );
-	vec3 GetPosition( int objIdx ) { return mesh->worldVertices[mesh->indices[objIdx * 3]]; }
+	vec3 GetPosition( int objIdx ) 
+	{ 
+		int i0 = objIdx * 3;
+		int index = mesh->indices[i0];
+		return mesh->worldVertices[index];
+	}
 	MeshObject *mesh;
 };
