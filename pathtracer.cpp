@@ -31,7 +31,7 @@ color PathTracer::Sample( Ray &ray, RayHit &hit )
 		color directColor = DirectIllumiation( ray, hit, BRDF, directHit);
 		return ( directColor + indirectColor ) / 2;
 	}
-	return color( 0, 0, 0 );
+	//return color( 0, 0, 0 );
 	vec3 unit_direction = ray.direction;
 	auto t = 0.5 * ( -unit_direction.y + 1.0 );
 	color c = ( 1.0 - t ) * color( 1.0, 1.0, 1.0 ) + t * color( 0.5, 0.7, 1.0 );

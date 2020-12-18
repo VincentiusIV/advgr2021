@@ -79,9 +79,9 @@ void Game::CreateBoxEnvironment()
 	plane1->scale = point3( 100, 1, 100 );
 	scene->Add( plane1 );
 
-	//shared_ptr<Plane> plane2 = make_shared<Plane>( beige, vec3( 1, 0, 0 ), 3, 3 );
-	//plane2->position = point3( 5, 5, 5 );
-	//plane2->scale = point3( 1, 1, 1 );
+	//shared_ptr<Plane> plane2 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
+	//plane2->position = point3( -10, 40, 25 );
+	//plane2->scale = point3( 100, 100, 100 );
 	//scene->Add( plane2 );
 
 	//shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
@@ -95,7 +95,7 @@ void Game::CreateBoxEnvironment()
 	for ( int i = 0; i < meshObject1.size(); i++ )
 	{
 		shared_ptr<MeshObject> current = meshObject1.at( i );
-		current->scale = point3( 0.1 );
+		current->scale = point3( 0.12 );
 		current->UpdateTRS();
 		current->subbvh->ConstructBVH();
 	}
@@ -116,9 +116,9 @@ void Game::CreateBoxEnvironment()
 	//	}
 	//}
 
-	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 2 );
-	//baseSphere->position = point3( 2.5, -1.5, 2.5 );
-	//scene->Add( baseSphere );
+	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, 2 );
+	baseSphere->position = point3( -2.5, 2, 3 );
+	scene->Add( baseSphere );
 	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
 	//baseSphere1->position = point3( 0, -1.5, 2.5 );
 	//scene->Add( baseSphere1 );
