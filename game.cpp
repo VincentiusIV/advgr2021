@@ -198,6 +198,8 @@ void Game::PrintDebugInfo( float deltaTime )
 
 void Game::RenderScene()
 {
+	timer t;
+	t.reset();
 	++frameCounter;
 	Pixel *buffer = screen->GetBuffer();
 
@@ -237,6 +239,8 @@ void Game::RenderScene()
 			}
 		}
 	}
+	string timeString = "Finished frame Construction after t=" + to_string( t.elapsed() ) + "\n";
+	printf( timeString.c_str() );
 }
 
 void Game::KeyDown( int key )
