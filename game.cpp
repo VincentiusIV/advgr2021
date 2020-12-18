@@ -67,6 +67,8 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> checkerboard = make_shared<Material>(color(0.7, 0.7, 0.7), MaterialType::DIFFUSE);
 	checkerboard->isCheckerboard = true;
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
+	textureDiffuse->mainTex = new Surface( "assets/apartment/building_col_3.jpg" );
+
 
 	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 3 );
 	lightSphere->position = point3( 6, 12, 6 );
@@ -87,10 +89,10 @@ void Game::CreateBoxEnvironment()
 	//plane3->scale = point3( 10, 10, 10 );
 	//scene->Add( plane3 );
 
-	vector<shared_ptr<MeshObject>> cybertruck = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
-	for ( size_t i = 0; i < cybertruck.size(); i++ )
+	vector<shared_ptr<MeshObject>> meshObject = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
+	for ( size_t i = 0; i < meshObject.size(); i++ )
 	{
-		shared_ptr<MeshObject> current = cybertruck.at( i );
+		shared_ptr<MeshObject> current = meshObject.at( i );
 		current->scale = point3( 0.1 );
 		current->UpdateTRS();
 		current->subbvh->ConstructBVH();

@@ -27,7 +27,7 @@ class Material
 			else
 				return color( 1, 1, 1 );
 		}
-		else if ( mainTex != NULL )
+		else if ( mainTex != NULL && mainTex->GetWidth() >0)
 		{
 			int u = fmin(uv.x, 1.0) * ( mainTex->GetWidth() - 1 );
 			int v = fmin(uv.y, 1.0 ) * ( mainTex->GetHeight() - 1 );

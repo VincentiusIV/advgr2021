@@ -12,6 +12,7 @@ vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath)
 			objl::Mesh &mesh = loader.LoadedMeshes.at( j );
 			color meshColor = color( mesh.MeshMaterial.Kd.X, mesh.MeshMaterial.Kd.Y, mesh.MeshMaterial.Kd.Z );
 			shared_ptr<Material> mat = make_shared<Material>( meshColor, MaterialType::DIFFUSE );
+			mat->mainTex = new Surface(( "assets/" + mesh.MeshMaterial.map_Kd ).c_str());
 
 			int vertexCount = mesh.Vertices.size();
 			vec3 *vertices = new vec3[vertexCount];

@@ -48,7 +48,7 @@ void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 	}
 	node.left = poolPtr;
 	poolPtr += 2;
-	SplitNodeBin(nodeIdx);
+	SplitNodeSAH(nodeIdx);
 	Subdivide( node.left, maxNodeIdx );
 	Subdivide( node.left+1, maxNodeIdx );
 }
