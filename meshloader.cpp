@@ -10,6 +10,7 @@ vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath)
 		for ( size_t j = 0; j < loader.LoadedMeshes.size(); j++ )
 		{
 			objl::Mesh &mesh = loader.LoadedMeshes.at( j );
+			
 			color meshColor = color( mesh.MeshMaterial.Kd.X, mesh.MeshMaterial.Kd.Y, mesh.MeshMaterial.Kd.Z );
 			shared_ptr<Material> mat = make_shared<Material>( meshColor, MaterialType::DIFFUSE );
 			mat->mainTex = new Surface(( "assets/" + mesh.MeshMaterial.map_Kd ).c_str());
@@ -34,7 +35,7 @@ vector<shared_ptr<MeshObject>> MeshLoader::Load( const std::string filePath)
 			for ( size_t i = 0; i < indexCount; i++ )
 			{
 				uint index = mesh.Indices.at( i );
-				indices[i] = index ;
+				indices[i] = index;
 			}
 
 			shared_ptr<MeshObject> newObject = make_shared<MeshObject>( vertices, vertexCount, normals, uvs, indices, indexCount, mat );
