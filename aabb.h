@@ -10,4 +10,6 @@ struct AABB
 	bool Contains( const point3 &p );
 	bool Intersect( Ray &r );
 	vec3 min, max;
+
+	float Area() { return ( max.x - min.x ) * ( max.y - min.y ) * ( max.z - min.z ); }
 };

@@ -1,11 +1,5 @@
 #include "precomp.h"
 
-void TriangleBVH::ConstructBVH()
-{
-	N = mesh->triangleCount;
-	BVH::ConstructBVH();
-}
-
 AABB TriangleBVH::CalculateBounds( int first, int count )
 {
 	uint j = first*3;

@@ -91,9 +91,9 @@ void Game::CreateBoxEnvironment()
 	for ( size_t i = 0; i < cybertruck.size(); i++ )
 	{
 		shared_ptr<MeshObject> current = cybertruck.at( i );
-		current->position = point3( 0, 0, 0 );
 		current->scale = point3( 0.1 );
 		current->UpdateTRS();
+		current->subbvh->ConstructBVH();
 		scene->Add( current);
 	}
 
@@ -146,7 +146,9 @@ void Game::CreateBoxEnvironment()
 		shared_ptr<HittableObject> obj = scene->objects.at( i );
 		obj->UpdateAABB();
 	}
-	scene->bvh->ConstructBVH();
+
+	scene->Init();
+
 }
  
 // -----------------------------------------------------------

@@ -11,6 +11,7 @@ class Scene
 	static bool BRUTE_FORCE;
 	Scene();
 	~Scene();
+	void Init();
 	void Update(float deltaTime);
 	void Add( shared_ptr<HittableObject> object );
 	void Add( shared_ptr<Light> light ) { lights.push_back( light ); }

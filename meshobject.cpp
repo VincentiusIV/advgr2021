@@ -13,8 +13,14 @@ MeshObject::MeshObject( vec3 *vertices, int vertexCount, vec3 *normals, vec2 *uv
 {
 	worldVertices = new vec3[vertexCount];
 	triangleCount = indexCount / 3;	
-	subbvh = new TriangleBVH( this );
+	subbvh = new TriangleBVH( this, triangleCount );
 	subbvh->maxObjectsPerLeaf = 5;
+}
+
+MeshObject::~MeshObject()
+{
+	delete[] vertices, uvs, normals, worldVertices, indices;
+	delete subbvh;
 }
 
 bool MeshObject::CheckRayTriangleIntersection( Ray &ray, RayHit &hit, vec3 v0, vec3 v1, vec3 v2 )
@@ -56,9 +62,6 @@ void MeshObject::UpdateTRS()
 	{
 		worldVertices[i] = ( localToWorldMatrix * vertices[ i ] );
 	}
-
-	if(!MeshObject::BRUTE_FORCE)
-		subbvh->ConstructBVH();
 }
 
 void MeshObject::UpdateAABB()

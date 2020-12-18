@@ -1,11 +1,5 @@
 #include "precomp.h"
 
-void SceneBVH::ConstructBVH()
-{
-	N = scene->objects.size();
-	BVH::ConstructBVH();
-}
-
 AABB SceneBVH::CalculateBounds( int first, int count )
 {
 	vec3 bmin = vec3( 3.40282e+038 ), bmax = vec3( 1.17549e-038 );

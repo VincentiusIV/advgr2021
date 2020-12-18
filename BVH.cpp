@@ -15,32 +15,20 @@ void BVH::ConstructBVH()
 		return;
 	}
 
-	pool = new BVHNode[nodeCount];
+	for ( size_t i = 0; i < nodeCount; i++ )
+	{
+		pool[i].isLeaf = false;
+	}
+
+	//(BVHNode *)MALLOC64( nodeCount * sizeof( BVHNode ) ); //new BVHNode[nodeCount];
 	root = &pool[0];
-	poolPtr = 2;
+	poolPtr = 1;
 	root->first = 0;
 	root->count = N;
 	root->bounds = CalculateBounds( root->first, root->count );
 
-//	Subdivide( 0, nodeCount );
 	progressCounter = 0;
-	if (false)
-	{
-		int segmentCount = 16;
-		int segment = fmax( 1, ( N * 2 - 1 ) / segmentCount );
-
-		#pragma omp parallel for schedule( dynamic, 1 )
-		for ( int i = 0; i < segmentCount; i++ )
-		{
-			int nodeIdx = ( i * segment );
-			int lastIdx = fmin( nodeCount, ( nodeIdx + segment ) );
-			Subdivide( nodeIdx, lastIdx );
-		}
-	}
-	else
-	{
-		Subdivide( 0, nodeCount);	
-	}
+	Subdivide( 0, nodeCount );	
 
 	string timeString = "Finished BVH Construction after t=" + to_string( t.elapsed() ) + "\n";
 	printf( timeString.c_str());
@@ -48,18 +36,21 @@ void BVH::ConstructBVH()
 
 void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 {
+	if ( nodeIdx >= maxNodeIdx )
+		return;
 	++progressCounter;
 	std::cerr << "\rBVH subdivisions: " << double(progressCounter) << ' ' << std::flush;
 	BVHNode &node = pool[nodeIdx];
-	if (node.count < maxObjectsPerLeaf || nodeIdx >= maxNodeIdx)
+	if (node.isLeaf || node.count < maxObjectsPerLeaf)
 	{
+		node.isLeaf = true;
 		return;
 	}
-	node.left = poolPtr++;
-	node.right = poolPtr++;
+	node.left = poolPtr;
+	poolPtr += 2;
 	SplitNodeBin(nodeIdx);
 	Subdivide( node.left, maxNodeIdx );
-	Subdivide( node.right, maxNodeIdx );
+	Subdivide( node.left+1, maxNodeIdx );
 }
 
 void BVH::SplitNode( int nodeIdx )
@@ -70,7 +61,7 @@ void BVH::SplitNode( int nodeIdx )
 	left.count = node.count / 2;
 	left.bounds = CalculateBounds( left.first, left.count );
 
-	BVHNode &right = pool[node.right];
+	BVHNode &right = pool[node.left + 1];
 	right.first = left.first+left.count;
 	right.count = node.count - left.count;
 	right.bounds = CalculateBounds( right.first, right.count );
@@ -78,14 +69,11 @@ void BVH::SplitNode( int nodeIdx )
 
 void BVH::SplitNodeSAH(int nodeIdx)
 {
-	if ( nodeIdx >= nodeCount )
-		return;
-
 	BVHNode &node = pool[nodeIdx];
 	BVHNode &left = pool[node.left];
-	BVHNode &right = pool[node.right];
+	BVHNode &right = pool[node.left + 1];
 
-	float areaNode = ( node.bounds.max.x - node.bounds.min.x ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
+	float areaNode = node.bounds.Area();
 	float costParent = areaNode * node.count;
 	float smallestCost = costParent;
 	int perfSplit = node.count/2;
@@ -101,11 +89,7 @@ void BVH::SplitNodeSAH(int nodeIdx)
 	//we start at i=1, as we do not care about the first split as it would give an empty left node.
 	for (int i = 1; i< node.count; i++) 
 	{
-		if (node.count > 10000)
-			std::cerr << "\rLarge SAH Subdivision: " << double( i )/double(node.count)*100 << "%" << std::flush;
-		//object i; 
-		//shared_ptr<HittableObject> obj = scene->objects.at( i );
-		//obj.pos;
+		std::cerr << "\rLarge SAH Subdivision: " << double( i )/double(node.count)*100 << "%" << std::flush;
 
 		left.count = i; //obj.i is not in the left node, however the list starts at 0 but you do not have 0 objects
 
@@ -152,57 +136,48 @@ void BVH::SplitNodeBin(int nodeIdx)
 {
 	BVHNode &node = pool[nodeIdx];
 	BVHNode &left = pool[node.left];
-	BVHNode &right = pool[node.right];
+	BVHNode &right = pool[node.left + 1];
 
 	float widthP = node.bounds.max.x - node.bounds.min.x;
-	float areaNode = ( widthP ) * ( node.bounds.max.y - node.bounds.min.y ) * ( node.bounds.max.z - node.bounds.min.z );
+	float areaNode = node.bounds.Area();
 	float costParent = areaNode * node.count;
-
-
 	float smallestCost = costParent;
 	int perfSplit = node.count / 2;
-
 	float areaLeft;
 	float areaRight;
 	float costSplit;
-
-
 	//outside of forloop as it doesn't change.
-	left.first = node.first;
-	
-	
+
+	AABB aabb, newRightAABB, newLeftAABB;
+	int tempLeftFirst = node.first, tempLeftCount, tempRightFirst, tempRightCount;
 
 	//split into a certain number (ex 4/8/16 preferably 8)
 	for ( int i = 1; i < 8; i++ ) 
 	{
-		left.count = 0;
+		tempLeftCount = 0;
 		//create new bounding box 
-		AABB aabb = AABB(node.bounds.min, (vec3((node.bounds.min.x+((widthP / 8)*i)), node.bounds.max.y, node.bounds.max.z)));
+		aabb.min = node.bounds.min;
+		aabb.max = ( vec3( ( node.bounds.min.x + ( ( widthP / 8 ) * i ) ), node.bounds.max.y, node.bounds.max.z ) );
 
 		//check if object is in the bounding box or not.
 		for (int j = node.first; j < (node.first +node.count); j++)
 		{
 			if (aabb.Contains(GetPosition(j)))
 			{
-				left.count += 1;
+				tempLeftCount += 1;
 			}
 		}
 
-		if (left.count == 0)
-		{
+		if ( tempLeftCount == 0 )
 			continue; 
-		}
 
-		right.first = left.first + left.count;
-		right.count = node.count - left.count;
-
-		left.bounds = CalculateBounds( left.first, left.count );
-		areaLeft = ( left.bounds.max.x - left.bounds.min.x ) * ( left.bounds.max.y - left.bounds.min.y ) * ( left.bounds.max.z - left.bounds.min.z );
-
-		right.bounds = CalculateBounds( right.first, right.count );
-		areaRight = ( right.bounds.max.x - right.bounds.min.x ) * ( right.bounds.max.y - right.bounds.min.y ) * ( right.bounds.max.z - right.bounds.min.z );
-
-		costSplit = ( areaLeft * left.count ) + ( areaRight * right.count );
+		tempRightFirst = tempLeftFirst + tempLeftCount;
+		tempRightCount = node.count - tempLeftCount;
+		newLeftAABB = CalculateBounds( tempLeftFirst, tempLeftCount );
+		areaLeft = newLeftAABB.Area();
+		newRightAABB = CalculateBounds( tempRightFirst, tempRightCount );
+		areaRight = newRightAABB.Area();
+		costSplit = ( areaLeft * tempLeftCount ) + ( areaRight * tempRightCount );
 
 		//check if the split with obj i is smaller than the previous split
 		if ( costSplit < smallestCost )
@@ -216,20 +191,18 @@ void BVH::SplitNodeBin(int nodeIdx)
 
 	// split is 'not worth it' if cost is higher than cost of parent node
 	//^this decides when you stop as well
-	// ( smallestCost + 0.000001 >= costParent )
-	//{
-		//return leaf; //no split
-	//}
+	if ( smallestCost + 0.000001 >= costParent )
+	{
+		node.isLeaf = true;
+		return; //no split
+	}
 
 	//final split
 	left.count = perfSplit;
-
 	right.first = left.first + left.count;
 	right.count = node.count - left.count;
-
 	left.bounds = CalculateBounds( left.first, left.count );
 	right.bounds = CalculateBounds( right.first, right.count );
-
 }
 
 bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
@@ -237,7 +210,7 @@ bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
 	++r.bvhDepth;
 	bool hitAnything = false;
 	BVHNode &current = pool[nodeIdx];
-	if ( current.count < maxObjectsPerLeaf )
+	if ( current.isLeaf )
 	{
 		hitAnything |= IntersectNode( current, r, hit );
 	}
@@ -246,9 +219,9 @@ bool BVH::IntersectRecursive( Ray &r, RayHit &hit, int nodeIdx )
 		BVHNode &left = pool[current.left];
 		if ( left.bounds.Intersect( r ) )
 			hitAnything |= IntersectRecursive( r, hit, current.left );
-		BVHNode &right = pool[current.right];
+		BVHNode &right = pool[current.left + 1];
 		if ( right.bounds.Intersect( r ) )
-			hitAnything |= IntersectRecursive( r, hit, current.right );
+			hitAnything |= IntersectRecursive( r, hit, current.left + 1 );
 	}
 	return hitAnything;
 }
