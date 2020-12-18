@@ -45,7 +45,7 @@ void BVH::Subdivide( int nodeIdx, int maxNodeIdx )
 	}
 	node.left = poolPtr;
 	poolPtr += 2;
-	SplitNodeBin(nodeIdx);
+	SplitNodeSAH(nodeIdx);
 	Subdivide( node.left, maxNodeIdx );
 	Subdivide( node.left+1, maxNodeIdx );
 }
@@ -69,13 +69,13 @@ void BVH::SplitNodeAt( int nodeIdx, int splitIndex )
 	right.bounds = CalculateBounds( right.first, right.count );
 }
 
-float BVH::SplitCost( int nodeCount, int leftFirst, int leftCount )
+float BVH::SplitCost( int nodeCount, int nodeFirst, int splitCount )
 {
-	int rigthFirst = leftFirst + leftCount;
-	int rightCount = nodeCount - leftCount;
-	AABB leftAABB = CalculateBounds( leftFirst, leftCount );
+	int rigthFirst = nodeFirst + splitCount;
+	int rightCount = nodeCount - splitCount;
+	AABB leftAABB = CalculateBounds( nodeFirst, splitCount );
 	AABB rightAABB = CalculateBounds( rigthFirst, rightCount );
-	return ( leftAABB.Area() * leftCount ) + ( rightAABB.Area() * rightCount );
+	return ( leftAABB.Area() * splitCount ) + ( rightAABB.Area() * rightCount );
 }
 
 float BVH::SmallestCostSAH( int nodeIdx, int &bestSplit )
@@ -86,7 +86,7 @@ float BVH::SmallestCostSAH( int nodeIdx, int &bestSplit )
 	float smallestCost = areaNode * node.count;
 	for ( int i = 1; i < node.count; i++ )
 	{
-		std::cerr << "\rLarge SAH Subdivision: " << double( i ) / double( node.count ) * 100 << "%" << std::flush;
+		//std::cerr << "\rLarge SAH Subdivision: " << double( i ) / double( node.count ) * 100 << "%" << std::flush;
 		float costSplit = SplitCost( node.count, node.first, i );
 		if ( costSplit < bestSplit )
 		{
@@ -99,15 +99,63 @@ float BVH::SmallestCostSAH( int nodeIdx, int &bestSplit )
 
 void BVH::SplitNodeSAH(int nodeIdx)
 {
-	BVHNode &node = GetNode( nodeIdx );
-	int bestSplit = node.count/2;
-	SmallestCostSAH( node.first, bestSplit );		
-	//if(smallestCost + 0.000001 >= costParent) 
+	//BVHNode &node = GetNode( nodeIdx );
+	//int bestSplit = node.count/2;
+	//SmallestCostSAH( node.first, bestSplit );		
+	////if(smallestCost + 0.000001 >= costParent) 
+	////{
+	////	node.isLeaf = true;
+	////	return;
+	////}
+	//SplitNodeAt( nodeIdx, bestSplit );
+	//return;
+	BVHNode &node = pool[nodeIdx];
+	BVHNode &left = pool[node.left];
+	BVHNode &right = pool[node.left + 1];
+	float areaNode = node.bounds.Area();
+	float costParent = areaNode * node.count;
+	float smallestCost = costParent;
+	int perfSplit = node.count / 2;
+	float areaLeft;
+	float areaRight;
+	float costSplit;
+	//outside of forloop as it doesn't change.
+	left.first = node.first;
+	//Split the plane on each primitive. When splitting on a primitive, it goes to the right side.
+	//we start at i=1, as we do not care about the first split as it would give an empty left node.
+	for ( int i = 1; i < node.count; i++ )
+	{
+		std::cerr << "\rLarge SAH Subdivision: " << double( i ) / double( node.count ) * 100 << "%" << std::flush;
+		left.count = i; //obj.i is not in the left node, however the list starts at 0 but you do not have 0 objects
+		right.first = left.first + left.count;
+		right.count = node.count - left.count;
+		left.bounds = CalculateBounds( left.first, left.count );
+		areaLeft = ( left.bounds.max.x - left.bounds.min.x ) * ( left.bounds.max.y - left.bounds.min.y ) * ( left.bounds.max.z - left.bounds.min.z );
+		right.bounds = CalculateBounds( right.first, right.count );
+		areaRight = ( right.bounds.max.x - right.bounds.min.x ) * ( right.bounds.max.y - right.bounds.min.y ) * ( right.bounds.max.z - right.bounds.min.z );
+		costSplit = ( areaLeft * left.count ) + ( areaRight * right.count );
+		//check if the split with obj i is smaller than the previous split
+		if ( costSplit < smallestCost )
+		{
+			smallestCost = costSplit;
+			perfSplit = i;
+		}
+		//Don't do 'not greedy' way!(child cost split: Aleft0* (Aleft1*Nleft1 + Aright1*Nright1 ) + Aright0 *(etc)
+		//greedy == assume that the split is for a leaf node (last split)
+	}
+	// split is 'not worth it' if cost is higher than cost of parent node
+	//^this decides when you stop as well
+	//if(smallestCost + 0.000001 >= costParent)
 	//{
-	//	node.isLeaf = true;
-	//	return;
+	//return leaf; //no split
+	//TODO: move to subdivide
 	//}
-	SplitNodeAt( nodeIdx, bestSplit );
+	//final split
+	left.count = perfSplit;
+	right.first = left.first + left.count;
+	right.count = node.count - left.count;
+	left.bounds = CalculateBounds( left.first, left.count );
+	right.bounds = CalculateBounds( right.first, right.count );
 }
 
 float BVH::SmallestCostBin( int nodeIdx, int &perfectSplit )
@@ -136,9 +184,9 @@ void BVH::SplitNodeBin(int nodeIdx)
 		if (i < 8)
 			aabb.max = ( vec3( ( node.bounds.min.x + ( ( size.x / 8 ) * i ) ), node.bounds.max.y, node.bounds.max.z ) );
 		else if (i < 15)
-			aabb.max = vec3( node.bounds.min.x, node.bounds.max.y + ( ( size.y / 8 ) * (i-7)  ), node.bounds.max.z );
+			aabb.max = vec3( node.bounds.max.x, node.bounds.min.y + ( ( size.y / 8 ) * ( i - 7 ) ), node.bounds.max.z );
 		else if ( i < 22 )
-			aabb.max = vec3( node.bounds.min.x, node.bounds.max.y, node.bounds.max.z + ( ( size.z / 8 ) * ( i - 14 ) ) );
+			aabb.max = vec3( node.bounds.max.x, node.bounds.max.y, node.bounds.min.z + ( ( size.z / 8 ) * ( i - 14 ) ) );
 
 		for (int j = node.first; j < (node.first +node.count); j++)
 		{
@@ -167,7 +215,7 @@ void BVH::SplitNodeBin(int nodeIdx)
 
 	//final split
 	left.first = node.first;
-	left.count = node.count / 2;
+	left.count = bestLeftCount;
 	right.first = left.first + left.count;
 	right.count = node.count - left.count;
 	left.bounds = CalculateBounds( left.first, left.count );
