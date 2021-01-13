@@ -135,6 +135,7 @@
     </ClCompile>
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="trianglebvh.cpp" />
+    <ClCompile Include="volumetricpathtracer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="transform.h" />
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="trianglebvh.h" />
+    <ClInclude Include="volumetricpathtracer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />

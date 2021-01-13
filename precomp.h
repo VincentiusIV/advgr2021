@@ -86,6 +86,7 @@ using color = vec3;
 #include "plane.h"
 #include "sphere.h"
 #include "pathtracer.h"
+#include "volumetricpathtracer.h"
 #include "bvh.h"
 #include "scenebvh.h"
 #include "trianglebvh.h"

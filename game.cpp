@@ -30,7 +30,7 @@ void Game::Init()
 	MeshObject::BRUTE_FORCE = false;
 
 	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new PathTracer( scene, 7 );
+	raytracer = new VolumetricPathTracer( scene, 7 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()

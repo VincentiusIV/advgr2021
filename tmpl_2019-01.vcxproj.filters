@@ -16,6 +16,7 @@
     <ClCompile Include="scenebvh.cpp" />
     <ClCompile Include="trianglebvh.cpp" />
     <ClCompile Include="aabb.cpp" />
+    <ClCompile Include="volumetricpathtracer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -40,6 +41,7 @@
     <ClInclude Include="scenebvh.h" />
     <ClInclude Include="trianglebvh.h" />
     <ClInclude Include="aabb.h" />
+    <ClInclude Include="volumetricpathtracer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
