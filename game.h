@@ -14,9 +14,8 @@ enum class KeyCode
 	RIGHT_ARROW = 79,
 	UP_ARROW = 82,
 	DOWN_ARROW = 81,
-	F1 = 53
+	F1 = 58
 };
-
 class Game
 {
 public:

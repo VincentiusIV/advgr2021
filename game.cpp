@@ -90,23 +90,23 @@ void Game::CreateBoxEnvironment()
 	//plane3->scale = point3( 10, 10, 10 );
 	//scene->Add( plane3 );
 
-	vector<shared_ptr<MeshObject>> meshObject1 = MeshLoader::Load( "assets/apartment/Futuristic_Apartment.obj" );
+	//vector<shared_ptr<MeshObject>> meshObject1 = MeshLoader::Load( "assets/alien/Alien Animal.obj" );
 
-	#pragma omp parallel for schedule( dynamic, 1 )
-	for ( int i = 0; i < meshObject1.size(); i++ )
-	{
-		shared_ptr<MeshObject> current = meshObject1.at( i );
-		current->scale = point3( 0.12 );
-		current->UpdateTRS();
-		if(!MeshObject::BRUTE_FORCE)
-			current->subbvh->ConstructBVH();
-	}
+	//#pragma omp parallel for schedule( dynamic, 1 )
+	//for ( int i = 0; i < meshObject1.size(); i++ )
+	//{
+	//	shared_ptr<MeshObject> current = meshObject1.at( i );
+	//	current->scale = point3( 0.12 );
+	//	current->UpdateTRS();
+	//	if(!MeshObject::BRUTE_FORCE)
+	//		current->subbvh->ConstructBVH();
+	//}
 
-	for ( size_t i = 0; i < meshObject1.size(); i++ )
-	{
-		shared_ptr<MeshObject> current = meshObject1.at( i );
-		scene->Add( current );
-	}
+	//for ( size_t i = 0; i < meshObject1.size(); i++ )
+	//{
+	//	shared_ptr<MeshObject> current = meshObject1.at( i );
+	//	scene->Add( current );
+	//}
 
 	//for ( int x = -5; x < 5; x++ )
 	//{
