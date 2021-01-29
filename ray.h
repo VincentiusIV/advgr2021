@@ -11,12 +11,14 @@ struct RayHit
 	shared_ptr<Material> material;
 	shared_ptr<HittableObject> hitObject;
 	bool isFrontFace;
+	float tNear, tFar;
 };
 
 class Ray
 {
   public:
 	Ray() : origin( 0.0, 0.0, 0.0 ), direction( 0.0, 0.0, 0.0 ), tMax( INFINITY ), t( INFINITY ), depth( 1 ), bvhDepth( 0 ) {}
+	Ray( const Ray &ray ) : Ray( ray.origin, ray.direction, ray.tMax, ray.depth ) {}
 	Ray( const point3 &origin, const vec3 &direction, float tMax, int depth)
 		: origin( origin ), direction( normalize( direction ) ), tMax( tMax ), t( INFINITY ), depth( depth ), bvhDepth(0)
 	{ }

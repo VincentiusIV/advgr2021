@@ -6,7 +6,7 @@ static int fps = 0;
 static std::string fpsString, deltaTimeString, cameraPositionString;
 static int raysPerPixel = 5000, rowCount = 32;
 // random chance that a pixel is calculated during a frame, reduces time to get something on the screen. 1.0 = always.
-static float calculateChance = 0.05; 
+static float calculateChance = 1; 
 static int  frameCounter = 0, pixelCounter = 0;
 static color* colorBuffer;
 static int* raysCounter;
@@ -18,16 +18,16 @@ static int maxBvhDepth = 100;
 void Game::Init()
 {
 	scene = new Scene();
-	scene->GetCamera()->Translate( vec3( 1.5, 1.0, 3 ) );
-	scene->GetCamera()->Rotate( vec3( 1.0, -120.0, 0.0 ) );
+	scene->GetCamera()->Translate( vec3( 0, 0, -2.5 ) );
+	scene->GetCamera()->Rotate( vec3( 0.0, 0.0, 0.0 ) );
+
+	Scene::BRUTE_FORCE = true;
+	MeshObject::BRUTE_FORCE = false;
 
 	colorBuffer = (color*)MALLOC64(SCRWIDTH * SCRHEIGHT * sizeof(color));
 	raysCounter = new int[SCRWIDTH * SCRHEIGHT];
 	ClearColorBuffer();
 	CreateBoxEnvironment();
-
-	Scene::BRUTE_FORCE = false;
-	MeshObject::BRUTE_FORCE = false;
 
 	//raytracer = new WhittedRayTracer(scene, 7);
 	raytracer = new VolumetricPathTracer( scene, 7 );
@@ -64,66 +64,49 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> glass = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIELECTRIC );
 	glass->n = 1.5f;
 	glass->smoothness = 1.0f;
-	shared_ptr<Material> beige = make_shared<Material>(color(0.7, 0.7, 0.7), MaterialType::DIFFUSE);
+	shared_ptr<Material> white = make_shared<Material>(color(0.95, 0.95, 0.95), MaterialType::DIFFUSE);
 	shared_ptr<Material> checkerboard = make_shared<Material>(color(0.7, 0.7, 0.7), MaterialType::DIFFUSE);
 	checkerboard->isCheckerboard = true;
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
 	textureDiffuse->mainTex = new Surface( "assets/apartment/building_col_3.jpg" );
+	shared_ptr<Material> fog = make_shared<Material>( color( 0.9, 1.0, 1.0 ), MaterialType::VOLUMETRIC );
 
+	// Floors & Walls
+	shared_ptr<Plane> groundFloor = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
+	groundFloor->position = point3( 0, -2.5, 0.0 );
+	groundFloor->scale = point3( 100, 1, 100 );
+	scene->Add( groundFloor );
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 3 );
-	lightSphere->position = point3( 6, 12, 6 );
-	scene->Add( lightSphere );
-	//ground plane
-	shared_ptr<Plane> plane1 = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
-	plane1->position = point3( 0, 0, 0.0 );
-	plane1->scale = point3( 100, 1, 100 );
-	scene->Add( plane1 );
+	shared_ptr<Plane> leftWall = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
+	leftWall->position = point3( 1, 4, 3 );
+	leftWall->scale = point3( 2, 4, 2 );
+	scene->Add( leftWall );
+	shared_ptr<Plane> rightWall = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
+	rightWall->position = point3( -1, 4, 3 );
+	rightWall->scale = point3( 2, 4, 2 );
+	scene->Add( rightWall );
+	shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
+	ceiling->position = point3( 0, 6, 3 );
+	ceiling->scale = point3( 2, 2, 2 );
+	scene->Add( ceiling );
+	shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	frontWall->position = point3( 0, 4, 4 );
+	frontWall->scale = point3( 2, 4, 2 );
+	scene->Add( frontWall );
+	shared_ptr<Plane> backWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	backWall->position = point3( 0, 4, 2 );
+	backWall->scale = point3( 2, 4, 2 );
+	scene->Add( backWall );
 
-	//shared_ptr<Plane> plane2 = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
-	//plane2->position = point3( -10, 40, 25 );
-	//plane2->scale = point3( 100, 100, 100 );
-	//scene->Add( plane2 );
+	//// Spheres
+	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, .7 );
+	//baseSphere->position = point3( -1.7, -2.3, 1.5 );
+	//scene->Add( baseSphere );
 
-	//shared_ptr<Plane> plane3 = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
-	//plane3->position = point3( 7, 5, 5 );
-	//plane3->scale = point3( 10, 10, 10 );
-	//scene->Add( plane3 );
-
-	//vector<shared_ptr<MeshObject>> meshObject1 = MeshLoader::Load( "assets/alien/Alien Animal.obj" );
-
-	//#pragma omp parallel for schedule( dynamic, 1 )
-	//for ( int i = 0; i < meshObject1.size(); i++ )
-	//{
-	//	shared_ptr<MeshObject> current = meshObject1.at( i );
-	//	current->scale = point3( 0.12 );
-	//	current->UpdateTRS();
-	//	if(!MeshObject::BRUTE_FORCE)
-	//		current->subbvh->ConstructBVH();
-	//}
-
-	//for ( size_t i = 0; i < meshObject1.size(); i++ )
-	//{
-	//	shared_ptr<MeshObject> current = meshObject1.at( i );
-	//	scene->Add( current );
-	//}
-
-	//for ( int x = -5; x < 5; x++ )
-	//{
-	//	for ( int z = -5; z < 5; z++ )
-	//	{
-	//		shared_ptr<Sphere> baseSphere = make_shared<Sphere>( beige, 0.5 );
-	//		baseSphere->position = point3( x, 0.0, z);
-	//		scene->Add( baseSphere );
-	//	}
-	//}
-
-	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, 2 );
-	baseSphere->position = point3( -2.5, 2, 3 );
-	scene->Add( baseSphere );
-	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( beige, 2 );
-	//baseSphere1->position = point3( 0, -1.5, 2.5 );
+	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( glass, 1 );
+	//baseSphere1->position = point3( 1.5, -1.5, 1.5 );
 	//scene->Add( baseSphere1 );
+
 	//shared_ptr<Sphere> baseSphere2 = make_shared<Sphere>( beige, 2 );
 	//baseSphere2->position = point3( -2.5, -1.5, 2.5 );
 	//scene->Add( baseSphere2 );
@@ -144,13 +127,20 @@ void Game::CreateBoxEnvironment()
 	//lightSphere2->position = point3( 5, 4, -5 );
 	//scene->Add( lightSphere2 );
 
-	shared_ptr<PointLight> sceneLight = make_shared<PointLight>( point3( 0, 4.0, 2.0 ), 10.0 );
-	sceneLight->albedo = color( 0.74, 0.45, 0.22 );
-	scene->Add( sceneLight );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.9 );
+	lightSphere->position = point3( 0, 4, 3 );
+	scene->Add( lightSphere );
 
-	shared_ptr<PointLight> sceneLight2 = make_shared<PointLight>( point3( -1, 2.5, 0 ), 5.0 );
-	sceneLight2->albedo = color( 0.74, 0.45, 0.22 );
-	scene->Add( sceneLight2 );
+	// TODO: Fix Plane Area Lights
+	//shared_ptr<Plane> ceilingLight = make_shared<Plane>( lightMaterial, vec3( 0, -1, 0 ), 1, 1 );
+	//ceilingLight->position = point3( 0, 2.45, 0 );
+	//ceilingLight->scale = point3( 2, 1, 2 );
+	//scene->Add( ceilingLight );
+
+	// Volume
+	shared_ptr<Sphere> volume = make_shared<Sphere>( fog, 100 );
+	volume->position = point3( 0, 0, 0 );
+	scene->Add( volume );
 
 	for ( size_t i = 0; i < scene->objects.size(); i++ )
 	{
@@ -158,8 +148,40 @@ void Game::CreateBoxEnvironment()
 		obj->UpdateAABB();
 	}
 
-	if ( !Scene::BRUTE_FORCE )
-		scene->Init();
+	scene->Init();
+}
+
+void Tmpl8::Game::CreateMeshEnvironment()
+{
+	shared_ptr<Material> checkerboard = make_shared<Material>( color( 0.7, 0.7, 0.7 ), MaterialType::DIFFUSE );
+	checkerboard->isCheckerboard = true;
+	shared_ptr<Material> lightMaterial = make_shared<Material>( color( 0.9, 1.0, 1.0 ), MaterialType::EMISSIVE );
+
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 3 );
+	lightSphere->position = point3( 6, 12, 6 );
+	scene->Add( lightSphere );
+	//ground plane
+	shared_ptr<Plane> plane1 = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
+	plane1->position = point3( 0, 0, 0.0 );
+	plane1->scale = point3( 100, 1, 100 );
+	scene->Add( plane1 );
+
+	vector<shared_ptr<MeshObject>> meshObject1 = MeshLoader::Load( "assets/alien/Alien Animal.obj" );
+
+	#pragma omp parallel for schedule( dynamic, 1 )
+	for ( int i = 0; i < meshObject1.size(); i++ )
+	{
+		shared_ptr<MeshObject> current = meshObject1.at( i );
+		current->scale = point3( 0.12 );
+		current->UpdateTRS();
+		if(!MeshObject::BRUTE_FORCE)
+			current->subbvh->ConstructBVH();
+	}
+	for ( size_t i = 0; i < meshObject1.size(); i++ )
+	{
+		shared_ptr<MeshObject> current = meshObject1.at( i );
+		scene->Add( current );
+	}
 }
  
 // -----------------------------------------------------------

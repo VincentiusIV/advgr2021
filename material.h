@@ -7,6 +7,7 @@ enum class MaterialType
 	GLASS = 2,
 	DIELECTRIC = 3,
 	EMISSIVE = 4,
+	VOLUMETRIC = 5,
 	NORMAL_TEST = 11,
 	UV_TEST = 12
 };
@@ -42,8 +43,14 @@ class Material
 			return albedo; 		
 		}
 	}
+
+	float sigmaT() { return sigmaS + sigmaA; }
+	float volumeAlbedo() { return sigmaS / sigmaT(); } // describes probability of scattering at scatter event.
+	float meanFreePath() { return 1 / sigmaT(); } // avg distance a ray travels in medium before interacting with particle.
+
 	color albedo;
 	float n = 1.0f, specularity = 1.0f, smoothness = 1.0f;
+	float sigmaS = 0.009, sigmaA = 0.006, g = 0.5;
 	vec2 uvScale;
 	MaterialType materialType;
 	Surface* mainTex = NULL;

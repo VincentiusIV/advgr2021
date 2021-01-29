@@ -14,18 +14,19 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit )
 bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 {
 	// Bruteforce method
-	//bool hitAny = false;
-	//for ( size_t i = 0; i < scene->objects.size(); i++ )
-	//{
-	//	shared_ptr<HittableObject> obj = scene->objects.at( i );
-	//	if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
-	//		continue;
-	//	if (obj->Hit(ray, hit))
-	//	{
-	//		hit.hitObject = obj;
-	//		hitAny |= true;
-	//	}
-	//}
+	bool hitAny = false;
+	for ( size_t i = 0; i < scene->objects.size(); i++ )
+	{
+		shared_ptr<HittableObject> obj = scene->objects.at( i );
+		if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
+			continue;
+		if (obj->Hit(ray, hit))
+		{
+			hit.hitObject = obj;
+			hitAny |= true;
+		}
+	}
+	return hitAny;
 
 	// TODO: Implement typeToIgnore with bvh.
 	return scene->bvh->Intersect(ray, hit);
@@ -83,7 +84,10 @@ color WhittedRayTracer::Sample( Ray &ray, RayHit &hit )
 	}
 	else
 	{
-		return HandleSkybox( ray );
+		if (useSkybox)
+			return HandleSkybox( ray );
+		else
+			return color( 0.0, 0.0, 0.0 );
 	}
 }
 

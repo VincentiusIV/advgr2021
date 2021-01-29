@@ -17,7 +17,7 @@ class Scene
 	void Add( shared_ptr<Light> light ) { lights.push_back( light ); }
 	shared_ptr<HittableObject> GetRandomEmissiveObject();
 	shared_ptr<Camera> GetCamera() { return camera; };
-	vector<shared_ptr<HittableObject>> objects, emissiveObjects;
+	vector<shared_ptr<HittableObject>> objects, emissiveObjects, volumes;
 	vector<shared_ptr<Light>> lights;
 	BVH *bvh;
 

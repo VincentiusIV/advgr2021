@@ -19,6 +19,7 @@ class HittableObject : public Transform
 	virtual point3 GetRandomPoint() { return position;  }
 	virtual vec3 GetNormalAtPoint( const point3 &point ) { return vec3( 0, 0, 0 ); }
 	virtual float GetArea() { return 1.0f; }
+	virtual bool Contains( point3 point ) { return (position - point).length() <= 0.001f; }
 	shared_ptr<Material> material; 
 	AABB aabb;
 

@@ -18,6 +18,7 @@ class RayTracer
 	const color &HandleDielectricMaterial( Ray &ray, RayHit &hit);
 	Scene *scene;
 	int maxDepth;
+	bool useSkybox = true;
 };
 
 class WhittedRayTracer : public RayTracer

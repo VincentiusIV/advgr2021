@@ -23,6 +23,7 @@ public:
   void Init();
   void ClearColorBuffer();
 	void CreateBoxEnvironment();
+	void CreateMeshEnvironment();
 	void Shutdown();
 	void Tick( float deltaTime );
 	void PrintDebugInfo( float deltaTime );

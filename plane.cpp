@@ -53,4 +53,13 @@ void Plane::UpdateAABB()
 	aabb.min = position - vec3(halfScaleX, halfScaleY, halfScaleZ);
 	aabb.max = position + vec3(halfScaleX, halfScaleY, halfScaleZ);
 }
+
+point3 Plane::GetRandomPoint()
+{
+	point3 p = position;
+	p.x += Rand( scale.x ) - scale.x / 2.0f;
+	p.y += Rand( scale.y ) - scale.y / 2.0f;
+	p.z += Rand( scale.z ) - scale.z / 2.0f;
+	return p;
+}
 	
