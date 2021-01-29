@@ -29,8 +29,10 @@ bool TestHit( Ray &ray, RayHit &hit, point3 spherePos, float r2, float &t )
 	else
 		det = sqrt( det );
 	t = ( b - det <= 0 ) ? 0 : b - det;
-	hit.tFar = b + det; 
-	return  (( t < ray.t ) && ( t > 0 ) && t < ray.tMax );
+	hit.tFar = b + det;
+	bool inOrHitSphere = ( t = b - det ) > eps ? t : ( ( t = b + det ) > eps ? t : 0 );
+	inOrHitSphere &= ( ( t < ray.t ) && ( t > 0 ) && t < ray.tMax );
+	return inOrHitSphere;
 }
 
 bool Sphere::Hit( Ray &ray, RayHit &hit )
@@ -50,9 +52,6 @@ bool Sphere::Hit( Ray &ray, RayHit &hit )
 	}
 	return false;
 }
-
-
-
 point3 Sphere::GetRandomPoint()
 {
 	vec3 randPoint = RandomInsideUnitSphere() * r;

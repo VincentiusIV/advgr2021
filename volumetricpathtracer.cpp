@@ -32,126 +32,105 @@ float Transmittance(Ray &ray, float sigmaT)
 	return exp(-sigmaT * min(ray.tMax * ray.direction.length(), MaxFloat));
 }
 
-inline double sampleSegment( double epsilon, float sigma, float smax )
+color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 {
-	return -log( 1.0 - epsilon * ( 1.0 - exp( -sigma * smax ) ) ) / sigma;
-}
-
-inline void generateOrthoBasis( vec3 &u, vec3 &v, vec3 w )
-{
-	vec3 coVec = w;
-	if ( fabs( w.x ) <= fabs( w.y ) )
-		if ( fabs( w.x ) <= fabs( w.z ) )
-			coVec = vec3( 0, -w.z, w.y );
-		else
-			coVec = vec3( -w.y, w.x, 0 );
-	else if ( fabs( w.y ) <= fabs( w.z ) )
-		coVec = vec3( -w.z, 0, w.x );
-	else
-		coVec = vec3( -w.y, w.x, 0 );
-	coVec.normalize();
-	u = w % coVec,
-	v = w % u;
-}
-
-inline double scatter( const Ray &r, Ray *sRay, float sigma_s, double tin, float tout, double s )
-{
-	vec3 x = r.origin + r.direction * tin + r.direction * s;
-	//Vec dir = sampleSphere(XORShift::frand(), XORShift::frand()); //Sample a direction ~ uniform phase function
-	vec3 dir = SampleHG( -0.5, Rand( 1.0f ), Rand( 1.0f ) ); //Sample a direction ~ Henyey-Greenstein's phase function
-	vec3 u, v;
-	generateOrthoBasis( u, v, r.direction );
-	dir = u * dir.x + v * dir.y + r.direction * dir.z;
-	if ( sRay ) *sRay = Ray( x, dir, INFINITY, r.depth + 1 );
-	return ( 1.0 - exp( -sigma_s * ( tout - tin ) ) );
-}
-
-color VolumetricPathTracer::Sample( Ray &ray, RayHit &hit )
-{
-	if ( ray.depth > maxDepth )
-		return color( 0, 0, 0 );
-	if ( Trace( ray, hit ) )
+	color beta( 1.0 );
+	Ray ray( r ), vRay(r);
+	bool specularBounce = false;
+	for ( int bounceIdx = 0; bounceIdx < maxDepth; bounceIdx++ )
 	{
-		// 1. Test if same ray intersects a volume.
-		// 2. Phase the ray (if phasing is > t then use surface, otherwise sample volume)
-		// 3. If sample volume, scatter ray.
+		RayHit hit;
+		bool foundIntersection = Trace(ray, hit);
+
+		if (hit.hitVolume)
+		{
+			// 2. Phase the ray (if phasing is > t then use surface, otherwise sample volume)
+			// 3. If sample volume, scatter ray.
+		}
+
 		float scale = 1.0, absorption = 1.0;
 		shared_ptr<Material> mat = hit.material;
 		color mCol = mat->GetColor( hit.uv );
 		MaterialType mmat = mat->materialType;
-
-		//for ( size_t i = 0; i < scene->volumes.size(); i++ )
-		//{
-		//	Ray vRay( ray );
-		//	RayHit vHit;
-		//	shared_ptr<HittableObject> volume = scene->volumes.at(i);
-		//	if ( volume->Hit( vRay, vHit ) )
-		//	{
-		//		Ray sRay;
-		//		RayHit sHit;
-		//		float s = sampleSegment( Rand( 1.0f ), vHit.material->sigmaS, vHit.tFar - vRay.t );
-		//		float ms = scatter( vRay, &sRay, vHit.material->sigmaS, vRay.t, vHit.tFar, s );
-		//		float prob_s = ms;
-		//		scale = 1.0 / ( 1.0 - prob_s );
-		//		if (Rand(1.0) <= 0.001)
-		//		{
-		//			return Sample( sRay, sHit ) * ms * ( 1.0 / prob_s );
-		//		}
-		//		else
-		//		{
-		//			
-		//		}
-		//		if (ray.t >= vRay.t)
-		//		{
-		//			absorption = Transmittance( ray, mat->sigmaT() );
-		//		}
-		//	}
-		//}
-
+		if ( !foundIntersection )
+		{
+			beta *= 0.0f;
+			break;
+		}
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			return mCol * absorption;
+			beta *= mCol;
+			break;
 		}
-		if ( mmat == MaterialType::MIRROR )
+		//if ( mmat == MaterialType::MIRROR )
+		//{
+		//	Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
+		//	beta *= ( ( 1.0 - hit.material->specularity ) * mCol ) + ( ( hit.material->specularity ) * Sample( r, hit ) );										//Color of the material -> Albedo
+		//}
+		//if ( mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS )
+		//{
+		//	beta *= HandleDielectricMaterial( ray, hit );
+		//}
+		else if ( mmat == MaterialType::DIFFUSE )
 		{
-			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			return ( ( 1.0 - hit.material->specularity ) * mCol ) + ( ( hit.material->specularity ) * Sample( r, hit ) );									//Color of the material -> Albedo
-		}
-		if ( mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS )
-		{
-			return HandleDielectricMaterial( ray, hit );
-		}
+			color BRDF = mCol * INV_PI;
 
-		color BRDF = mCol / PI;
-		RayHit indirectHit, directHit;
-		//color directColor = DirectIllumiation( ray, hit, BRDF, directHit );
-		//color indirectColor = IndirectIllumination( ray, hit, BRDF, indirectHit );
-		//return (directColor + indirectColor) / 2;
-		if (Rand(1.0) <= 0.5f)
-			return DirectIllumiation( ray, hit, BRDF, directHit );
+			// Indirect
+			if ( Rand( 1.0f ) < 0.5f )
+			{
+				vec3 R = RandomInsideUnitSphere();
+				if ( R.dot( hit.normal ) < 0.0 )
+					R = -R;
+				R = normalize( R );
+				point3 o = hit.point + hit.normal * EPSILON;
+				double ir = dot( hit.normal, R );
+				beta *= TWO_PI * BRDF * ir;
+				ray = Ray( o, R, INFINITY, ray.depth + 1 );
+			}
+			// Direct
+			else
+			{
+				shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject();
+				point3 randPoint = randLight->GetRandomPoint();
+				vec3 L = randPoint - hit.point;
+				float dist = L.length();
+				L = normalize( L );
+				point3 so = hit.point + L * EPSILON;
+				float tmax = dist - 2.0f * EPSILON;
+				Ray shadowRay( so, L, INFINITY, maxDepth );
+				RayHit shadowHit;
+				color directColor;
+				bool direct = false;
+				if ( Trace( shadowRay, shadowHit ) )
+				{
+					if ( shadowHit.hitObject == randLight )
+					{
+						vec3 lightNormal = shadowHit.normal;
+						float cosO = ( -L ).dot( lightNormal );
+						float cosI = L.dot( hit.normal );
+						if ( !( ( cosO <= 0 ) || ( cosI <= 0 ) ) )
+						{
+							float solidAngle = ( cosO * randLight->GetArea() / ( dist * dist ) );
+							beta *= BRDF * (double)scene->emissiveObjects.size() * randLight->material->albedo * solidAngle * cosI;
+							direct = true;
+						}
+					}
+				}
+
+				if ( !direct )
+					beta *= 0.0f;
+				break;
+			}
+		}
 		else
-			return IndirectIllumination( ray, hit, BRDF, indirectHit );
+		{
+			beta *= 0.0f;
+			break;
+		}
+		
 	}
-	return color( 0, 0, 0 );
 
-	vec3 unit_direction = ray.direction;
-	auto t = 0.5 * ( -unit_direction.y + 1.0 );
-	color c = ( 1.0 - t ) * color( 1.0, 1.0, 1.0 ) + t * color( 0.5, 0.7, 1.0 );
-	return c;
-}
-
-const color &VolumetricPathTracer::IndirectIllumination( Ray &ray, RayHit &hit, color &BRDF, RayHit &indirectHit )
-{
-	vec3 R = RandomInsideUnitSphere();
-	if ( R.dot( hit.normal ) < 0.0 )
-		R = -R;
-	R = normalize( R );
-	//new ray, start at intersection point, into random direction R
-	point3 o = hit.point + hit.normal * EPSILON;
-	Ray r( o, R, INFINITY, ray.depth + 1 );
-	double ir = dot( hit.normal, R );
-	color Ei = Sample( r, indirectHit ) * ( ir ); //irradiance is what you found with that new ray
-	return TWO_PI * BRDF * Ei;
+	return beta;
 }
 
 const color &VolumetricPathTracer::DirectIllumiation( Ray &ray, RayHit &hit, color &BRDF, RayHit &directHit )

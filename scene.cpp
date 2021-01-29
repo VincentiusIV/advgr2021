@@ -26,7 +26,7 @@ Scene::~Scene()
 
 void Scene::Add(shared_ptr<HittableObject> object)
 {
-	if (object->material->materialType == MaterialType::VOLUMETRIC)
+	if ( object->material->materialType == MaterialType::VOLUMETRIC )
 	{
 		volumes.push_back( object );
 		return;
@@ -34,7 +34,6 @@ void Scene::Add(shared_ptr<HittableObject> object)
 	objects.push_back( object ); 
 	if ( object->material->materialType == MaterialType::EMISSIVE )
 		emissiveObjects.push_back( object );
-
 }
 
 void Scene::Update(float deltaTime)

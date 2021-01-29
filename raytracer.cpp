@@ -26,6 +26,19 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 			hitAny |= true;
 		}
 	}
+
+	Ray vRay( ray );
+	RayHit vHit;
+	for ( size_t i = 0; i < scene->volumes.size(); i++ )
+	{
+		shared_ptr<HittableObject> volume = scene->volumes.at( i );
+		if (volume->Hit(vRay, vHit))
+		{
+			hit.hitVolume = true;
+			hit.volume = volume;
+		}
+	}
+
 	return hitAny;
 
 	// TODO: Implement typeToIgnore with bvh.

@@ -10,6 +10,8 @@ struct RayHit
 	vec2 uv;
 	shared_ptr<Material> material;
 	shared_ptr<HittableObject> hitObject;
+	shared_ptr<HittableObject> volume;
+	bool hitVolume;
 	bool isFrontFace;
 	float tNear, tFar;
 };
