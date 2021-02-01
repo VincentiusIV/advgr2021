@@ -11,7 +11,7 @@ struct RayHit
 	shared_ptr<Material> material;
 	shared_ptr<HittableObject> hitObject;
 	shared_ptr<HittableObject> volume;
-	bool hitVolume;
+	bool intersectsVolume;
 	bool isFrontFace;
 	float tNear, tFar;
 };

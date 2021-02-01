@@ -30,7 +30,7 @@ void Game::Init()
 	CreateBoxEnvironment();
 
 	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new VolumetricPathTracer( scene, 7 );
+	raytracer = new VolumetricPathTracer( scene, 14 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -97,6 +97,11 @@ void Game::CreateBoxEnvironment()
 	backWall->position = point3( 0, 4, 2 );
 	backWall->scale = point3( 2, 4, 2 );
 	scene->Add( backWall );
+
+	shared_ptr<Plane> backWall2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	backWall2->position = point3( 0, 4, 8 );
+	backWall2->scale = point3( 100, 100, 100 );
+	scene->Add( backWall2 );
 
 	//// Spheres
 	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, .7 );

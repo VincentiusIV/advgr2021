@@ -32,11 +32,18 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 	for ( size_t i = 0; i < scene->volumes.size(); i++ )
 	{
 		shared_ptr<HittableObject> volume = scene->volumes.at( i );
-		if (volume->Hit(vRay, vHit))
-		{
-			hit.hitVolume = true;
-			hit.volume = volume;
-		}
+		hit.intersectsVolume = true;
+		hit.volume = volume;
+		break;
+		//if (volume->Hit(vRay, vHit))
+		//{
+
+		//	break;
+		//}
+		//else
+		//{
+		//	hit.hitVolume = false;
+		//}
 	}
 
 	return hitAny;
