@@ -3,18 +3,18 @@
 
 
 //initial values
-int nrPhotons = 100; //TODO: eventually light sensitive (now its 100 per light)
-int nrBounces = 3;	 //cap on amount of bounces (photon is stopped by RR or this)
+int nrPhotons = 2000; //TODO: eventually light sensitive (now its 100 per light)
+int nrBounces = 6;	 //cap on amount of bounces (photon is stopped by RR or this)
 int estimateP = 20;	 //the photon estimate in the radiance around point x
-int estimateR = 3;	 //the radiance around point x with photon estimate
+int estimateR = 1;	 //the radiance around point x with photon estimate
 
 //you can store a photon multiple times
-int maxStack = nrPhotons * nrBounces; 
+int maxStack = nrPhotons * nrBounces; //Q: * nr of lights?
 int topStack = -1;
 photon *photonmap = new photon[maxStack];
 
 //stack pusher for photonmap 
-void push( photon i )
+void PhotonMap::push( photon i )
 {
 	if (topStack < maxStack - 1)
 	{
@@ -22,15 +22,16 @@ void push( photon i )
 	}
 }
 
-bool RussianRoulette(color &mCol)
+//Q: is survive/die correct?
+bool PhotonMap::RussianRoulette(color &mCol)
 {
-	float pSurvival = Clamp( fmax( mCol.x, fmax( mCol.y, mCol.z ) ), 0.0f, 1.0f ); 
+	float pSurvival = clamp( fmax( mCol.x, fmax( mCol.y, mCol.z ) ), 0.0f, 1.0f ); 
 	if ( pSurvival < Rand( 1.0 ) )
 	{
-		return true; //survives
+		return false; //dies
 	}
 	else
-		return false; //dies
+		return true; //survives
 }
 
 //TODO: need a global photon map & caustic photon map
@@ -42,29 +43,35 @@ bool RussianRoulette(color &mCol)
 // PHASE 1
 
 //photon emittance from a light
-void PhotonMap::photonEmittanceLight( Ray ray ) //TODO: take a light or put for loop
+void PhotonMap::photonEmittanceLight(Ray ray ) 
 {
-	//TODO: loop over ALL lights, not just one
-	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject(); 
+	//for ( int i = 0; i < scene->lights.size(); i++ )
+	//{
+	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject(); //TODO: is only one light
 
-	for (int i = 0; i < nrPhotons; i++)
+	for ( int i = 0; i < nrPhotons; i++ )
 	{
-		//photon photon; 
+		photon photon;
 		RayHit hit;
-		
+
 		point3 randPointL = randLight->GetRandomPoint();
 		vec3 lightNormal = randLight->GetNormalAtPoint( randPointL );
-
+		
 		vec3 R = RandomInsideUnitSphere(); //Q: is this whole sphere or hemisphere?
 		if ( R.dot( lightNormal ) < 0.0 )
 			R = -R;
 		R = normalize( R );
 		
+		photon.power = ( 1, 1, 1 );
+		photon.position = randPointL;
+		photon.L = R;
+					
 		//Send photon in random direction
 		Ray r( randPointL, R, INFINITY, ray.depth + 1 ); //Q: Can I just use rays???
 		//Trace the photon
-		Sample( r, hit );
+		SampleP( r, hit,photon );
 	}
+	//}
 }
 
 //photon emittance from a surface
@@ -78,16 +85,7 @@ void PhotonMap::photonEmittance( RayHit hit, photon photon, Ray ray)
 	//Send photon in random direction
 	Ray r( hit.point, R, INFINITY, ray.depth + 1 );
 	//Trace photon
-	Sample( r, hit );
-}
-
-//default sample(?????)
-//TODO: fix this
-color PhotonMap::Sample( Ray &ray, RayHit &hit )
-{
-	photon photon;
-	SampleP( ray, hit, photon );
-	return ( 0, 0, 0 );
+	SampleP( r, hit,photon );
 }
 
 //See if photon hits surface -> yes, store in photonmap
@@ -165,10 +163,50 @@ function BuildkDtree(photons P)
 
 // PHASE 2
 
-const color photonDensity( Ray &ray, RayHit hit, color BRDF )
+//TODO: add pathtracer sample, vervang diffuse met photonDensity (ipv licht)
+
+color PhotonMap::Sample( Ray &ray, RayHit &hit )
+{
+	color BRDF;
+	if ( ray.depth > maxDepth )
+		return color( 0, 0, 0 );
+	if ( Trace( ray, hit ) )
+	{
+		shared_ptr<Material> mat = hit.material;
+		color mCol = mat->GetColor( hit.uv );
+		MaterialType mmat = mat->materialType;
+
+		if ( mmat == MaterialType::EMISSIVE )
+		{
+			//return photonDensity( ray, hit, mCol ); // ?? mCol;
+			return mCol;							
+		}
+		if ( mmat == MaterialType::MIRROR )
+		{
+			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
+			return ( ( 1.0 - hit.material->specularity ) * mCol ) + ( ( hit.material->specularity ) * RayTracer::Sample( r ) );									//Color of the material -> Albedo
+		}
+		if ( mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS )
+		{
+			return HandleDielectricMaterial( ray, hit );
+		}
+
+		BRDF = mCol / PI;
+
+		return photonDensity(ray, hit, BRDF);
+	}
+	//return color( 0, 0, 0 );
+	vec3 unit_direction = ray.direction;
+	auto t = 0.5 * ( -unit_direction.y + 1.0 );
+	color c = ( 1.0 - t ) * color( 1.0, 1.0, 1.0 ) + t * color( 0.5, 0.7, 1.0 );
+	return c;
+}
+
+
+ color PhotonMap::photonDensity( Ray &ray, RayHit hit, color BRDF )
 {
 	//RayHit hit;
-	color energy = (0,0,0);  //surface starts with 0 energy
+	color energy = (1,0,0);  //surface starts with 0 energy
 	for (int i = 0; i < maxStack; i++)
 	{
 		//TODO: this doesn't check if inside surface...

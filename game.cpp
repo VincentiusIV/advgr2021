@@ -30,7 +30,9 @@ void Game::Init()
 	CreateBoxEnvironment();
 
 	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new VolumetricPathTracer( scene, 14 );
+	//raytracer = new PathTracer( scene, 7 );
+	raytracer = new PhotonMap( scene, 7 );
+	//raytracer = new VolumetricPathTracer( scene, 14 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -83,41 +85,41 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( leftWall );
 
 	shared_ptr<Plane> leftWall = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
-	leftWall->position = point3( 1, 4, 3 );
-	leftWall->scale = point3( 2, 4, 2 );
+	leftWall->position = point3( 5, 4, 3 );
+	leftWall->scale = point3( 4, 4, 4 );
 	scene->Add( leftWall );
 	shared_ptr<Plane> rightWall = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
-	rightWall->position = point3( -1, 4, 3 );
-	rightWall->scale = point3( 2, 4, 2 );
+	rightWall->position = point3( -5, 4, 3 );
+	rightWall->scale = point3( 4, 4, 4 );
 	scene->Add( rightWall );
-	shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
-	ceiling->position = point3( 0, 6, 3 );
-	ceiling->scale = point3( 2, 2, 2 );
-	scene->Add( ceiling );
-	shared_ptr<Plane> bottom = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
-	bottom->position = point3( 0, 2, 3 );
-	bottom->scale = point3( 2, 2, 2 );
-	scene->Add( bottom );
-	shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	frontWall->position = point3( 0, 4, 4 );
-	frontWall->scale = point3( 2, 4, 2 );
-	scene->Add( frontWall );
+	//shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
+	//ceiling->position = point3( 0, 6, 3 );
+	//ceiling->scale = point3( 2, 2, 2 );
+	//scene->Add( ceiling );
+	//shared_ptr<Plane> bottom = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
+	//bottom->position = point3( 0, 2, 3 );
+	//bottom->scale = point3( 2, 2, 2 );
+	//scene->Add( bottom );
+	//shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	//frontWall->position = point3( 0, 4, 4 );
+	//frontWall->scale = point3( 2, 4, 2 );
+	//scene->Add( frontWall );
 
 
-	shared_ptr<Plane> slid1 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	slid1->position = point3( 0, 6, 2 );
-	slid1->scale = point3( 2, 0.5, 2 );
-	scene->Add( slid1 );
+	//shared_ptr<Plane> slid1 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	//slid1->position = point3( 0, 6, 2 );
+	//slid1->scale = point3( 2, 0.5, 2 );
+	//scene->Add( slid1 );
 
-	shared_ptr<Plane> slid2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	slid2->position = point3( 0, 4, 2 );
-	slid2->scale = point3( 2, 0.5, 2 );
-	scene->Add( slid2 );
+	//shared_ptr<Plane> slid2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	//slid2->position = point3( 0, 4, 2 );
+	//slid2->scale = point3( 2, 0.5, 2 );
+	//scene->Add( slid2 );
 
-	shared_ptr<Plane> slid3 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	slid3->position = point3( 0, 2, 2 );
-	slid3->scale = point3( 2, 0.5, 2 );
-	scene->Add( slid3 );
+	//shared_ptr<Plane> slid3 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	//slid3->position = point3( 0, 2, 2 );
+	//slid3->scale = point3( 2, 0.5, 2 );
+	//scene->Add( slid3 );
 
 	//shared_ptr<Plane> backWall2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
 	//backWall2->position = point3( 0, 4, 8 );
