@@ -89,8 +89,8 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 				{
 					vec3 wi;
-					SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
-					ray.direction = wi;
+					beta *= SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
+					ray.direction = wi;					
 					continue;
 				}
 				else
@@ -100,8 +100,8 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 					hit.point = ray.At(t);
 					//hit.normal = cross( ray.direction, wi );
 					hit.normal = RandomInsideUnitSphere();
-					/*if ( hit.normal.dot( ray.direction ) > 0.0f )
-						hit.normal = -hit.normal;*/
+					if ( hit.normal.dot( ray.direction ) > 0.0f )
+						hit.normal = -hit.normal;
 					hit.material = hit.volume->material;
 					foundIntersection = true;
 					beta *= Transmittance( ray, hit.material->sigmaT(), t );
@@ -121,7 +121,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			beta *= mCol;
+			beta *= mCol * 2;
 			break;
 		}
 		if ( mmat == MaterialType::MIRROR )

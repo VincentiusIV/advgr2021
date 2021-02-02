@@ -105,19 +105,29 @@ void Game::CreateBoxEnvironment()
 
 
 	shared_ptr<Plane> slid1 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	slid1->position = point3( 0, 6, 2 );
+	slid1->position = point3( 0, 2.5, 2 );
 	slid1->scale = point3( 2, 0.5, 2 );
 	scene->Add( slid1 );
 
 	shared_ptr<Plane> slid2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	slid2->position = point3( 0, 4, 2 );
+	slid2->position = point3( 0, 3.25, 2 );
 	slid2->scale = point3( 2, 0.5, 2 );
 	scene->Add( slid2 );
 
 	shared_ptr<Plane> slid3 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	slid3->position = point3( 0, 2, 2 );
+	slid3->position = point3( 0, 4, 2 );
 	slid3->scale = point3( 2, 0.5, 2 );
 	scene->Add( slid3 );
+
+	shared_ptr<Plane> slid4 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	slid4->position = point3( 0, 4.75, 2 );
+	slid4->scale = point3( 2, 0.5, 2 );
+	scene->Add( slid4 );
+
+	shared_ptr<Plane> slid5 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	slid5->position = point3( 0, 5.5, 2 );
+	slid5->scale = point3( 2, 0.5, 2 );
+	scene->Add( slid5 );
 
 	//shared_ptr<Plane> backWall2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
 	//backWall2->position = point3( 0, 4, 8 );
