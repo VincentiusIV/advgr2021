@@ -3,7 +3,7 @@
 // Methods mainly derived from -> Monte Carlo Methods for Volumetric Light Transport Simulation: https://cs.dartmouth.edu/wjarosz/publications/novak18monte.pdf
 // Also from https://giacomonazzaro.github.io/volume.html, and the book Physically Based Rendering.
 
-// Phase function e.g. Henyey-Greenstein
+// Henyey-Greenstein Phase function 
 // Where -1 < g < 1 is avg. cosine of the scattering directions and controls asymmetry of the phase function.
 // g < 0 == backwards scattering.
 // g > 0 == forward scattering.
@@ -14,26 +14,18 @@ float PhaseHG(float g, float cosTheta)
 	return inv4pi * ((1 - g * g) / (denom * sqrtf(denom)));
 }
 
-
 inline void CoordinateSystem( const vec3 &v1, vec3 *v2, vec3 *v3 )
 {
 	if ( std::abs( v1.x ) > std::abs( v1.y ) )
-		*v2 = vec3( -v1.z, 0, v1.x ) /
-			  std::sqrt( v1.x * v1.x + v1.z * v1.z );
+		*v2 = vec3( -v1.z, 0, v1.x ) / std::sqrt( v1.x * v1.x + v1.z * v1.z );
 	else
-		*v2 = vec3( 0, v1.z, -v1.y ) /
-			  std::sqrt( v1.y * v1.y + v1.z * v1.z );
+		*v2 = vec3( 0, v1.z, -v1.y ) / std::sqrt( v1.y * v1.y + v1.z * v1.z );
 	*v3 = cross( v1, *v2 );
 }
 
 inline vec3 SphericalDirection( float sinTheta, float cosTheta, float phi, const vec3 &x, const vec3 &y, const vec3 &z )
 {
 	return sinTheta * std::cos( phi ) * x + sinTheta * std::sin( phi ) * y + cosTheta * z;
-}
-
-float PhaseHG(float g, vec3 wo, vec3 wi)
-{
-	return PhaseHG( g, wo.dot( wi ) );
 }
 
 float SampleHG(vec3 wo, vec3 *wi, float e1, float e2, float g)
@@ -59,11 +51,6 @@ float Transmittance(Ray &ray, float sigmaT, float t)
 	return exp(-sigmaT * min(t, MaxFloat));
 }
 
-vec3 SamplePhaseFunction(vec3 direction, float g)
-{
-	return direction; //(SampleHG(g, Rand(1.0), Rand(1.0)));
-}
-
 static siv::PerlinNoise perlin;
 
 color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
@@ -85,19 +72,18 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 			t += scatterDist;
 			if ( scatterDist < ray.t )
 			{
-				ray = Ray( ray.origin, ray.direction, INFINITY, ray.depth + 1 );
 				vec3 wi;
 				float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
 				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 				{
-					ray.direction = wi;
+					ray = Ray( ray.At(scatterDist), wi, INFINITY, ray.depth + 1 );
 					continue;
 				}
 				else
 				{
 					// scatter against volume
 					hit.hitObject = hit.volume;
-					hit.point = ray.At(t);
+					hit.point = ray.origin;
 					hit.normal = cross( ray.direction, wi );
 					/*hit.normal = RandomInsideUnitSphere();
 					if ( hit.normal.dot( ray.direction ) > 0.0f )
