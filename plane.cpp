@@ -2,12 +2,12 @@
 
 Plane::Plane( shared_ptr<Material> material, vec3 normal ) : HittableObject( material ), planeNormal( normal ), width( INFINITY ), height( INFINITY )
 {
-
+	UpdateAABB();
 }
 
 Plane::Plane( shared_ptr<Material> material, vec3 normal, float width, float height ) : HittableObject( material ), planeNormal( normal ), width( width ), height( height )
 {
-
+	UpdateAABB();
 }
 
 bool Plane::Hit( Ray &ray, RayHit &hit )
@@ -17,11 +17,11 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 	{
 		vec3 p0l0 = ( position - ray.origin );
 		float t = dot( p0l0, planeNormal ) / (denom);
-		if ((t < ray.t) && (t > 0.0001f) )
+		if ( ( t < ray.t ) && ( t > 0.0001f ) && t < ray.tMax )
 		{
 			point3 I = ray.At( t );
-			vec3 toIntersation = ( I - ray.origin );
-			if ( toIntersation.sqrLentgh() > ray.tMax )
+			vec3 toIntersation = project ( I - position, planeNormal );
+			if ( fabs( toIntersation.x ) > scale.x / 2 || fabs( toIntersation.y ) > scale.y / 2 || fabs( toIntersation.z ) > scale.z / 2 )
 				return false;
 			ray.t = t;
 			hit.material = material;
@@ -43,5 +43,23 @@ bool Plane::Hit( Ray &ray, RayHit &hit )
 		}
 	}
 	return false;
+}
+
+void Plane::UpdateAABB()
+{
+	float halfScaleX = scale.x / 2;
+	float halfScaleY = scale.y / 2;
+	float halfScaleZ = scale.z / 2;
+	aabb.min = position - vec3(halfScaleX, halfScaleY, halfScaleZ);
+	aabb.max = position + vec3(halfScaleX, halfScaleY, halfScaleZ);
+}
+
+point3 Plane::GetRandomPoint()
+{
+	point3 p = position;
+	p.x += Rand( scale.x ) - scale.x / 2.0f;
+	p.y += Rand( scale.y ) - scale.y / 2.0f;
+	p.z += Rand( scale.z ) - scale.z / 2.0f;
+	return p;
 }
 	

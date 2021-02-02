@@ -13,9 +13,9 @@ enum class KeyCode
 	LEFT_ARROW = 80,
 	RIGHT_ARROW = 79,
 	UP_ARROW = 82,
-	DOWN_ARROW = 81
+	DOWN_ARROW = 81,
+	F1 = 58
 };
-
 class Game
 {
 public:
@@ -23,6 +23,7 @@ public:
   void Init();
   void ClearColorBuffer();
 	void CreateBoxEnvironment();
+	void CreateMeshEnvironment();
 	void Shutdown();
 	void Tick( float deltaTime );
 	void PrintDebugInfo( float deltaTime );

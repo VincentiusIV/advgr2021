@@ -11,7 +11,10 @@ public:
 		position += delta;
 		UpdateTRS();
 	}
-	virtual void UpdateTRS() { localToWorldMatrix = mat4::trs( position, rotation, scale ); }
+
 	point3 position, rotation, scale;
 	mat4 localToWorldMatrix;
+
+protected:
+	virtual void UpdateTRS() { localToWorldMatrix = mat4::trs( position, rotation, scale ); }
 };

@@ -91,6 +91,16 @@ vec3 RandomInsideUnitSphere()
 	return normalize(vec3( Rand( 2.0f ) - 1.0f, Rand( 2.0f ) - 1.0f, Rand( 2.0f ) - 1.0f )); 
 }
 
+const vec3 MinPerAxis( const vec3 &a, const vec3 &b )
+{
+	return vec3( min( a.x, b.x ), min( a.y, b.y ), min( a.z, b.z ) );
+}
+
+const vec3 MaxPerAxis( const vec3 &a, const vec3 &b )
+{
+	return vec3( max( a.x, b.x ), max( a.y, b.y ), max( a.z, b.z ) );
+}
+
 mat4 mat4::rotate( const vec3 l, const float a )
 {
 	// http://inside.mines.edu/fs_home/gmurray/ArbitraryAxisRotation
