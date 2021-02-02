@@ -3,7 +3,7 @@
 
 
 //initial values
-int nrPhotons = 2000; //TODO: eventually light sensitive (now its 100 per light)
+int nrPhotons = 2000; //TODO: eventually light sensitive 
 int nrBounces = 6;	 //cap on amount of bounces (photon is stopped by RR or this)
 int estimateP = 20;	 //the photon estimate in the radiance around point x
 int estimateR = 1;	 //the radiance around point x with photon estimate
@@ -12,6 +12,7 @@ int estimateR = 1;	 //the radiance around point x with photon estimate
 int maxStack = nrPhotons * nrBounces; //Q: * nr of lights?
 int topStack = -1;
 photon *photonmap = new photon[maxStack];
+photon *causticmap = new photon[maxStack]; //send specific to glass ball
 
 //stack pusher for photonmap 
 void PhotonMap::push( photon i )
@@ -21,6 +22,7 @@ void PhotonMap::push( photon i )
 		photonmap[++topStack] = i;
 	}
 }
+
 
 //Q: is survive/die correct?
 bool PhotonMap::RussianRoulette(color &mCol)
@@ -35,18 +37,13 @@ bool PhotonMap::RussianRoulette(color &mCol)
 }
 
 //TODO: need a global photon map & caustic photon map
-
-//HINT: difference between ray tracing and photon tracing: photons propagate flux while rays gather radiance.
-
 //Q: do I have to add &? behind the things???
 
-// PHASE 1
+// -- PHASE 1 --
 
 //photon emittance from a light
 void PhotonMap::photonEmittanceLight(Ray ray ) 
-{
-	//for ( int i = 0; i < scene->lights.size(); i++ )
-	//{
+{	
 	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject(); //TODO: is only one light
 
 	for ( int i = 0; i < nrPhotons; i++ )
@@ -57,7 +54,7 @@ void PhotonMap::photonEmittanceLight(Ray ray )
 		point3 randPointL = randLight->GetRandomPoint();
 		vec3 lightNormal = randLight->GetNormalAtPoint( randPointL );
 		
-		vec3 R = RandomInsideUnitSphere(); //Q: is this whole sphere or hemisphere?
+		vec3 R = RandomInsideUnitSphere();
 		if ( R.dot( lightNormal ) < 0.0 )
 			R = -R;
 		R = normalize( R );
@@ -67,17 +64,16 @@ void PhotonMap::photonEmittanceLight(Ray ray )
 		photon.L = R;
 					
 		//Send photon in random direction
-		Ray r( randPointL, R, INFINITY, ray.depth + 1 ); //Q: Can I just use rays???
+		Ray r( randPointL, R, INFINITY, ray.depth + 1 ); 
 		//Trace the photon
 		SampleP( r, hit,photon );
 	}
-	//}
 }
 
 //photon emittance from a surface
 void PhotonMap::photonEmittance( RayHit hit, photon photon, Ray ray)
 {
-	vec3 R = RandomInsideUnitSphere(); //Q: is this whole sphere or hemisphere?
+	vec3 R = RandomInsideUnitSphere();
 	if ( R.dot( hit.normal ) < 0.0 )
 		R = -R;
 	R = normalize( R );
@@ -103,14 +99,15 @@ void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 				photon.position = hit.point;
 				photon.power = mCol;		//Q: is this correct color?/energy?
 				photon.L = ray.direction;	//Q: is this one correct? or should it go away from the surface?
-				//store the location, energy and incident direction in photonmap
+				
 				push(photon) ; 
 
 				if (!RussianRoulette(mCol))
 				{
 					return; 
 				}
-				//Q: is this? -> send random direction: randomly chosen vector that is above the intersection point with a probability proportioinal to the cosine of the angle with the normal (also done with RR?)
+				//Q: a paper mentiones this? ->
+				//Q: randomly chosen vector that is above the intersection point with a probability proportioinal to the cosine of the angle with the normal (done with RR)
 				if (ray.depth <= nrBounces)
 				{
 					photonEmittance( hit, photon, ray );
@@ -124,11 +121,8 @@ void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 				//Q: how above thing?
 				//Q: is ray correct reflected below?
 				Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-					
-				//Q: do we need to change photon when reflecting? ex. red mirror?
-				//photon.power *= mCol; (?)
-			    //( ( 1.0 - hit.material->specularity ) * mCol ) + ( ( hit.material->specularity ) *
-				SampleP( r, hit, photon ) ;		//Color of the material -> Albedo		
+			
+				SampleP( r, hit, photon ) ;		
 				return;
 			}
 	}
@@ -158,10 +152,11 @@ function BuildkDtree(photons P)
 //HINT: 2 ways
 //1. Take a fixed size sphere and get all photons inside that sphere for estimate + weights
 //2. Take N photons closest to x and find the given radius r ->pi*r^2
-
 //HINT: radiance estimation -> at each non-specular path vertex we estimate the reflected radiance
+//NOTE: difference between ray tracing and photon tracing: photons propagate flux while rays gather radiance.
 
-// PHASE 2
+// -- PHASE 2 --
+
 //photonmaptracer
 color PhotonMap::Sample( Ray &ray, RayHit &hit )
 {
@@ -192,7 +187,6 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 
 		return photonDensity(ray, hit, BRDF);
 	}
-	//return color( 0, 0, 0 );
 	vec3 unit_direction = ray.direction;
 	auto t = 0.5 * ( -unit_direction.y + 1.0 );
 	color c = ( 1.0 - t ) * color( 1.0, 1.0, 1.0 ) + t * color( 0.5, 0.7, 1.0 );
@@ -202,12 +196,10 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 
  color PhotonMap::photonDensity( Ray &ray, RayHit hit, color BRDF )
 {
-	//RayHit hit;
 	color energy = (0,0,0);  //surface starts with 0 energy
 	int count = 1;
 	for (int i = 0; i < maxStack; i++)
 	{
-		//TODO: this doesn't check if inside surface...
 		float insideR = pow( ( photonmap[i].position.x - hit.point.x ), 2 ) + pow( ( photonmap[i].position.y - hit.point.y ), 2 ) + pow( ( photonmap[i].position.z - hit.point.z ), 2 );
 		
 		//inside 'density sphere'
@@ -215,10 +207,9 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 		{
 			//filter from slides
 			float weightfilter = 0.918 * fabs( 1 - (1-exp(-1.953* (insideR/2*pow(estimateR,2) )) ) / (1-exp(-1.953) ) ); 
-		    //max( 0.0f,(1 - sqrt( insideR )/(1*estimateR))); //Q: correct??
+		    //max( 0.0f,(1 - sqrt( insideR )/(1*estimateR))); //Q: weight from paper(?)
 
 			//add to energy
-			//light equation: brdf * flux(?) *weightfilter;
 			energy += photonmap[i].power *weightfilter;
 			count++;
 		}
