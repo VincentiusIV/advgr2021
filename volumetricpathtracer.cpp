@@ -46,7 +46,7 @@ float SampleHG(vec3 wo, vec3 *wi, float e1, float e2, float g)
 	return PhaseHG( g, cosTheta );
 }
 
-float Transmittance(Ray &ray, float sigmaT, float t)
+float Transmittance(float sigmaT, float t)
 {
 	return exp(-sigmaT * min(t, MaxFloat));
 }
@@ -66,33 +66,33 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 		{
 			// Ray march through volume
 			shared_ptr<Material> volumeMat = hit.volume->material;
-			vec3 p = ray.origin;
 			float density = volumeMat->g; 
 			float scatterDist = abs( log( Rand( 1.0 ) ) ) / density;
+			vec3 p = ray.At(scatterDist);
 			t += scatterDist;
-			if ( scatterDist < ray.t )
+
+			vec3 wi;
+			float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
+			if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 			{
-				vec3 wi;
-				float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
-				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
+				if ( scatterDist < ray.t )
 				{
-					ray = Ray( ray.At(scatterDist), wi, INFINITY, ray.depth + 1 );
+					ray = Ray( p, wi, INFINITY, ray.depth + 1 );
 					continue;
 				}
-				else
-				{
-					// scatter against volume
-					hit.hitObject = hit.volume;
-					hit.point = ray.origin;
-					hit.normal = cross( ray.direction, wi );
-					/*hit.normal = RandomInsideUnitSphere();
-					if ( hit.normal.dot( ray.direction ) > 0.0f )
-						hit.normal = -hit.normal;*/
-					hit.material = hit.volume->material;
-					foundIntersection = true;
-					beta *= Transmittance( ray, hit.material->sigmaT(), t );
-				}
-			}			
+			}
+			else
+			{
+				hit.hitObject = hit.volume;
+				hit.point = ray.origin;
+				//hit.normal = cross( ray.direction, wi );
+				hit.normal = RandomInsideUnitSphere();
+				if ( hit.normal.dot( ray.direction ) > 0.0f )
+					hit.normal = -hit.normal;
+				hit.material = hit.volume->material;
+				foundIntersection = true;
+				beta *= Transmittance( volumeMat->sigmaT(), t );
+			}
 		}
 
 		if ( !foundIntersection )
@@ -179,10 +179,8 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 				float dist = L.length();
 				L = normalize( L );
 				point3 so = hit.point + L * EPSILON;
-				float tmax = dist - 2.0f * EPSILON;
-				Ray shadowRay( so, L, INFINITY, maxDepth );
+				Ray shadowRay( so, L, INFINITY, 0 );
 				RayHit shadowHit;
-				color directColor;
 				bool direct = false;
 				if ( Trace( shadowRay, shadowHit ) )
 				{
@@ -199,12 +197,11 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 						}
 					}
 				}
-				// Scale up the color
-				beta *= 2.0f;
 				if ( !direct )
 					beta *= 0.0f;
-				break;
 			}
+			// Scale up the color
+			beta *= 2.0f;
 		}
 		else
 		{
@@ -212,6 +209,8 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 			break;
 		}
 		
+		if ( beta.length() == 0.0f )
+			break;
 	}
 
 	return beta;

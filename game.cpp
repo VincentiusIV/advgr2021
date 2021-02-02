@@ -30,7 +30,7 @@ void Game::Init()
 	CreateBoxEnvironment();
 
 	//raytracer = new WhittedRayTracer(scene, 7);
-	raytracer = new VolumetricPathTracer( scene, 14 );
+	raytracer = new VolumetricPathTracer( scene, 24 );
 }
 
 void Tmpl8::Game::ClearColorBuffer()
@@ -90,9 +90,9 @@ void Game::CreateBoxEnvironment()
 	//rightWall->position = point3( -1, 4, 3 );
 	//rightWall->scale = point3( 2, 4, 2 );
 	//scene->Add( rightWall );
-	//shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
-	//ceiling->position = point3( 0, 6, 3 );
-	//ceiling->scale = point3( 2, 2, 2 );
+	shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	ceiling->position = point3( 0, 3, 2 );
+	ceiling->scale = point3( 3, 10, 1 );
 	//scene->Add( ceiling );
 	//shared_ptr<Plane> bottom = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
 	//bottom->position = point3( 0, 2, 3 );
