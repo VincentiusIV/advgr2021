@@ -18,10 +18,10 @@ static int maxBvhDepth = 100;
 void Game::Init()
 {
 	scene = new Scene();
-	scene->GetCamera()->Translate( vec3( 3, 2.5, -1) );
-	scene->GetCamera()->Rotate( vec3( 0.0, -45, 0.0 ) );
+	scene->GetCamera()->Translate( vec3( 0, 2.5, -2) );
+	scene->GetCamera()->Rotate( vec3( 0.0, 0.0, 0.0 ) );
 
-	Scene::BRUTE_FORCE = true;
+	Scene::BRUTE_FORCE = false;
 	MeshObject::BRUTE_FORCE = false;
 
 	colorBuffer = (color*)MALLOC64(SCRWIDTH * SCRHEIGHT * sizeof(color));
@@ -74,7 +74,7 @@ void Game::CreateBoxEnvironment()
 	// Floors & Walls
 	shared_ptr<Plane> groundFloor = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
 	groundFloor->position = point3( 0, 0, 0.0 );
-	groundFloor->scale = point3( 100, 1, 100 );
+	groundFloor->scale = point3( 1000, 1, 1000 );
 	scene->Add( groundFloor );
 
 	//shared_ptr<Plane> leftWall = make_shared<Plane>( blueOpaque, vec3( 0.5, 0.5, 0), 3, 3 );
@@ -135,9 +135,12 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( backWall2 );
 
 	//// Spheres
-	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, .7 );
-	//baseSphere->position = point3( -1.7, -2.3, 1.5 );
-	//scene->Add( baseSphere );
+	shared_ptr<Sphere> baseSphere = make_shared<Sphere>( textureDiffuse, 1.0 );
+	baseSphere->position = point3( 2.5, 1.0, 2 );
+	scene->Add( baseSphere );
+	//shared_ptr<Sphere> baseSphere2 = make_shared<Sphere>( groundMirror, 2.0 );
+	//baseSphere2->position = point3( -6, 2, 6 );
+	//scene->Add( baseSphere2 );
 
 	//shared_ptr<Sphere> baseSphere1 = make_shared<Sphere>( glass, 1 );
 	//baseSphere1->position = point3( 1.5, -1.5, 1.5 );
@@ -148,12 +151,31 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( baseSphere2 );
 
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
-	sphere1->position = point3( -2.5, 1.5, 1 );
-	scene->Add(sphere1);
+	sphere1->position = point3( -2.5, 1.0, 2 );
+	//scene->Add(sphere1);
 
-	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
-	sphere2->position = point3( 2, 1, 6);
-	scene->Add( sphere2 );
+	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
+	//sphere2->position = point3( 2, 1, 6);
+	//scene->Add( sphere2 );
+
+//	vector<shared_ptr<MeshObject>> meshObject1 = MeshLoader::Load( "assets/alien/Alien Animal_front_redux.obj" );
+//
+//#pragma omp parallel for schedule( dynamic, 1 )
+//	for ( int i = 0; i < meshObject1.size(); i++ )
+//	{
+//		shared_ptr<MeshObject> current = meshObject1.at( i );
+//		current->position = point3( 0, 0, 9 );
+//		current->rotation = vec3( 0, 180, 0 );
+//		current->scale = point3( 0.32 );
+//		current->UpdateTRS();
+//		if ( !MeshObject::BRUTE_FORCE )
+//			current->subbvh->ConstructBVH();
+//	}
+//	for ( size_t i = 0; i < meshObject1.size(); i++ )
+//	{
+//		shared_ptr<MeshObject> current = meshObject1.at( i );
+//		scene->Add( current );
+//	}
 
 	//shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
 	//sphere4->position = point3( -2.5, 1.5, 2.5 );
@@ -163,8 +185,8 @@ void Game::CreateBoxEnvironment()
 	//lightSphere2->position = point3( 5, 4, -5 );
 	//scene->Add( lightSphere2 );
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.9 );
-	lightSphere->position = point3( 0, 4, 3 );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 1.0 );
+	lightSphere->position = point3( 0, 2, 5 );
 	scene->Add( lightSphere );
 
 	// TODO: Fix Plane Area Lights
@@ -185,6 +207,9 @@ void Game::CreateBoxEnvironment()
 	}
 
 	scene->Init();
+
+	printf( "* * * Initialization finished * * *" );
+	
 }
 
 void Tmpl8::Game::CreateMeshEnvironment()

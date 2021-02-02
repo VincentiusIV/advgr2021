@@ -12,4 +12,5 @@ class VolumetricPathTracer : public RayTracer
 	VolumetricPathTracer( Scene *scene, int maxDepth ) : RayTracer( scene, maxDepth ) { }
 	color Sample( Ray &ray, RayHit &hit );
 
+	color DirectIllumination( point3 &point, vec3 &normal, color &BRDF );
 };
