@@ -64,7 +64,7 @@ vec3 SamplePhaseFunction(vec3 direction, float g)
 	return direction; //(SampleHG(g, Rand(1.0), Rand(1.0)));
 }
 
-static siv::PerlinNoise perlin;
+//static siv::PerlinNoise perlin;
 
 color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 {

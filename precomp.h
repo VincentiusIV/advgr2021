@@ -91,4 +91,4 @@ using color = vec3;
 #include "bvh.h"
 #include "scenebvh.h"
 #include "trianglebvh.h"
-#include "perlinnoise.h"
+//#include "perlinnoise.h"

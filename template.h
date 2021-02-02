@@ -53,6 +53,7 @@ inline float Rand( float range ) { return RandomFloat() * range; }
 template <typename T = float>
 inline T Lerp(const T& a, const T& b, const T& t) {	return a * ( 1 - t ) + b * t; }
 inline float Smoothstep( const float &t ) { return t * t * ( 3 - 2 * t ); }
+inline float Clamp( const float &v, const float &min, const float &max ) { return fmax( min, fmin( v, max ) ); }
 
 namespace Tmpl8 {
 

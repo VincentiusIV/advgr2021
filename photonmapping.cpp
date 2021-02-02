@@ -44,7 +44,7 @@ class PhotonMap : public RayTracer
 
 	bool RussianRoulette(color &mCol)
 	{
-		float pSurvival = clamp( max(mCol.x, mCol.y, mCol.z), 0.0f, 1.0f ); //TODO: I don't understand pointers or this errors 
+		float pSurvival = Clamp( fmax( mCol.x, fmax( mCol.y, mCol.z ) ), 0.0f, 1.0f ); //TODO: I don't understand pointers or this errors 
 		if ( pSurvival < Rand( 1.0 ) )
 		{
 			return true; //survives
