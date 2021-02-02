@@ -128,7 +128,7 @@ void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 				//Q: do we need to change photon when reflecting? ex. red mirror?
 				//photon.power *= mCol; (?)
 			    //( ( 1.0 - hit.material->specularity ) * mCol ) + ( ( hit.material->specularity ) *
-			    SampleP( r, hit, photon ) ;		//Color of the material -> Albedo		
+				SampleP( r, hit, photon ) ;		//Color of the material -> Albedo		
 				return;
 			}
 	}
@@ -162,9 +162,7 @@ function BuildkDtree(photons P)
 //HINT: radiance estimation -> at each non-specular path vertex we estimate the reflected radiance
 
 // PHASE 2
-
-//TODO: add pathtracer sample, vervang diffuse met photonDensity (ipv licht)
-
+//photonmaptracer
 color PhotonMap::Sample( Ray &ray, RayHit &hit )
 {
 	color BRDF;
@@ -178,7 +176,6 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			//return photonDensity( ray, hit, mCol ); // ?? mCol;
 			return mCol;							
 		}
 		if ( mmat == MaterialType::MIRROR )
@@ -206,7 +203,8 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
  color PhotonMap::photonDensity( Ray &ray, RayHit hit, color BRDF )
 {
 	//RayHit hit;
-	color energy = (1,0,0);  //surface starts with 0 energy
+	color energy = (0,0,0);  //surface starts with 0 energy
+	int count = 1;
 	for (int i = 0; i < maxStack; i++)
 	{
 		//TODO: this doesn't check if inside surface...
@@ -221,9 +219,10 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 
 			//add to energy
 			//light equation: brdf * flux(?) *weightfilter;
-			energy += BRDF * photonmap[i].power *weightfilter;
+			energy += photonmap[i].power *weightfilter;
+			count++;
 		}
 	}
-	return energy;
+	return (BRDF * energy)/count;
 }
 
