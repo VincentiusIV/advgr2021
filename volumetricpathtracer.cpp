@@ -36,7 +36,7 @@ float PhaseHG(float g, vec3 wo, vec3 wi)
 	return PhaseHG( g, wo.dot( wi ) );
 }
 
-vec3 SampleHG(vec3 wo, vec3 *wi, float e1, float e2, float g)
+float SampleHG(vec3 wo, vec3 *wi, float e1, float e2, float g)
 {
 	float cosTheta;
 	if ( abs( g ) < 1e-3 )
@@ -79,18 +79,18 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 		{
 			// Ray march through volume
 			shared_ptr<Material> volumeMat = hit.volume->material;
-			float density = volumeMat->g; //volumeMat->g;  *
-			float scatterDist = abs(log( Rand( 1.0 ) )) / density;
+			vec3 p = ray.origin;
+			float density = volumeMat->g; 
+			float scatterDist = abs( log( Rand( 1.0 ) ) ) / density;
 			t += scatterDist;
 			if ( scatterDist < ray.t )
 			{
-				ray = Ray( ray.origin, ray.direction, INFINITY, 0 );
-
+				ray = Ray( ray.origin, ray.direction, INFINITY, ray.depth + 1 );
+				vec3 wi;
+				float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
 				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 				{
-					vec3 wi;
-					beta *= SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
-					ray.direction = wi;					
+					ray.direction = wi;
 					continue;
 				}
 				else
@@ -98,10 +98,10 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 					// scatter against volume
 					hit.hitObject = hit.volume;
 					hit.point = ray.At(t);
-					//hit.normal = cross( ray.direction, wi );
-					hit.normal = RandomInsideUnitSphere();
+					hit.normal = cross( ray.direction, wi );
+					/*hit.normal = RandomInsideUnitSphere();
 					if ( hit.normal.dot( ray.direction ) > 0.0f )
-						hit.normal = -hit.normal;
+						hit.normal = -hit.normal;*/
 					hit.material = hit.volume->material;
 					foundIntersection = true;
 					beta *= Transmittance( ray, hit.material->sigmaT(), t );
@@ -121,7 +121,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			beta *= mCol * 2;
+			beta *= mCol;
 			break;
 		}
 		if ( mmat == MaterialType::MIRROR )
