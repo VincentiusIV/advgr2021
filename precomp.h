@@ -91,4 +91,5 @@ using color = vec3;
 #include "bvh.h"
 #include "scenebvh.h"
 #include "trianglebvh.h"
+#include "photonmapping.h"
 //#include "perlinnoise.h"

@@ -4,6 +4,7 @@ class HittableObject;
 class Camera;
 class Light;
 class BVH;
+class PhotonMap;
 
 class Scene
 {
@@ -21,7 +22,7 @@ class Scene
 	vector<shared_ptr<Light>> lights;
 	BVH *bvh;
 
-	//PhotonMap *photonmap;
+	PhotonMap *photonmap;
 
   private:	
 	shared_ptr<Camera> camera;

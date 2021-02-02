@@ -44,6 +44,7 @@
     <ClInclude Include="aabb.h" />
     <ClInclude Include="volumetricpathtracer.h" />
     <ClInclude Include="perlinnoise.h" />
+    <ClInclude Include="photonmapping.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />

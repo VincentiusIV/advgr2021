@@ -27,13 +27,10 @@ color PathTracer::Sample( Ray &ray, RayHit &hit )
 
 		BRDF = mCol / PI;
 		if ( photonmapOn ) //can be changed in raytracer.h
-		{
-			//pm = new PhotonMap();
-			//photonmap = scene->PhotonMap;
-			//PhotonMap pm();
-			//pm.photonDensity();
-			//PhotonMap::photonDensity();
-			//return photonDensity( ray, hit, BRDF );
+		{			
+			pm = new PhotonMap(scene);
+			pd = pm->photonDensity();
+			return photonDensity( ray, hit, BRDF );
 		}
 		else
 		{

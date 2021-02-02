@@ -150,6 +150,7 @@
     <ClInclude Include="objloader.h" />
     <ClInclude Include="pathtracer.h" />
     <ClInclude Include="perlinnoise.h" />
+    <ClInclude Include="photonmapping.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="precomp.h" />
     <ClInclude Include="ray.h" />
