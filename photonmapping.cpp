@@ -49,7 +49,8 @@ void PhotonMap::photonEmittanceLight( Ray ray ) //TODO: take a light or put for 
 
 	for (int i = 0; i < nrPhotons; i++)
 	{
-		photon photon; 
+		//photon photon; 
+		RayHit hit;
 		
 		point3 randPointL = randLight->GetRandomPoint();
 		vec3 lightNormal = randLight->GetNormalAtPoint( randPointL );
@@ -62,7 +63,7 @@ void PhotonMap::photonEmittanceLight( Ray ray ) //TODO: take a light or put for 
 		//Send photon in random direction
 		Ray r( randPointL, R, INFINITY, ray.depth + 1 ); //Q: Can I just use rays???
 		//Trace the photon
-		SamplePhoton( r, photon );
+		Sample( r, hit );
 	}
 }
 
@@ -77,13 +78,22 @@ void PhotonMap::photonEmittance( RayHit hit, photon photon, Ray ray)
 	//Send photon in random direction
 	Ray r( hit.point, R, INFINITY, ray.depth + 1 );
 	//Trace photon
-	SamplePhoton( r, photon );
+	Sample( r, hit );
+}
+
+//default sample(?????)
+//TODO: fix this
+color PhotonMap::Sample( Ray &ray, RayHit &hit )
+{
+	photon photon;
+	SampleP( ray, hit, photon );
+	return ( 0, 0, 0 );
 }
 
 //See if photon hits surface -> yes, store in photonmap
-void PhotonMap::SamplePhoton(Ray &ray, photon photon)
+void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 {
-	RayHit hit;
+	//RayHit hit;
 	if (Trace (ray, hit))
 	{
 			shared_ptr<Material> mat = hit.material;
@@ -120,7 +130,7 @@ void PhotonMap::SamplePhoton(Ray &ray, photon photon)
 				//Q: do we need to change photon when reflecting? ex. red mirror?
 				//photon.power *= mCol; (?)
 			    //( ( 1.0 - hit.material->specularity ) * mCol ) + ( ( hit.material->specularity ) *
-			    SamplePhoton( r, photon ) ;		//Color of the material -> Albedo		
+			    SampleP( r, hit, photon ) ;		//Color of the material -> Albedo		
 				return;
 			}
 	}
@@ -155,7 +165,7 @@ function BuildkDtree(photons P)
 
 // PHASE 2
 
-const color photonDensity(Ray &ray, RayHit hit, color BRDF)
+const color photonDensity( Ray &ray, RayHit hit, color BRDF )
 {
 	//RayHit hit;
 	color energy = (0,0,0);  //surface starts with 0 energy

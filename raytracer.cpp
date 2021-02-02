@@ -42,25 +42,35 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 
 color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 {
-	color illumination = baseIllumination;
-	for ( size_t i = 0; i < scene->lights.size(); i++ )
+	if (photonmapOn)
 	{
-		shared_ptr<Light> light = scene->lights.at( i );
-		Ray shadowRay = light->CastShadowRayFrom(point);
-		RayHit hit;
-		if (Trace(shadowRay, hit, MaterialType::EMISSIVE))
-		{
-			continue;
-		}
-		else
-		{
-			illumination += light->Illuminate( point, normal, shadowRay );
-		}
+		//use photonmap
+		PhotonMap pm;
+		//return pm.photonDensity( ray, hit, BRDF );
 	}
-	illumination.x = clamp( illumination.x, 0.0f, 1.0f );
-	illumination.y = clamp( illumination.y, 0.0f, 1.0f );
-	illumination.z = clamp( illumination.z, 0.0f, 1.0f );
-	return illumination;
+	else
+	{
+
+		color illumination = baseIllumination;
+		for ( size_t i = 0; i < scene->lights.size(); i++ )
+		{
+			shared_ptr<Light> light = scene->lights.at( i );
+			Ray shadowRay = light->CastShadowRayFrom( point );
+			RayHit hit;
+			if ( Trace( shadowRay, hit, MaterialType::EMISSIVE ) )
+			{
+				continue;
+			}
+			else
+			{
+				illumination += light->Illuminate( point, normal, shadowRay );
+			}
+		}
+		illumination.x = clamp( illumination.x, 0.0f, 1.0f );
+		illumination.y = clamp( illumination.y, 0.0f, 1.0f );
+		illumination.z = clamp( illumination.z, 0.0f, 1.0f );
+		return illumination;
+	}
 }
 
 color WhittedRayTracer::Sample( Ray &ray, RayHit &hit )

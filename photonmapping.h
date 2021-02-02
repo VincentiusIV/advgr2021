@@ -18,14 +18,16 @@ struct photon
 class PhotonMap : public RayTracer
 {
   public:
-	PhotonMap(Scene *scene) : RayTracer( scene, maxDepth ) {} //correct arguments??
+	PhotonMap( Scene *scene, int maxDepth ) : RayTracer( scene, maxDepth ) {} //correct arguments??
+	PhotonMap(); //dont understand but fix? TODO: fix fix
 	void push( photon i );
 	bool RussianRoulette( color &mCol );
 	void photonEmittanceLight( Ray ray );
 	void photonEmittance( RayHit hit, photon photon, Ray ray );
-	void SamplePhoton( Ray &ray, photon photon );
-	const color photonDensity( Ray &ray, RayHit hit, color BRDF );
-
+	void SampleP( Ray &ray, RayHit &hit, photon photon );
+	color Sample( Ray &ray, RayHit &hit );
+	const color photonDensity( Ray &ray, RayHit hit, color BRDF ) const;
+	
 
 };
 

@@ -17,8 +17,9 @@ void Scene::Init()
 		bvh = new SceneBVH( this, objects.size() );
 		bvh->ConstructBVH();
 	}
-	photonmap = new PhotonMap(this);
-	//photonmap->photonDensity(&ray, hit, BRDF);
+
+	//photonmap = new PhotonMap(this);
+	
 }
 
 
