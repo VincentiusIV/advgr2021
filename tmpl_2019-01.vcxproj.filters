@@ -11,6 +11,7 @@
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp" />
     <ClCompile Include="raytracer.cpp" />
+    <ClCompile Include="photonmapping.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />

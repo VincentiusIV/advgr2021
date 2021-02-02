@@ -121,6 +121,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="meshobject.cpp" />
     <ClCompile Include="pathtracer.cpp" />
+    <ClCompile Include="photonmapping.cpp" />
     <ClCompile Include="plane.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="scene.cpp" />

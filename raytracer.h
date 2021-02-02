@@ -17,6 +17,7 @@ class RayTracer
 	const color &HandleDielectricMaterial( Ray &ray, RayHit &hit);
 	Scene *scene;
 	int maxDepth;
+	bool photonmapOn = true;
 };
 
 class WhittedRayTracer : public RayTracer
@@ -35,3 +36,4 @@ class WhittedRayTracer : public RayTracer
 
 	color baseIllumination = color( 0.05f, 0.05f, 0.05f );
 };
+

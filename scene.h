@@ -19,4 +19,5 @@ class Scene
 	vector<shared_ptr<Light>> lights;
   private:	
 	shared_ptr<Camera> camera;
+	PhotonMap* photonmap;
 };

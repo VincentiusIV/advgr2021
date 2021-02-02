@@ -34,3 +34,4 @@ shared_ptr<HittableObject> Scene::GetRandomEmissiveObject()
 		randIdx = emissiveObjects.size() - 1;
 	return emissiveObjects.at( randIdx );
 }
+

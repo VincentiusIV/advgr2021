@@ -1,6 +1,6 @@
 #include "precomp.h"
 
-color PathTracer::Sample(Ray &ray)
+	color PathTracer::Sample(Ray &ray)
 {
 	color BRDF;
 	RayHit hit;
@@ -27,8 +27,22 @@ color PathTracer::Sample(Ray &ray)
 		}
 
 		BRDF = mCol / PI;
-		return LitMethod1( ray, hit, BRDF );
-		//return LitMethod2( ray, hit, BRDF );
+
+		if (photonmapOn) //can be changed in raytracer.h
+		{
+			//pm = new PhotonMap();
+			photonmap = scene->PhotonMap;
+			PhotonMap pm();
+			pm.photonDensity(); 
+			PhotonMap::photonDensity();
+			return photonDensity( ray, hit, BRDF );
+		}
+		else
+		{
+			return LitMethod1( ray, hit, BRDF );
+			//return LitMethod2( ray, hit, BRDF );
+		}
+		
 	}
 	vec3 unit_direction = ray.direction;
 	auto t = 0.5 * ( -unit_direction.y + 1.0 );
