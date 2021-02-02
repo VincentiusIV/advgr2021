@@ -21,7 +21,8 @@ class Scene
 	vector<shared_ptr<Light>> lights;
 	BVH *bvh;
 
+	//PhotonMap *photonmap;
+
   private:	
 	shared_ptr<Camera> camera;
-	PhotonMap* photonmap;
 };

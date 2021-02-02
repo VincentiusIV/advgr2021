@@ -18,7 +18,7 @@ class RayTracer
 	const color &HandleDielectricMaterial( Ray &ray, RayHit &hit);
 	Scene *scene;
 	int maxDepth;
-	bool photonmapOn = true;
+	bool photonmapOn = false;
 	bool useSkybox = true;
 };
 

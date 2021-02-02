@@ -26,10 +26,22 @@ color PathTracer::Sample( Ray &ray, RayHit &hit )
 		}
 
 		BRDF = mCol / PI;
-		RayHit indirectHit, directHit;
-		color indirectColor = IndirectIllumination( ray, hit, BRDF, indirectHit );
-		color directColor = DirectIllumiation( ray, hit, BRDF, directHit);
-		return ( directColor + indirectColor ) / 2;
+		if ( photonmapOn ) //can be changed in raytracer.h
+		{
+			//pm = new PhotonMap();
+			//photonmap = scene->PhotonMap;
+			//PhotonMap pm();
+			//pm.photonDensity();
+			//PhotonMap::photonDensity();
+			//return photonDensity( ray, hit, BRDF );
+		}
+		else
+		{
+			RayHit indirectHit, directHit;
+			color indirectColor = IndirectIllumination( ray, hit, BRDF, indirectHit );
+			color directColor = DirectIllumiation( ray, hit, BRDF, directHit );
+			return ( directColor + indirectColor ) / 2;
+		}
 	}
 	//return color( 0, 0, 0 );
 	vec3 unit_direction = ray.direction;
