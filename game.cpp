@@ -185,7 +185,7 @@ void Game::CreateBoxEnvironment()
 	//lightSphere2->position = point3( 5, 4, -5 );
 	//scene->Add( lightSphere2 );
 
-	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 1.0 );
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.6 );
 	lightSphere->position = point3( 0, 2, 5 );
 	scene->Add( lightSphere );
 

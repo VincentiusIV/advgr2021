@@ -51,6 +51,11 @@ float Transmittance(float sigmaT, float t)
 	return exp(-sigmaT * min(t, MaxFloat));
 }
 
+inline double sampleSegment( double epsilon, float sigma, float smax )
+{
+	return -log( 1.0 - epsilon * ( 1.0 - exp( -sigma * smax ) ) ) / sigma;
+}
+
 static siv::PerlinNoise perlin;
 
 color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
@@ -66,13 +71,13 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 		{
 			// Ray march through volume
 			shared_ptr<Material> volumeMat = hit.volume->material;
-			float density = volumeMat->g; 
-			float scatterDist = abs( log( Rand( 1.0 ) ) ) / density;
+			//float scatterDist = abs( log( Rand( 1.0 ) ) ) / volumeMat->sigmaS;
+			float scatterDist = sampleSegment( RandomFloat(), volumeMat->sigmaS, ray.t );
 			vec3 p = ray.At(scatterDist);
 			t += scatterDist;
 
 			vec3 wi;
-			float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
+			float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), volumeMat->g );
 			if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 			{
 				if ( scatterDist < ray.t )
@@ -83,16 +88,16 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 			}
 			else
 			{
-				hit.hitObject = hit.volume;
-				hit.point = ray.origin;
-				//hit.normal = cross( ray.direction, wi );
-				hit.normal = RandomInsideUnitSphere();
-				if ( hit.normal.dot( ray.direction ) > 0.0f )
-					hit.normal = -hit.normal;
-				hit.material = hit.volume->material;
-				foundIntersection = true;
-				beta *= Transmittance( volumeMat->sigmaT(), t );
+				//hit.hitObject = hit.volume;
+				//hit.point = p;
+				////hit.normal = cross( ray.direction, wi );
+				//hit.normal = RandomInsideUnitSphere();
+				//if ( hit.normal.dot( ray.direction ) > 0.0f )
+				//	hit.normal = -hit.normal;
+				//hit.material = hit.volume->material;
+				//foundIntersection = true;
 			}
+			beta *= Transmittance( volumeMat->sigmaT(), scatterDist);
 		}
 
 		if ( !foundIntersection )
@@ -156,7 +161,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 		}
 		else if ( mmat == MaterialType::DIFFUSE || mmat == MaterialType::VOLUMETRIC )
 		{
-			color BRDF = mCol * INV_PI;
+			color BRDF = mCol * INV_PI * 2.0;
 
 			// Indirect
 			if ( Rand( 1.0f ) < 0.5f )
@@ -199,9 +204,10 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 				}
 				if ( !direct )
 					beta *= 0.0f;
+				break;
 			}
 			// Scale up the color
-			beta *= 2.0f;
+			//beta *= 2.0f;
 		}
 		else
 		{
