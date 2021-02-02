@@ -18,8 +18,8 @@ static int maxBvhDepth = 100;
 void Game::Init()
 {
 	scene = new Scene();
-	scene->GetCamera()->Translate( vec3( 0, 0, -2.5 ) );
-	scene->GetCamera()->Rotate( vec3( 0.0, 0.0, 0.0 ) );
+	scene->GetCamera()->Translate( vec3( 4, 2.5, -2.5 ) );
+	scene->GetCamera()->Rotate( vec3( 0.0, -45, 0.0 ) );
 
 	Scene::BRUTE_FORCE = true;
 	MeshObject::BRUTE_FORCE = false;
@@ -73,9 +73,14 @@ void Game::CreateBoxEnvironment()
 
 	// Floors & Walls
 	shared_ptr<Plane> groundFloor = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
-	groundFloor->position = point3( 0, -2.5, 0.0 );
+	groundFloor->position = point3( 0, -1, 0.0 );
 	groundFloor->scale = point3( 100, 1, 100 );
 	scene->Add( groundFloor );
+
+	//shared_ptr<Plane> leftWall = make_shared<Plane>( blueOpaque, vec3( 0.5, 0.5, 0), 3, 3 );
+	//leftWall->position = point3( 3, 3, 3 );
+	//leftWall->scale = point3( 2, 2, 2 );
+	//scene->Add( leftWall );
 
 	shared_ptr<Plane> leftWall = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
 	leftWall->position = point3( 1, 4, 3 );
@@ -89,19 +94,35 @@ void Game::CreateBoxEnvironment()
 	ceiling->position = point3( 0, 6, 3 );
 	ceiling->scale = point3( 2, 2, 2 );
 	scene->Add( ceiling );
+	shared_ptr<Plane> bottom = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
+	bottom->position = point3( 0, 2, 3 );
+	bottom->scale = point3( 2, 2, 2 );
+	scene->Add( bottom );
 	shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
 	frontWall->position = point3( 0, 4, 4 );
 	frontWall->scale = point3( 2, 4, 2 );
 	scene->Add( frontWall );
-	shared_ptr<Plane> backWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	backWall->position = point3( 0, 4, 2 );
-	backWall->scale = point3( 2, 4, 2 );
-	scene->Add( backWall );
 
-	shared_ptr<Plane> backWall2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	backWall2->position = point3( 0, 4, 8 );
-	backWall2->scale = point3( 100, 100, 100 );
-	scene->Add( backWall2 );
+
+	shared_ptr<Plane> slid1 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	slid1->position = point3( 0, 6, 2 );
+	slid1->scale = point3( 2, 0.5, 2 );
+	scene->Add( slid1 );
+
+	shared_ptr<Plane> slid2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	slid2->position = point3( 0, 4, 2 );
+	slid2->scale = point3( 2, 0.5, 2 );
+	scene->Add( slid2 );
+
+	shared_ptr<Plane> slid3 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	slid3->position = point3( 0, 2, 2 );
+	slid3->scale = point3( 2, 0.5, 2 );
+	scene->Add( slid3 );
+
+	//shared_ptr<Plane> backWall2 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	//backWall2->position = point3( 0, 4, 8 );
+	//backWall2->scale = point3( 100, 100, 100 );
+	//scene->Add( backWall2 );
 
 	//// Spheres
 	//shared_ptr<Sphere> baseSphere = make_shared<Sphere>( redOpaque, .7 );
@@ -116,13 +137,13 @@ void Game::CreateBoxEnvironment()
 	//baseSphere2->position = point3( -2.5, -1.5, 2.5 );
 	//scene->Add( baseSphere2 );
 
-	//shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
-	//sphere1->position = point3(0, 1.5, 2.5);
-	//scene->Add(sphere1);
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
+	sphere1->position = point3(2, 1, 2);
+	scene->Add(sphere1);
 
-	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
-	//sphere2->position = point3( 2.5, 1.5, 2.5 );
-	//scene->Add( sphere2 );
+	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
+	sphere2->position = point3( -2.5, 1, 2 );
+	scene->Add( sphere2 );
 
 	//shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
 	//sphere4->position = point3( -2.5, 1.5, 2.5 );
@@ -142,7 +163,7 @@ void Game::CreateBoxEnvironment()
 	//ceilingLight->scale = point3( 2, 1, 2 );
 	//scene->Add( ceilingLight );
 
-	// Volume
+	//// Volume
 	shared_ptr<Sphere> volume = make_shared<Sphere>( fog, 100 );
 	volume->position = point3( 0, 0, 0 );
 	scene->Add( volume );
@@ -188,7 +209,7 @@ void Tmpl8::Game::CreateMeshEnvironment()
 		scene->Add( current );
 	}
 }
- 
+
 // -----------------------------------------------------------
 // Close down application
 // -----------------------------------------------------------

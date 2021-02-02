@@ -148,6 +148,7 @@
     <ClInclude Include="meshobject.h" />
     <ClInclude Include="objloader.h" />
     <ClInclude Include="pathtracer.h" />
+    <ClInclude Include="perlinnoise.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="precomp.h" />
     <ClInclude Include="ray.h" />

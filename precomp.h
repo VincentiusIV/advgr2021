@@ -51,6 +51,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <functional>
 
 // Header for AVX, and every technology before it.
 // If your CPU does not support this, include the appropriate header instead.
@@ -90,3 +91,4 @@ using color = vec3;
 #include "bvh.h"
 #include "scenebvh.h"
 #include "trianglebvh.h"
+#include "perlinnoise.h"

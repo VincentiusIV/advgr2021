@@ -13,7 +13,6 @@ struct RayHit
 	shared_ptr<HittableObject> volume;
 	bool intersectsVolume;
 	bool isFrontFace;
-	float tNear, tFar;
 };
 
 class Ray

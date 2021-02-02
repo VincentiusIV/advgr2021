@@ -50,6 +50,9 @@ static constexpr float INV_PI = 1.0f / PI;
 inline uint RandomUInt() { seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5; return seed; }
 inline float RandomFloat() { return RandomUInt() * 2.3283064365387e-10f; }
 inline float Rand( float range ) { return RandomFloat() * range; }
+template <typename T = float>
+inline T Lerp(const T& a, const T& b, const T& t) {	return a * ( 1 - t ) + b * t; }
+inline float Smoothstep( const float &t ) { return t * t * ( 3 - 2 * t ); }
 
 namespace Tmpl8 {
 

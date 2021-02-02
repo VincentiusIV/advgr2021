@@ -50,7 +50,9 @@ class Material
 
 	color albedo;
 	float n = 1.0f, specularity = 1.0f, smoothness = 1.0f;
-	float sigmaS = 0.009, sigmaA = 0.006, g = 0.5;
+
+	float sigmaS = 0.009, sigmaA = 0.006, g = 0.3;
+
 	vec2 uvScale;
 	MaterialType materialType;
 	Surface* mainTex = NULL;

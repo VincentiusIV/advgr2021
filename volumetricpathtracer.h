@@ -9,6 +9,7 @@ class Material;
 class VolumetricPathTracer : public RayTracer
 {
   public:
-	VolumetricPathTracer( Scene *scene, int maxDepth ) : RayTracer( scene, maxDepth ) {}
+	VolumetricPathTracer( Scene *scene, int maxDepth ) : RayTracer( scene, maxDepth ) { }
 	color Sample( Ray &ray, RayHit &hit );
+
 };
