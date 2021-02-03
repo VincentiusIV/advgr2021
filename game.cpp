@@ -68,6 +68,7 @@ void Game::CreateBoxEnvironment()
 	shared_ptr<Material> checkerboard = make_shared<Material>(color(0.7, 0.7, 0.7), MaterialType::DIFFUSE);
 	checkerboard->isCheckerboard = true;
 	shared_ptr<Material> lightMaterial = make_shared<Material>(color(0.9, 1.0, 1.0), MaterialType::EMISSIVE);
+	lightMaterial->emission = color( 9, 10, 10 );
 	textureDiffuse->mainTex = new Surface( "assets/apartment/building_col_3.jpg" );
 	shared_ptr<Material> fog = make_shared<Material>( color( 0.9, 1.0, 1.0 ), MaterialType::VOLUMETRIC );
 
@@ -152,7 +153,7 @@ void Game::CreateBoxEnvironment()
 
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
 	sphere1->position = point3( -2.5, 1.0, 2 );
-	//scene->Add(sphere1);
+	scene->Add(sphere1);
 
 	//shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
 	//sphere2->position = point3( 2, 1, 6);

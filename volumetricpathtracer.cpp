@@ -62,18 +62,19 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 {
 	color beta( 1.0 );
 	Ray ray( r ), vRay(r);
-	float t = 0.0f;
+	float t = 0.0f, absorption = 1.0f;
+	bool insideGlass = false;
 	for ( int bounceIdx = 0; bounceIdx < maxDepth; bounceIdx++ )
 	{
 		RayHit hit;
 		bool foundIntersection = Trace(ray, hit);
-		if (hit.intersectsVolume)
+		if (hit.intersectsVolume && !insideGlass)
 		{
 			// Ray march through volume
 			shared_ptr<Material> volumeMat = hit.volume->material;
 			//float scatterDist = abs( log( Rand( 1.0 ) ) ) / volumeMat->sigmaS;
 			float scatterDist = sampleSegment( RandomFloat(), volumeMat->sigmaS, ray.t );
-			vec3 p = ray.At(scatterDist);
+			vec3 p = ray.origin; //ray.At(scatterDist);
 			t += scatterDist;
 
 			vec3 wi;
@@ -85,6 +86,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 					ray = Ray( p, wi, INFINITY, ray.depth + 1 );
 					continue;
 				}
+					beta *= 1.0 / ( 1.0 - ms );
 			}
 			else
 			{
@@ -97,7 +99,8 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 				//hit.material = hit.volume->material;
 				//foundIntersection = true;
 			}
-			beta *= Transmittance( volumeMat->sigmaT(), scatterDist);
+			absorption = Transmittance( volumeMat->sigmaT(), t);
+			beta *= absorption;
 		}
 
 		if ( !foundIntersection )
@@ -112,7 +115,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 
 		if ( mmat == MaterialType::EMISSIVE )
 		{
-			beta *= mCol;
+			beta *= mat->emission;
 			break;
 		}
 		if ( mmat == MaterialType::MIRROR )
@@ -155,6 +158,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 			{
 				ray = Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 );
 				beta *= transmittance;
+				insideGlass = !insideGlass;
 			}
 			beta *= 2.0f;
 			continue;

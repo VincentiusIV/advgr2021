@@ -15,7 +15,7 @@ enum class MaterialType
 class Material
 {
   public:
-	Material( color color, MaterialType materialType ) : albedo( color ), materialType( materialType ), uvScale( vec2( 1.0, 1.0 ) ) {}
+	Material( color color, MaterialType materialType ) : albedo( color ), emission(0.0f), materialType( materialType ), uvScale( vec2( 1.0, 1.0 ) ) {}
 
 	color GetColor( vec2 uv ) 
 	{
@@ -48,10 +48,10 @@ class Material
 	float volumeAlbedo() { return sigmaS / sigmaT(); } // describes probability of scattering at scatter event.
 	float meanFreePath() { return 1 / sigmaT(); } // avg distance a ray travels in medium before interacting with particle.
 
-	color albedo;
+	color albedo, emission;
 	float n = 1.0f, specularity = 1.0f, smoothness = 1.0f;
 
-	float sigmaS = 0.009, sigmaA = 0.006, g = -0.5;
+	float sigmaS = 0.009, sigmaA = 0.006, g = 0.5;
 
 	vec2 uvScale;
 	MaterialType materialType;
