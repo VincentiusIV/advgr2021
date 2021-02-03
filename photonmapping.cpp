@@ -7,7 +7,7 @@ int nrPhotons = 2000;
 int nrBounces = 6;	 //cap on amount of bounces (photon is stopped by RR or this)
 int estimateP = 20;	 //the photon estimate in the radiance around point x
 int estimateR = 1;	 //the radiance around point x with photon estimate
-float estimateRC = 1.1f;
+float estimateRC = 1.2f;
 
 //you can store a photon multiple times
 int maxStack = nrPhotons * nrBounces; 
