@@ -95,15 +95,15 @@ void Game::CreateBoxEnvironment()
 	scene->Add( rightWall );
 	shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
 	ceiling->position = point3( 0, 7, 3 );
-	ceiling->scale = point3( 5, 7, 5 );
+	ceiling->scale = point3( 15, 1, 15 );
 	scene->Add( ceiling );
 	//shared_ptr<Plane> bottom = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
 	//bottom->position = point3( 0, 2, 3 );
 	//bottom->scale = point3( 2, 2, 2 );
 	//scene->Add( bottom );
 	shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	frontWall->position = point3( -1, 4, 5 );
-	frontWall->scale = point3( 3, 8, 6 );
+	frontWall->position = point3( 0, 5, 5 );
+	frontWall->scale = point3( 10, 14, 1);
 	scene->Add( frontWall );
 
 

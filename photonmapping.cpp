@@ -40,15 +40,8 @@ void PhotonMap::push(photon arr[], photon i )
 bool PhotonMap::RussianRoulette(color &mCol)
 {
 	float pSurvival = clamp( fmax( mCol.x, fmax( mCol.y, mCol.z ) ), 0.0f, 1.0f ); 
-	if ( pSurvival < Rand( 1.0 ) )
-	{
-		return false; //dies
-	}
-	else
-		return true; //survives
+	return pSurvival > Rand( 1.0 );
 }
-
-//Q: do I have to add &? behind the things???
 
 // -- PHASE 1 --
 
@@ -260,6 +253,7 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 	}
 
 	energy = energy / max(1, countP);
+	
 
 	color causticEnergy( 0.0 );
 	for (int i = 0; i < topStackC; i++)
@@ -279,6 +273,6 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 	}
 	causticEnergy = causticEnergy / max( 1, countC );
 
-	return (BRDF * energy);
+	return (BRDF * (energy + causticEnergy));
 }
 
