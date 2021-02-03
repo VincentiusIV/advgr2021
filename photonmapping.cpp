@@ -3,23 +3,35 @@
 
 
 //initial values
-int nrPhotons = 2000; //TODO: eventually light sensitive 
+int nrPhotons = 2000;  
 int nrBounces = 6;	 //cap on amount of bounces (photon is stopped by RR or this)
 int estimateP = 20;	 //the photon estimate in the radiance around point x
 int estimateR = 1;	 //the radiance around point x with photon estimate
+int estimateRC = 2;
 
 //you can store a photon multiple times
-int maxStack = nrPhotons * nrBounces; //Q: * nr of lights?
-int topStack = -1;
+int maxStack = nrPhotons * nrBounces; 
+int topStackP = -1;
+int topStackC = -1;
 photon *photonmap = new photon[maxStack];
 photon *causticmap = new photon[maxStack]; //send specific to glass ball
 
 //stack pusher for photonmap 
-void PhotonMap::push( photon i )
+void PhotonMap::push(photon arr[], photon i )
 {
-	if (topStack < maxStack - 1)
+	if (arr == photonmap)
 	{
-		photonmap[++topStack] = i;
+		if ( topStackP < maxStack - 1 )
+		{
+			arr[++topStackP] = i;
+		}
+	}
+	if ( arr == causticmap )
+	{
+		if ( topStackC < maxStack - 1 )
+		{
+			arr[++topStackC] = i;
+		}
 	}
 }
 
@@ -36,7 +48,6 @@ bool PhotonMap::RussianRoulette(color &mCol)
 		return true; //survives
 }
 
-//TODO: need a global photon map & caustic photon map
 //Q: do I have to add &? behind the things???
 
 // -- PHASE 1 --
@@ -44,7 +55,7 @@ bool PhotonMap::RussianRoulette(color &mCol)
 //photon emittance from a light
 void PhotonMap::photonEmittanceLight(Ray ray ) 
 {	
-	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject(); //TODO: is only one light
+	shared_ptr<HittableObject> randLight = scene->GetRandomEmissiveObject(); //only one light
 
 	for ( int i = 0; i < nrPhotons; i++ )
 	{
@@ -87,27 +98,26 @@ void PhotonMap::photonEmittance( RayHit hit, photon photon, Ray ray)
 //See if photon hits surface -> yes, store in photonmap
 void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 {
-	//RayHit hit;
+
 	if (Trace (ray, hit))
 	{
 			shared_ptr<Material> mat = hit.material;
 			color mCol = mat->GetColor( hit.uv );
 			MaterialType mmat = mat->materialType;
 
-			if (mmat != MaterialType::MIRROR)
+			if (mmat == MaterialType::DIFFUSE)
 			{
 				photon.position = hit.point;
-				photon.power = mCol;		//Q: is this correct color?/energy?
-				photon.L = ray.direction;	//Q: is this one correct? or should it go away from the surface?
+				photon.power = mCol;	  
+				photon.L = ray.direction;	
 				
-				push(photon) ; 
+				push(photonmap, photon) ; 
 
 				if (!RussianRoulette(mCol))
 				{
 					return; 
 				}
-				//Q: a paper mentiones this? ->
-				//Q: randomly chosen vector that is above the intersection point with a probability proportioinal to the cosine of the angle with the normal (done with RR)
+				
 				if (ray.depth <= nrBounces)
 				{
 					photonEmittance( hit, photon, ray );
@@ -115,11 +125,52 @@ void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 				}
 					
 			}
+			if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
+			{
+				float cosi = fmax( -1.0, fmin( 1.0, dot( ray.direction, hit.normal ) ) );
+				float cosTheta2 = cosi * cosi;
+				float etai = 1.0, etat = hit.material->n;
+				vec3 n = hit.normal;
+				if ( cosi < 0 )
+				{
+					cosi = -cosi;
+				}
+				else
+				{
+					std::swap( etai, etat );
+					n = -hit.normal;
+				}
+				float etaiOverEtat = etai / etat;
+				float k = 1.0f - etaiOverEtat * etaiOverEtat * ( 1.0 - cosTheta2 );
+				float sinTheta = etaiOverEtat * sqrtf( max( 0.0, 1.0 - cosTheta2 ) );
+				float reflectance;
+				Fresnel( sinTheta, reflectance, cosi, etat, etai );
+				float transmittance = ( 1.0f - reflectance );
+				float reflectChance = reflectance * Rand( 1.0f );
+				float refractChance = transmittance * Rand( 1.0f );
+				vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
+				
+				
+				
+				if ( reflectChance > refractChance )
+				{
+					Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
+					return SampleP( reflectRay, hit, photon );
+				}
+				else
+				{
+					point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
+
+					photon.position = hit.point;
+					photon.power = mCol;	 
+					photon.L = ray.direction; 
+					push( causticmap, photon );
+
+					return SampleP( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), hit, photon );
+				}
+			}
 			if (mmat == MaterialType::MIRROR)
 			{
-				//TODO: check: photon is reflected with its intensity scaled by the reflection index of that object.
-				//Q: how above thing?
-				//Q: is ray correct reflected below?
 				Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
 			
 				SampleP( r, hit, photon ) ;		
@@ -130,10 +181,7 @@ void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 }
 
 //TODO: sort (and add) the kD-tree
-//TODO: add shadow rays(?) for Caustic map (second intersection a shadow photon is stored instead of photon)
-
 /*
-//Q: can I use this to build kD-tree???
 function Buildtree(photons P, voxel V)
 {
 	if(Terminate(P,V)) return new LeafNode(P)
@@ -149,11 +197,7 @@ function BuildkDtree(photons P)
 	return Buildtree(P, V)
 }*/
 
-//HINT: 2 ways
-//1. Take a fixed size sphere and get all photons inside that sphere for estimate + weights
-//2. Take N photons closest to x and find the given radius r ->pi*r^2
-//HINT: radiance estimation -> at each non-specular path vertex we estimate the reflected radiance
-//NOTE: difference between ray tracing and photon tracing: photons propagate flux while rays gather radiance.
+
 
 // -- PHASE 2 --
 
@@ -196,24 +240,43 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 
  color PhotonMap::photonDensity( Ray &ray, RayHit hit, color BRDF )
 {
-	color energy = (0,0,0);  //surface starts with 0 energy
-	int count = 1;
-	for (int i = 0; i < maxStack; i++)
+	color energy = (0,0,0);  
+	int countP = 0;
+	int countC = 0;
+	for (int i = 0; i < topStackP; i++)
 	{
-		float insideR = pow( ( photonmap[i].position.x - hit.point.x ), 2 ) + pow( ( photonmap[i].position.y - hit.point.y ), 2 ) + pow( ( photonmap[i].position.z - hit.point.z ), 2 );
+		float insideR = sqrt(pow( ( photonmap[i].position.x - hit.point.x ), 2 ) + pow( ( photonmap[i].position.y - hit.point.y ), 2 ) + pow( ( photonmap[i].position.z - hit.point.z ), 2 ));
 		
 		//inside 'density sphere'
-		if (insideR < pow(estimateR,2))
+		if (insideR < estimateR)
 		{
-			//filter from slides
-			float weightfilter = 0.918 * fabs( 1 - (1-exp(-1.953* (insideR/2*pow(estimateR,2) )) ) / (1-exp(-1.953) ) ); 
-		    //max( 0.0f,(1 - sqrt( insideR )/(1*estimateR))); //Q: weight from paper(?)
+			float weight = max( 0.0f, -dot( hit.normal, photonmap[i].L ) );
+			weight *= ( 1.0 - insideR );
 
 			//add to energy
-			energy += photonmap[i].power *weightfilter;
-			count++;
+			energy += photonmap[i].power *weight;
+			countP++;
 		}
 	}
-	return (BRDF * energy)/count;
+
+	energy = energy / countP;
+
+	for (int i = 0; i < topStackC; i++)
+	{
+		float insideR = sqrt(pow( ( causticmap[i].position.x - hit.point.x ), 2 ) + pow( ( causticmap[i].position.y - hit.point.y ), 2 ) + pow( ( causticmap[i].position.z - hit.point.z ), 2 ));
+
+		//inside 'density sphere'
+		if ( insideR <  estimateRC )
+		{
+			float weight = max( 0.0f, -dot( hit.normal, photonmap[i].L ) );
+			weight *= ( 1.0 -  sqrt(insideR)  );
+
+			//add to energy
+			energy += causticmap[i].power * weight;
+			countC++;
+		}
+	}
+
+	return (BRDF * energy)/ max(1, countC);
 }
 

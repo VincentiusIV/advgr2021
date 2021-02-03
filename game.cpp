@@ -86,24 +86,24 @@ void Game::CreateBoxEnvironment()
 
 	shared_ptr<Plane> leftWall = make_shared<Plane>( blueOpaque, vec3( 1, 0, 0 ), 3, 3 );
 	leftWall->position = point3( 5, 4, 3 );
-	leftWall->scale = point3( 4, 4, 4 );
+	leftWall->scale = point3( 2, 10, 11 );
 	scene->Add( leftWall );
 	shared_ptr<Plane> rightWall = make_shared<Plane>( redOpaque, vec3( -1, 0, 0 ), 3, 3 );
 	rightWall->position = point3( -5, 4, 3 );
-	rightWall->scale = point3( 4, 4, 4 );
+	rightWall->scale = point3( 2, 10, 10 );
 	scene->Add( rightWall );
-	//shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
-	//ceiling->position = point3( 0, 6, 3 );
-	//ceiling->scale = point3( 2, 2, 2 );
-	//scene->Add( ceiling );
+	shared_ptr<Plane> ceiling = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
+	ceiling->position = point3( 0, 7, 3 );
+	ceiling->scale = point3( 5, 7, 5 );
+	scene->Add( ceiling );
 	//shared_ptr<Plane> bottom = make_shared<Plane>( white, vec3( 0, -1, 0 ), 3, 3 );
 	//bottom->position = point3( 0, 2, 3 );
 	//bottom->scale = point3( 2, 2, 2 );
 	//scene->Add( bottom );
-	//shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
-	//frontWall->position = point3( 0, 4, 4 );
-	//frontWall->scale = point3( 2, 4, 2 );
-	//scene->Add( frontWall );
+	shared_ptr<Plane> frontWall = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );
+	frontWall->position = point3( -1, 4, 5 );
+	frontWall->scale = point3( 3, 8, 6 );
+	scene->Add( frontWall );
 
 
 	//shared_ptr<Plane> slid1 = make_shared<Plane>( white, vec3( 0, 0, 1 ), 3, 3 );

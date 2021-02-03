@@ -19,11 +19,11 @@ class PhotonMap : public RayTracer
 {
   public:
 	PhotonMap( Scene *scene, int maxDepth ) : RayTracer( scene, maxDepth ) { photonEmittanceLight( ray); } //correct arguments??
-	void push( photon i );
+	void push( photon arr[], photon i );
 	bool RussianRoulette( color &mCol );
 	void photonEmittanceLight( Ray ray );
-	void photonEmittance( RayHit hit, photon photon, Ray ray );
-	void SampleP( Ray &ray, RayHit &hit, photon photon );
+	void photonEmittance( RayHit hit, photon photon, Ray ray);
+	void SampleP( Ray &ray, RayHit &hit, photon photon);
 	color Sample( Ray &ray, RayHit &hit );
     color photonDensity( Ray &ray, RayHit hit, color BRDF );
 	Ray ray;
