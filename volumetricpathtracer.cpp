@@ -159,7 +159,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 		}
 		else if ( mmat == MaterialType::DIFFUSE || mmat == MaterialType::VOLUMETRIC )
 		{
-			color BRDF = mCol * INV_PI;
+			color BRDF = mCol * INV_PI * 2.0;
 
 			// Indirect
 			if ( Rand( 1.0f ) < 0.5f )
@@ -203,11 +203,11 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 					}
 				}
 				// Scale up the color
-				beta *= 2.0f;
 				if ( !direct )
 					beta *= 0.0f;
 				break;
 			}
+				//beta *= 2.0f;
 		}
 		else
 		{

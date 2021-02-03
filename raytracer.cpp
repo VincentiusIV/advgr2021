@@ -15,18 +15,25 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 {
 	// Bruteforce method
 	bool hitAny = false;
-	for ( size_t i = 0; i < scene->objects.size(); i++ )
+	if (Scene::BRUTE_FORCE)
 	{
-		shared_ptr<HittableObject> obj = scene->objects.at( i );
-		if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
-			continue;
-		if (obj->Hit(ray, hit))
+		for ( size_t i = 0; i < scene->objects.size(); i++ )
 		{
-			hit.hitObject = obj;
-			hitAny |= true;
+			shared_ptr<HittableObject> obj = scene->objects.at( i );
+			if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
+				continue;
+			if ( obj->Hit( ray, hit ) )
+			{
+				hit.hitObject = obj;
+				hitAny |= true;
+			}
 		}
 	}
-
+	else {
+		hitAny = scene->bvh->Intersect( ray, hit );
+	}
+	
+	// For simplicity, we use first volume as global volume. TODO: Expand to work with multiple volumes.
 	hit.intersectsVolume = scene->volumes.size() > 0;
 	if (hit.intersectsVolume)
 	{
@@ -35,9 +42,6 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 	}
 
 	return hitAny;
-
-	// TODO: Implement typeToIgnore with bvh.
-	return scene->bvh->Intersect(ray, hit);
 }
 
 color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
