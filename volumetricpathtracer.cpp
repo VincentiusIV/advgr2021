@@ -62,7 +62,6 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 {
 	color beta( 1.0 );
 	Ray ray( r ), vRay(r);
-	float t = 0.0f;
 	for ( int bounceIdx = 0; bounceIdx < maxDepth; bounceIdx++ )
 	{
 		RayHit hit;
@@ -72,7 +71,6 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 			shared_ptr<Material> volumeMat = hit.volume->material;
 			float density = volumeMat->g; 
 			float scatterDist = abs(log( Rand( 1.0 ) )) / volumeMat->sigmaS;
-			t += scatterDist;
 			if ( scatterDist < ray.t )
 			{
 				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
@@ -95,8 +93,8 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 					hit.material = hit.volume->material;
 					foundIntersection = true;
 				}	
-					beta *= Transmittance( ray, hit.material->sigmaT(), scatterDist );
-				
+
+				beta *= Transmittance( ray, hit.material->sigmaT(), scatterDist );				
 			}	
 		}
 
