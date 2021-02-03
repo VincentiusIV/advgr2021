@@ -24,6 +24,7 @@ public:
   void ClearColorBuffer();
 	void CreateBoxEnvironment();
 	void CreateMeshEnvironment();
+	void CreateVolumetricEnvironment();
 	void Shutdown();
 	void Tick( float deltaTime );
 	void PrintDebugInfo( float deltaTime );

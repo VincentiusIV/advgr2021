@@ -27,7 +27,7 @@ void Game::Init()
 	colorBuffer = (color*)MALLOC64(SCRWIDTH * SCRHEIGHT * sizeof(color));
 	raysCounter = new int[SCRWIDTH * SCRHEIGHT];
 	ClearColorBuffer();
-	CreateBoxEnvironment();
+	CreateVolumetricEnvironment();
 
 	//raytracer = new WhittedRayTracer(scene, 7);
 	raytracer = new VolumetricPathTracer( scene, 14 );
@@ -145,6 +145,66 @@ void Tmpl8::Game::CreateMeshEnvironment()
 		shared_ptr<MeshObject> current = meshObject1.at( i );
 		scene->Add( current );
 	}
+}
+
+void Tmpl8::Game::CreateVolumetricEnvironment()
+{
+	shared_ptr<Material> cyanOpaque = make_shared<Material>( color( 0.0, 1, 1 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> textureDiffuse = make_shared<Material>( color( 0.9, 0.1, 0.1 ), MaterialType::DIFFUSE );
+	textureDiffuse->mainTex = new Surface( "assets/marble.PNG" );
+	shared_ptr<Material> groundMirror = make_shared<Material>( color( 1.0, 1.0, 1.0 ), MaterialType::MIRROR );
+	groundMirror->specularity = 0.9f;
+	groundMirror->smoothness = 0.9f;
+	shared_ptr<Material> glass = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIELECTRIC );
+	glass->n = 1.5f;
+	glass->smoothness = 1.0f;
+	shared_ptr<Material> white = make_shared<Material>( color( 0.95, 0.95, 0.95 ), MaterialType::DIFFUSE );
+	shared_ptr<Material> checkerboard = make_shared<Material>( color( 0.7, 0.7, 0.7 ), MaterialType::DIFFUSE );
+	checkerboard->isCheckerboard = true;
+	shared_ptr<Material> lightMaterial = make_shared<Material>( color( 0.9, 1.0, 1.0 ), MaterialType::EMISSIVE );
+	lightMaterial->emission = color( 9, 10, 10 );
+	textureDiffuse->mainTex = new Surface( "assets/apartment/building_col_3.jpg" );
+	shared_ptr<Material> fog = make_shared<Material>( color( 0.9, 1.0, 1.0 ), MaterialType::VOLUMETRIC );
+
+	// Floors & Walls
+	shared_ptr<Plane> groundFloor = make_shared<Plane>( checkerboard, vec3( 0, 1, 0 ), 3, 3 );
+	groundFloor->position = point3( 0, -1, 0.0 );
+	groundFloor->scale = point3( 100, 1, 100 );
+	scene->Add( groundFloor );
+
+	//// Sphere
+	shared_ptr<Sphere> sphere1 = make_shared<Sphere>( glass, 1 );
+	sphere1->position = point3( 1, 2, 3 );
+	scene->Add( sphere1 );
+
+	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
+	sphere2->position = point3( -2.5, 1, 2 );
+	scene->Add( sphere2 );
+
+	//shared_ptr<Sphere> sphere4 = make_shared<Sphere>( textureDiffuse, 1 );
+	//sphere4->position = point3( -2.5, 1.5, 2.5 );
+	//scene->Add( sphere4 );
+
+	//shared_ptr<Sphere> lightSphere2 = make_shared<Sphere>( lightMaterial, 1 );
+	//lightSphere2->position = point3( 5, 4, -5 );
+	//scene->Add( lightSphere2 );
+
+	shared_ptr<Sphere> lightSphere = make_shared<Sphere>( lightMaterial, 0.5 );
+	lightSphere->position = point3( 0, 4, 3 );
+	scene->Add( lightSphere );
+
+	//// Volume
+	shared_ptr<Sphere> volume = make_shared<Sphere>( fog, 100 );
+	volume->position = point3( 0, 0, 0 );
+	scene->Add( volume );
+
+	for ( size_t i = 0; i < scene->objects.size(); i++ )
+	{
+		shared_ptr<HittableObject> obj = scene->objects.at( i );
+		obj->UpdateAABB();
+	}
+
+	scene->Init();
 }
 
 // -----------------------------------------------------------

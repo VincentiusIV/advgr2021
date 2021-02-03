@@ -1,7 +1,7 @@
 #include "precomp.h"
 
 // Methods mainly derived from -> Physically Based Rendering: From Theory to Implementation
-// Also from https://giacomonazzaro.github.io/volume.html, and the book Physically Based Rendering.
+// Also from https://giacomonazzaro.github.io/volume.html
 
 // Source: Physically Based Rendering: From Theory to Implementation
 inline void CoordinateSystem( const vec3 &v1, vec3 *v2, vec3 *v3 )
@@ -75,10 +75,10 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 			{
 				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 				{
-					// continue scatter through volume
+					// continue through volume
 					//vec3 wi = RandomInsideUnitSphere(); // scatter in random directions.
 					vec3 wi;
-					SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density ); // scatter using HG phasing
+					SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), density );
 					ray = Ray( ray.At(scatterDist), wi, INFINITY, 0 );
 					continue;	
 				}
@@ -154,11 +154,13 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 				ray = Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 );
 				beta *= transmittance;
 			}
+			// Scale up color by 2 since we perform RR on reflect/transmit rays.
 			beta *= 2.0f;
 			continue;
 		}
 		else if ( mmat == MaterialType::DIFFUSE || mmat == MaterialType::VOLUMETRIC )
 		{
+			// BRDF scaled up by 2 since we perform RR on Direct/Indirect lighting.
 			color BRDF = mCol * INV_PI * 2.0;
 
 			// Indirect
@@ -202,12 +204,10 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 						}
 					}
 				}
-				// Scale up the color
 				if ( !direct )
 					beta *= 0.0f;
 				break;
 			}
-				//beta *= 2.0f;
 		}
 		else
 		{
