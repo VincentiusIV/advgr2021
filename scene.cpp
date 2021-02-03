@@ -17,7 +17,9 @@ void Scene::Init()
 		bvh = new SceneBVH( this, objects.size() );
 		bvh->ConstructBVH();
 	}
+		
 }
+
 
 Scene::~Scene()
 {
@@ -51,3 +53,4 @@ shared_ptr<HittableObject> Scene::GetRandomEmissiveObject()
 		randIdx = emissiveObjects.size() - 1;
 	return emissiveObjects.at( randIdx );
 }
+

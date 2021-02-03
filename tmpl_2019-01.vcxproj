@@ -124,6 +124,7 @@
     <ClCompile Include="meshloader.cpp" />
     <ClCompile Include="meshobject.cpp" />
     <ClCompile Include="pathtracer.cpp" />
+    <ClCompile Include="photonmapping.cpp" />
     <ClCompile Include="plane.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="objloader.h" />
     <ClInclude Include="pathtracer.h" />
     <ClInclude Include="perlinnoise.h" />
+    <ClInclude Include="photonmapping.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="precomp.h" />
     <ClInclude Include="ray.h" />

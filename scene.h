@@ -21,7 +21,7 @@ class Scene
 	vector<shared_ptr<Light>> lights;
 	BVH *bvh;
 
+
   private:	
 	shared_ptr<Camera> camera;
-
 };

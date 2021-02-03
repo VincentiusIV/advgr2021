@@ -46,13 +46,14 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 
 color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 {
+
 	color illumination = baseIllumination;
 	for ( size_t i = 0; i < scene->lights.size(); i++ )
 	{
 		shared_ptr<Light> light = scene->lights.at( i );
-		Ray shadowRay = light->CastShadowRayFrom(point);
+		Ray shadowRay = light->CastShadowRayFrom( point );
 		RayHit hit;
-		if (Trace(shadowRay, hit, MaterialType::EMISSIVE))
+		if ( Trace( shadowRay, hit, MaterialType::EMISSIVE ) )
 		{
 			continue;
 		}
@@ -65,6 +66,7 @@ color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 	illumination.y = clamp( illumination.y, 0.0f, 1.0f );
 	illumination.z = clamp( illumination.z, 0.0f, 1.0f );
 	return illumination;
+	
 }
 
 color WhittedRayTracer::Sample( Ray &ray, RayHit &hit )
