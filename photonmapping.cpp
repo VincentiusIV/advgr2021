@@ -7,7 +7,7 @@ int nrPhotons = 2000;
 int nrBounces = 6;	 //cap on amount of bounces (photon is stopped by RR or this)
 int estimateP = 20;	 //the photon estimate in the radiance around point x
 int estimateR = 1;	 //the radiance around point x with photon estimate
-int estimateRC = 2;
+float estimateRC = 1.1f;
 
 //you can store a photon multiple times
 int maxStack = nrPhotons * nrBounces; 
@@ -92,7 +92,7 @@ void PhotonMap::photonEmittance( RayHit hit, photon photon, Ray ray)
 	//Send photon in random direction
 	Ray r( hit.point, R, INFINITY, ray.depth + 1 );
 	//Trace photon
-	SampleP( r, hit,photon );
+	SampleP( r, hit, photon );
 }
 
 //See if photon hits surface -> yes, store in photonmap
@@ -251,7 +251,7 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 		if (insideR < estimateR)
 		{
 			float weight = max( 0.0f, -dot( hit.normal, photonmap[i].L ) );
-			weight *= ( 1.0 - insideR );
+			//weight *= ( 1.0 - insideR );
 
 			//add to energy
 			energy += photonmap[i].power *weight;
@@ -259,7 +259,7 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 		}
 	}
 
-	energy = energy / countP;
+	energy = energy / max(1, countP);
 
 	for (int i = 0; i < topStackC; i++)
 	{
@@ -269,14 +269,13 @@ color PhotonMap::Sample( Ray &ray, RayHit &hit )
 		if ( insideR <  estimateRC )
 		{
 			float weight = max( 0.0f, -dot( hit.normal, photonmap[i].L ) );
-			weight *= ( 1.0 -  sqrt(insideR)  );
+			//weight *= ( 1.0 -  sqrt(insideR)  );
 
 			//add to energy
 			energy += causticmap[i].power * weight;
 			countC++;
 		}
 	}
-
 	return (BRDF * energy)/ max(1, countC);
 }
 

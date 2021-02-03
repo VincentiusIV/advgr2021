@@ -32,7 +32,7 @@ void Game::Init()
 	//raytracer = new WhittedRayTracer(scene, 7);
 	//raytracer = new PathTracer( scene, 7 );
 	raytracer = new PhotonMap( scene, 7 );
-	//raytracer = new VolumetricPathTracer( scene, 14 );
+	
 }
 
 void Tmpl8::Game::ClearColorBuffer()
