@@ -68,39 +68,36 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 	{
 		RayHit hit;
 		bool foundIntersection = Trace(ray, hit);
-		if (hit.intersectsVolume && !insideGlass)
+		if ( hit.intersectsVolume && !insideGlass )
 		{
 			// Ray march through volume
 			shared_ptr<Material> volumeMat = hit.volume->material;
-			//float scatterDist = abs( log( Rand( 1.0 ) ) ) / volumeMat->sigmaS;
-			float scatterDist = sampleSegment( RandomFloat(), volumeMat->sigmaS, ray.t );
-			vec3 p = ray.origin; //ray.At(scatterDist);
-			t += scatterDist;
-
+			float t = abs( log( Rand( 1.0 ) ) ) / volumeMat->sigmaS;
+			point3 x = ray.At(t);
 			vec3 wi;
-			float ms = SampleHG( -ray.direction, &wi, Rand( 1.0f ), Rand( 1.0f ), volumeMat->g );
-			if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
+			float ms = SampleHG( -ray.direction, &wi, RandomFloat(), RandomFloat(), volumeMat->g );
+			if ( t < ray.t )
 			{
-				if ( scatterDist < ray.t )
+				ray = Ray( x, ray.direction, INFINITY, 0 );
+				x += t * ray.direction;
+				if ( Rand( 1.0 ) < volumeMat->volumeAlbedo() )
 				{
-					ray = Ray( p, wi, INFINITY, ray.depth + 1 );
+					ray.direction = wi;
 					continue;
 				}
-					beta *= 1.0 / ( 1.0 - ms );
+				else
+				{
+					// scatter against volume
+					hit.hitObject = hit.volume;
+					hit.point = x;
+					hit.normal = RandomInsideUnitSphere();
+					if ( hit.normal.dot( ray.direction ) > 0.0f )
+						hit.normal = -hit.normal;
+					hit.material = hit.volume->material;
+					foundIntersection = true;
+					beta *= Transmittance( hit.material->sigmaT(), t );
+				}
 			}
-			else
-			{
-				//hit.hitObject = hit.volume;
-				//hit.point = p;
-				////hit.normal = cross( ray.direction, wi );
-				//hit.normal = RandomInsideUnitSphere();
-				//if ( hit.normal.dot( ray.direction ) > 0.0f )
-				//	hit.normal = -hit.normal;
-				//hit.material = hit.volume->material;
-				//foundIntersection = true;
-			}
-			absorption = Transmittance( volumeMat->sigmaT(), t);
-			beta *= absorption;
 		}
 
 		if ( !foundIntersection )
