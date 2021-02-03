@@ -88,7 +88,7 @@ color VolumetricPathTracer::Sample( Ray &r, RayHit &h )
 				{
 					// scatter against volume
 					hit.hitObject = hit.volume;
-					hit.point = ray.At(t);
+					hit.point = ray.At(scatterDist);
 					hit.normal = RandomInsideUnitSphere();
 					if ( hit.normal.dot( ray.direction ) > 0.0f )
 						hit.normal = -hit.normal;
