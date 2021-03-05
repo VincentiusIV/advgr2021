@@ -3,7 +3,7 @@
 
 
 //initial values
-int nrPhotons = 2000;  
+int nrPhotons =2000;  
 int nrBounces = 6;	 //cap on amount of bounces (photon is stopped by RR or this)
 int estimateP = 20;	 //the photon estimate in the radiance around point x
 int estimateR = 1;	 //the radiance around point x with photon estimate
@@ -94,81 +94,81 @@ void PhotonMap::SampleP(Ray &ray, RayHit &hit, photon photon)
 
 	if (Trace (ray, hit))
 	{
-			shared_ptr<Material> mat = hit.material;
-			color mCol = mat->GetColor( hit.uv );
-			MaterialType mmat = mat->materialType;
+		shared_ptr<Material> mat = hit.material;
+		color mCol = mat->GetColor( hit.uv );
+		MaterialType mmat = mat->materialType;
 
-			if (mmat == MaterialType::DIFFUSE)
+		if (mmat == MaterialType::DIFFUSE)
+		{
+			photon.position = hit.point;
+			photon.power *= mCol;	  
+			photon.L = ray.direction;	
+				
+			push(photonmap, photon) ; 
+
+			if (!RussianRoulette(mCol))
 			{
-				photon.position = hit.point;
-				photon.power = mCol;	  
-				photon.L = ray.direction;	
-				
-				push(photonmap, photon) ; 
-
-				if (!RussianRoulette(mCol))
-				{
-					return; 
-				}
-				
-				if (ray.depth <= nrBounces)
-				{
-					photonEmittance( hit, photon, ray );
-					return;
-				}
-					
+				return; 
 			}
-			if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
+				
+			if (ray.depth <= nrBounces)
 			{
-				float cosi = fmax( -1.0, fmin( 1.0, dot( ray.direction, hit.normal ) ) );
-				float cosTheta2 = cosi * cosi;
-				float etai = 1.0, etat = hit.material->n;
-				vec3 n = hit.normal;
-				if ( cosi < 0 )
-				{
-					cosi = -cosi;
-				}
-				else
-				{
-					std::swap( etai, etat );
-					n = -hit.normal;
-				}
-				float etaiOverEtat = etai / etat;
-				float k = 1.0f - etaiOverEtat * etaiOverEtat * ( 1.0 - cosTheta2 );
-				float sinTheta = etaiOverEtat * sqrtf( max( 0.0, 1.0 - cosTheta2 ) );
-				float reflectance;
-				Fresnel( sinTheta, reflectance, cosi, etat, etai );
-				float transmittance = ( 1.0f - reflectance );
-				float reflectChance = reflectance * Rand( 1.0f );
-				float refractChance = transmittance * Rand( 1.0f );
-				vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
-				
-				
-				
-				if ( reflectChance > refractChance )
-				{
-					Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
-					return SampleP( reflectRay, hit, photon );
-				}
-				else
-				{
-					point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
-
-					photon.position = hit.point;
-					photon.power = mCol;	 
-					photon.L = ray.direction; 
-					push( causticmap, photon );
-
-					return SampleP( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), hit, photon );
-				}
-			}
-			if (mmat == MaterialType::MIRROR)
-			{
-				Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
-			
-				SampleP( r, hit, photon ) ;		
+				photonEmittance( hit, photon, ray );
 				return;
 			}
+					
+		}
+		if (mmat == MaterialType::DIELECTRIC || mmat == MaterialType::GLASS)
+		{
+			float cosi = fmax( -1.0, fmin( 1.0, dot( ray.direction, hit.normal ) ) );
+			float cosTheta2 = cosi * cosi;
+			float etai = 1.0, etat = hit.material->n;
+			vec3 n = hit.normal;
+			if ( cosi < 0 )
+			{
+				cosi = -cosi;
+			}
+			else
+			{
+				std::swap( etai, etat );
+				n = -hit.normal;
+			}
+			float etaiOverEtat = etai / etat;
+			float k = 1.0f - etaiOverEtat * etaiOverEtat * ( 1.0 - cosTheta2 );
+			float sinTheta = etaiOverEtat * sqrtf( max( 0.0, 1.0 - cosTheta2 ) );
+			float reflectance;
+			Fresnel( sinTheta, reflectance, cosi, etat, etai );
+			float transmittance = ( 1.0f - reflectance );
+			float reflectChance = reflectance * Rand( 1.0f );
+			float refractChance = transmittance * Rand( 1.0f );
+			vec3 dir = k < 0 ? 0.0f : etaiOverEtat * ray.direction + ( etaiOverEtat * cosi - sqrtf( k ) ) * n;
+				
+				
+				
+			if ( reflectChance > refractChance )
+			{
+				Ray reflectRay( hit.point, reflect( ray.direction, hit.normal ), INFINITY, ray.depth + 1 );
+				return SampleP( reflectRay, hit, photon );
+			}
+			else
+			{
+				point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001 : hit.point + hit.normal * 0.001f;
+
+				photon.position = hit.point;
+				photon.power *= mCol;	 
+				photon.L = ray.direction; 
+				push( causticmap, photon );
+
+				return SampleP( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1.0 ), hit, photon );
+			}
+		}
+		if (mmat == MaterialType::MIRROR)
+		{
+			Ray r( hit.point, reflect( ray.direction, hit.normal ) + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 ); //new ray from intersection point
+			
+			SampleP( r, hit, photon ) ;		
+			return;
+		}
 	}
 	return;
 }

@@ -63,7 +63,7 @@ void Game::CreateBoxEnvironment()
 	groundMirror->smoothness = 0.9f;
 	shared_ptr<Material> blueOpaque = make_shared<Material>( color( 0.1, 0.1, 1 ), MaterialType::DIFFUSE );
 	shared_ptr<Material> orangeOpaque = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIFFUSE );
-	shared_ptr<Material> glass = make_shared<Material>( color( 1.0, 0.55, 0.1 ), MaterialType::DIELECTRIC );
+	shared_ptr<Material> glass = make_shared<Material>( color( 1.0, 1.0, 1.0 ), MaterialType::DIELECTRIC );
 	glass->n = 1.5f;
 	glass->smoothness = 1.0f;
 	shared_ptr<Material> white = make_shared<Material>(color(0.95, 0.95, 0.95), MaterialType::DIFFUSE);
@@ -141,7 +141,7 @@ void Game::CreateBoxEnvironment()
 	//scene->Add( baseSphere2 );
 
 	shared_ptr<Sphere> sphere1 = make_shared<Sphere>(glass, 1);
-	sphere1->position = point3(1, 2, 3);
+	sphere1->position = point3(1, 1.5, 3);
 	scene->Add(sphere1);
 
 	shared_ptr<Sphere> sphere2 = make_shared<Sphere>( groundMirror, 1 );
