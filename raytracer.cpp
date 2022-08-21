@@ -1,5 +1,11 @@
 #include "precomp.h"
 
+color RayTracer::Sample( Ray &ray )
+{
+	RayHit hit;
+	return Sample( ray, hit );
+}
+
 bool RayTracer::Trace( Ray &ray, RayHit &hit )
 {
 	return Trace( ray, hit, MaterialType::DIFFUSE );
@@ -7,26 +13,47 @@ bool RayTracer::Trace( Ray &ray, RayHit &hit )
 
 bool RayTracer::Trace( Ray &ray, RayHit &hit, MaterialType typeToIgnore )
 {
+	// Bruteforce method
 	bool hitAny = false;
-	for ( size_t i = 0; i < scene->objects.size(); i++ )
+	if (Scene::BRUTE_FORCE)
 	{
-		shared_ptr<HittableObject> obj = scene->objects.at( i );
-		if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
-			continue;
-		hitAny |= ( obj->Hit( ray, hit ) );
+		for ( size_t i = 0; i < scene->objects.size(); i++ )
+		{
+			shared_ptr<HittableObject> obj = scene->objects.at( i );
+			if ( typeToIgnore != MaterialType::DIFFUSE && obj->material->materialType == typeToIgnore )
+				continue;
+			if ( obj->Hit( ray, hit ) )
+			{
+				hit.hitObject = obj;
+				hitAny |= true;
+			}
+		}
 	}
+	else {
+		hitAny = scene->bvh->Intersect( ray, hit );
+	}
+	
+	// For simplicity, we use first volume as global volume. TODO: Expand to work with multiple volumes.
+	hit.intersectsVolume = scene->volumes.size() > 0;
+	if (hit.intersectsVolume)
+	{
+		shared_ptr<HittableObject> volume = scene->volumes.at( 0 );
+		hit.volume = volume;
+	}
+
 	return hitAny;
 }
 
 color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 {
+
 	color illumination = baseIllumination;
 	for ( size_t i = 0; i < scene->lights.size(); i++ )
 	{
 		shared_ptr<Light> light = scene->lights.at( i );
-		Ray shadowRay = light->CastShadowRayFrom(point);
+		Ray shadowRay = light->CastShadowRayFrom( point );
 		RayHit hit;
-		if (Trace(shadowRay, hit, MaterialType::EMISSIVE))
+		if ( Trace( shadowRay, hit, MaterialType::EMISSIVE ) )
 		{
 			continue;
 		}
@@ -39,11 +66,11 @@ color WhittedRayTracer::DirectIllumination( point3 point, vec3 normal )
 	illumination.y = clamp( illumination.y, 0.0f, 1.0f );
 	illumination.z = clamp( illumination.z, 0.0f, 1.0f );
 	return illumination;
+	
 }
 
-color WhittedRayTracer::Sample( Ray &ray )
+color WhittedRayTracer::Sample( Ray &ray, RayHit &hit )
 {
-	RayHit hit;
 	// Ignore emissive objects (area lights), these are not supported.
 	if (Trace(ray, hit, MaterialType::EMISSIVE))
 	{
@@ -71,7 +98,10 @@ color WhittedRayTracer::Sample( Ray &ray )
 	}
 	else
 	{
-		return HandleSkybox( ray );
+		if (useSkybox)
+			return HandleSkybox( ray );
+		else
+			return color( 0.0, 0.0, 0.0 );
 	}
 }
 
@@ -147,7 +177,7 @@ const color &WhittedRayTracer::HandleGlassMaterial( Ray &ray, RayHit &hit )
 {
 	vec3 dir = refract( ray.direction, hit.normal, hit.material->n );
 	point3 refractRayOrigin = hit.isFrontFace ? hit.point - hit.normal * 0.001f : hit.point + hit.normal * 0.001f;
-	return Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1 ) );
+	return RayTracer::Sample( Ray( refractRayOrigin, dir, INFINITY, ray.depth + 1 ) );
 }
 
 const color &WhittedRayTracer::HandleDiffuseMaterial( std::shared_ptr<Material> &mat, RayHit &hit )
@@ -160,7 +190,7 @@ const color &WhittedRayTracer::HandleMirrorMaterial( Ray &ray, RayHit &hit )
 	point3 p = hit.point;
 	vec3 r = reflect( ray.direction, hit.normal );
 	Ray reflectRay( p, r + ( 1.0f - hit.material->smoothness ) * RandomInsideUnitSphere(), INFINITY, ray.depth + 1 );
-	color reflectColor = Sample( reflectRay );
+	color reflectColor = RayTracer::Sample( reflectRay );
 	color diffuseColor = ( 1.0 - hit.material->specularity ) * hit.material->GetColor(hit.uv) * DirectIllumination( hit.point, hit.normal );
 	return  diffuseColor + ( hit.material->specularity * reflectColor );
 }

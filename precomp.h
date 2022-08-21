@@ -43,6 +43,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <queue>
 
 // Namespaced C headers:
 #include <cassert>
@@ -50,6 +51,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <functional>
 
 // Header for AVX, and every technology before it.
 // If your CPU does not support this, include the appropriate header instead.
@@ -70,6 +72,7 @@ using namespace Tmpl8;
 using point3 = vec3;
 using color = vec3;
 
+#include "aabb.h"
 #include "raytracer.h"
 #include "scene.h"
 #include "game.h"
@@ -77,9 +80,16 @@ using color = vec3;
 #include "transform.h"
 #include "object.h"
 #include "meshobject.h"
+#include "meshloader.h"
 #include "light.h"
 #include "camera.h"
 #include "ray.h"
 #include "plane.h"
 #include "sphere.h"
 #include "pathtracer.h"
+#include "volumetricpathtracer.h"
+#include "bvh.h"
+#include "scenebvh.h"
+#include "trianglebvh.h"
+#include "photonmapping.h"
+#include "perlinnoise.h"

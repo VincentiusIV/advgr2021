@@ -118,37 +118,52 @@
   </ItemDefinitionGroup>
   <!-- END Custom section -->
   <ItemGroup>
+    <ClCompile Include="aabb.cpp" />
+    <ClCompile Include="BVH.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="meshloader.cpp" />
     <ClCompile Include="meshobject.cpp" />
     <ClCompile Include="pathtracer.cpp" />
+    <ClCompile Include="photonmapping.cpp" />
     <ClCompile Include="plane.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="scene.cpp" />
+    <ClCompile Include="scenebvh.cpp" />
     <ClCompile Include="sphere.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="raytracer.cpp" />
+    <ClCompile Include="trianglebvh.cpp" />
+    <ClCompile Include="volumetricpathtracer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aabb.h" />
+    <ClInclude Include="BVH.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="material.h" />
+    <ClInclude Include="meshloader.h" />
     <ClInclude Include="meshobject.h" />
     <ClInclude Include="objloader.h" />
     <ClInclude Include="pathtracer.h" />
+    <ClInclude Include="perlinnoise.h" />
+    <ClInclude Include="photonmapping.h" />
     <ClInclude Include="plane.h" />
     <ClInclude Include="precomp.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="scenebvh.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="surface.h" />
     <ClInclude Include="template.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="raytracer.h" />
+    <ClInclude Include="trianglebvh.h" />
+    <ClInclude Include="volumetricpathtracer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
